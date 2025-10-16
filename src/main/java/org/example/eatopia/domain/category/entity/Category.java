@@ -26,7 +26,7 @@ public class Category extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PROTECTED)
     private Category(String name, Integer depth, Category parent) {
         this.name = name;
         this.depth = depth;

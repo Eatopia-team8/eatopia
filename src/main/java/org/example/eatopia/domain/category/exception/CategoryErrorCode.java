@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum CategoryErrorCode implements ErrorCode {
-    CTG_NAME_ALREADY_EXIST("CTG-001", HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름입니다.");
+    CTG_NAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "CTG-001", "이미 존재하는 카테고리 이름입니다.");
 
-    private final String code;
     private final HttpStatus httpStatus;
+    private final String code;
     private final String message;
 }
