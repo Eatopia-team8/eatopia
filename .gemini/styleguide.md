@@ -222,6 +222,7 @@ public ResponseEntity<PostListResponse> getPostsByPeriod(@RequestParam LocalDate
 
 // DTO, Entity의 경우
 public record UserResponse(
+
     @Size(max = 20)
     Long id,
     
