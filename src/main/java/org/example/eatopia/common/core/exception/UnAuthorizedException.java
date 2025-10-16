@@ -6,5 +6,4 @@ public class UnAuthorizedException extends GlobalException {
     public UnAuthorizedException(ErrorCode errorCode) {
         super(errorCode);
     }
-
 }
