@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record PaymentResponse(
-        Long paymentId,
+        Long id,
         Long orderId,
-        BigDecimal paymentPrice,
+        BigDecimal price,
         PaymentMethod paymentMethod,
         PaymentStatus paymentStatus,
         LocalDateTime createdAt,

@@ -37,7 +37,7 @@ public class Payment extends BaseEntity {
     private PaymentStatus status;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Payment(Order order, BigDecimal price, PaymentMethod method) {
+    private Payment(Order order, PaymentMethod method) {
         this.order = order;
         this.price = order.getFinalPrice();
         this.method = method;
