@@ -1,7 +1,7 @@
 ---
-name: 🚀 Feature
+name: 🚀 Feat
 about: 새로운 기능을 직접 개발할 때 사용하는 템플릿입니다.
-title: "feat/domain:content "
+title: "feat/domain:content"
 labels: [ "feature🚀" ]
 ---
 

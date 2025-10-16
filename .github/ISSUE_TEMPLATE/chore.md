@@ -1,7 +1,7 @@
 ---
 name: 🧹 Chore
 about: 빌드, 설정, 패키지 매니저 등 기능 외적인 작업에 대한 이슈 템플릿입니다.
-title: "chore/domain:content "
+title: "chore/domain:content"
 labels: [ "chore🧹" ]
 ---
 

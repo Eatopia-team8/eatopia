@@ -1,7 +1,7 @@
 ---
 name: 🎨 Style
 about: 코드 포맷팅, 세미콜론, 불필요한 import제거, 변수명 변경 등 기능에 영향을 주지 않는 스타일 변경 이슈 템플릿입니다.
-title: "style/domain:content "
+title: "style/domain:content"
 labels: [ "style🎨" ]
 ---
 
