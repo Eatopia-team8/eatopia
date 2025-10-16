@@ -13,22 +13,20 @@ import org.example.eatopia.domain.user.enttiy.User;
  * @param name     사용자 이름
  */
 public record UserSignUpRequest(
+        @NotBlank(message = "이메일은 필수 입력 항목입니다.")
+        @Email(message = "유효한 이메일 형식이 아닙니다.")
+        @Size(max = 50)
+        String email,
 
-    @NotBlank(message = "이메일은 필수 입력 항목입니다.")
-    @Email(message = "유효한 이메일 형식이 아닙니다.")
-    @Size(max = 50)
-    String email,
+        @NotBlank(message = "비밀번호는 필수 입력 항목입니다.")
+        @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
+        String password,
 
-    @NotBlank(message = "비밀번호는 필수 입력 항목입니다.")
-    @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
-    String password,
-
-    @NotBlank(message = "이름은 필수 입력 항목입니다.")
-    @Size(max = 30)
-    String name
+        @NotBlank(message = "이름은 필수 입력 항목입니다.")
+        @Size(max = 30)
+        String name
 
 ) {
-
     /**
      * 요청 DTO(UserSignUpRequest)를 User 엔티티로 변환합니다.
      *
@@ -38,9 +36,9 @@ public record UserSignUpRequest(
      */
     public static User toEntity(UserSignUpRequest request, String encodedPassword) {
         return User.signUp(
-            request.email(),
-            encodedPassword,
-            request.name()
+                request.email(),
+                encodedPassword,
+                request.name()
         );
     }
 }

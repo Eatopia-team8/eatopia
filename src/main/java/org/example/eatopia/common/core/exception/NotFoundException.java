@@ -6,5 +6,4 @@ public class NotFoundException extends GlobalException {
     public NotFoundException(ErrorCode errorCode) {
         super(errorCode);
     }
-
 }

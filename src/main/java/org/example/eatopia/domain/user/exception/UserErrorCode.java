@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
  */
 @Getter
 public enum UserErrorCode implements ErrorCode {
-
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USER-001", "이미 가입된 이메일입니다.");
 
     private final HttpStatus httpStatus;

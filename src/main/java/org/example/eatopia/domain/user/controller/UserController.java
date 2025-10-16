@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/v1/users")
 public class UserController {
-
     private final UserCommandService userCommandService;
 
     //회원가입 API

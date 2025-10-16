@@ -10,7 +10,6 @@ import org.example.eatopia.common.core.exception.errorcode.ErrorCode;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response<T> {
-
     private final boolean success;
     private final T data;
     private final ErrorResponse error;

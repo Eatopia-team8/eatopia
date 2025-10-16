@@ -30,17 +30,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorize -> authorize
-                // 회원가입 경로는 인증 없이 허용
-                .requestMatchers("/v1/users/signup").permitAll()
-                // 그 외 모든 요청은 인증 필요
-                .anyRequest().authenticated()
-            );
-
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        // 회원가입 경로는 인증 없이 허용
+                        .requestMatchers("/v1/users/signup").permitAll()
+                        // 그 외 모든 요청은 인증 필요
+                        .anyRequest().authenticated()
+                );
         return http.build();
     }
 }

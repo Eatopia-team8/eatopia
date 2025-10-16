@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum CommonErrorCode implements ErrorCode {
-
     // 4xx: 클라이언트 오류
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "COMMON-001", "요청 값이 유효하지 않습니다."),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "COMMON-002", "요청 본문 형식이 잘못되었습니다."),

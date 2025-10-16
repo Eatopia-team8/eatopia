@@ -1,7 +1,8 @@
 package org.example.eatopia.domain.user.dto;
 
-import java.time.LocalDateTime;
 import org.example.eatopia.domain.user.enttiy.User;
+
+import java.time.LocalDateTime;
 
 /**
  * 회원가입 성공 후 응답 정보를 담는 DTO
@@ -12,12 +13,11 @@ import org.example.eatopia.domain.user.enttiy.User;
  * @param createdAt 계정 생성 일시
  */
 public record UserSignUpResponse(
-    Long id,
-    String email,
-    String name,
-    LocalDateTime createdAt
+        Long id,
+        String email,
+        String name,
+        LocalDateTime createdAt
 ) {
-
     /**
      * User 엔티티를 응답 DTO(UserSignUpResponse)로 변환합니다.
      *
@@ -26,10 +26,10 @@ public record UserSignUpResponse(
      */
     public static UserSignUpResponse from(User user) {
         return new UserSignUpResponse(
-            user.getId(),
-            user.getEmail(),
-            user.getName(),
-            user.getCreatedAt()
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.getCreatedAt()
         );
     }
 }
