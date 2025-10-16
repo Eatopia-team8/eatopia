@@ -1,14 +1,15 @@
 package org.example.eatopia.domain.category.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 public class Category extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +26,7 @@ public class Category extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private Category(String name, Integer depth, Category parent) {
         this.name = name;
         this.depth = depth;
