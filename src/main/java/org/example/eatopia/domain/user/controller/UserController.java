@@ -2,7 +2,7 @@ package org.example.eatopia.domain.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.eatopia.common.core.dto.ApiResponse;
+import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.user.dto.UserSignUpRequest;
 import org.example.eatopia.domain.user.dto.UserSignUpResponse;
 import org.example.eatopia.domain.user.service.UserCommandService;
@@ -21,11 +21,10 @@ public class UserController {
 
     //회원가입 API
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<UserSignUpResponse>> signUp(
-        @Valid @RequestBody UserSignUpRequest request) {
+    public ResponseEntity<Response<UserSignUpResponse>> signUp(@Valid @RequestBody UserSignUpRequest request) {
         //중간변수를 활용하여 서비스 호출 및 결과받기
         UserSignUpResponse response = userCommandService.signUp(request);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(Response.success(response));
     }
 
 }

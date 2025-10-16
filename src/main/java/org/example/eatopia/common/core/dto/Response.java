@@ -9,36 +9,36 @@ import org.example.eatopia.common.core.exception.errorcode.ErrorCode;
  */
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse<T> {
+public class Response<T> {
 
     private final boolean success;
     private final T data;
     private final ErrorResponse error;
 
-    public ApiResponse(boolean success, T data, ErrorResponse error) {
+    public Response(boolean success, T data, ErrorResponse error) {
         this.success = success;
         this.data = data;
         this.error = error;
     }
 
     //성공응답(데이터 포함)
-    public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(true, data, null);
+    public static <T> Response<T> success(T data) {
+        return new Response<>(true, data, null);
     }
 
     //성공응답(데이터 미포함)
-    public static ApiResponse<Void> success() {
-        return new ApiResponse<>(true, null, null);
+    public static Response<Void> success() {
+        return new Response<>(true, null, null);
     }
 
     //실패응답(ErrorCode 사용)
-    public static ApiResponse<Void> error(ErrorCode errorCode) {
-        return new ApiResponse<>(false, null, new ErrorResponse(errorCode));
+    public static Response<Void> error(ErrorCode errorCode) {
+        return new Response<>(false, null, new ErrorResponse(errorCode.getCode(), errorCode.getMessage()));
     }
 
     //실패응답(코드, 메시지 직접 입력)
-    public static ApiResponse<Void> error(ErrorCode errorCode, String message) {
-        return new ApiResponse<>(false, null, new ErrorResponse(errorCode));
+    public static Response<Void> error(ErrorCode errorCode, String message) {
+        return new Response<>(false, null, new ErrorResponse(errorCode.getCode(), errorCode.getMessage()));
     }
 
     /**

@@ -20,7 +20,6 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    @Transactional
     public UserSignUpResponse signUp(UserSignUpRequest request) {
         // 이메일 중복 확인
         if (userRepository.findByEmail(request.email()).isPresent()) {

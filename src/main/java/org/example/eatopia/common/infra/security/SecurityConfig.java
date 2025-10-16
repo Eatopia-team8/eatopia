@@ -21,10 +21,11 @@ public class SecurityConfig {
     }
 
     /**
+     * Spring Security 필터 체인을 구성합니다.
      *
-     * @param http
-     * @return
-     * @throws Exception
+     * @param http HttpSecurity 인스턴스
+     * @return 구성된 SecurityFilterChain
+     * @throws Exception 설정 과정에서 발생하는 예외
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
