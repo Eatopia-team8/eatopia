@@ -67,7 +67,8 @@ public class Order extends BaseEntity {
     }
 
     public static Order create(Long userId, Long productId, Long sellerId, String code, BigDecimal totalProductPrice, BigDecimal discountProductPrice, BigDecimal totalDeliveryPrice, BigDecimal discountDeliveryPrice, BigDecimal finalPrice) {
-        return Order.builder().userId(userId)
+        return Order.builder()
+                .userId(userId)
                 .productId(productId)
                 .sellerId(sellerId)
                 .code(code)
