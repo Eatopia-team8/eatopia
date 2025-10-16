@@ -15,7 +15,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
 
-    private static final String[] WHITE_LIST = {"/", "/signup", "/login"};
+    private static final String[] WHITE_LIST = {"/", "/**/signup", "/**/login"};
 
     @Override
     public boolean preHandle(
