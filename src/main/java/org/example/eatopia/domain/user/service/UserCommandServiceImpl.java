@@ -60,7 +60,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         String jwt = jwtProvider.generateToken(authentication);
 
         // 5. 저장된 엔티티와 토큰을 포함하여 응답 DTO로 변환 후 반환
-        return UserSignUpResponse.from(savedUser, jwt);
+        return UserSignUpResponse.of(savedUser, jwt);
     }
 
     /**
@@ -93,7 +93,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 토큰 생성
         String jwt = jwtProvider.generateToken(authentication);
-        return UserLoginResponse.from(user, jwt);
+        return UserLoginResponse.of(user, jwt);
     }
 
 

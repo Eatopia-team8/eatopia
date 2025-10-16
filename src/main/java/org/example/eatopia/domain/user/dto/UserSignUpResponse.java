@@ -32,8 +32,8 @@ public record UserSignUpResponse(
      * @param token 발급된 JWT 토큰
      * @return UserSignUpResponse DTO
      */
-    // from 정적 팩토리 메소드 사용
-    public static UserSignUpResponse from(User user, String token) {
+    // of 정적 팩토리 메소드 사용
+    public static UserSignUpResponse of(User user, String token) {
         return new UserSignUpResponse(
                 user.getId(),
                 user.getEmail(),

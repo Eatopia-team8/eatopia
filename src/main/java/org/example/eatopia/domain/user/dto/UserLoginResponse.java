@@ -28,7 +28,7 @@ public record UserLoginResponse(
      * @param token 발급된 JWT 토큰
      * @return UserLoginResponse DTO
      */
-    public static UserLoginResponse from(User user, String token) {
+    public static UserLoginResponse of(User user, String token) {
         return new UserLoginResponse(
                 user.getId(),
                 user.getEmail(),
