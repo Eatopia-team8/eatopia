@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
  */
 @Getter
 public enum UserErrorCode implements ErrorCode {
-    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USER-001", "이미 가입된 이메일입니다.");
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USR-001", "이미 가입된 이메일입니다."),
+    UNAUTHORIZED_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USR-002", "이메일 또는 비밀번호가 일치하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

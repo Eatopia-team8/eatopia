@@ -57,14 +57,15 @@ public class User extends SoftDeleteEntity {
      * @param email    사용자 이메일
      * @param password 암호화된 비밀번호
      * @param name     사용자 이름
+     * @param userRole 요청받은 사용자 역할 (BUYER, SELLER, ADMIN)
      * @return 생성된 User 엔티티
      */
-    public static User signUp(String email, String password, String name) {
+    public static User signUp(String email, String password, String name, UserRole userRole) {
         return User.builder()
                 .email(email)
                 .password(password)
                 .name(name)
-                .userRole(UserRole.BUYER)
+                .userRole(userRole)
                 .build();
     }
 
