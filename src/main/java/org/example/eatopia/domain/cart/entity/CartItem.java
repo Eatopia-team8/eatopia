@@ -26,7 +26,7 @@ public class CartItem extends BaseEntity {
     @Column(nullable = false)
     private int quantity;
 
-    @Column(precision = 10, scale = 0, nullable = false)
+    @Column(precision = 10, nullable = false)
     private BigDecimal price;
 
     @Column(nullable = false)
