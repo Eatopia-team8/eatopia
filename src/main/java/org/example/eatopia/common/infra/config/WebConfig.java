@@ -1,4 +1,4 @@
-package org.example.eatopia.common.core.config;
+package org.example.eatopia.common.infra.config;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.interceptor.LoginInterceptor;

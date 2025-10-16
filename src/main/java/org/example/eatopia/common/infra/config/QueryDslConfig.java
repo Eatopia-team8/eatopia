@@ -1,4 +1,4 @@
-package org.example.eatopia.common.core.config;
+package org.example.eatopia.common.infra.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
