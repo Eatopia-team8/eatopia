@@ -1,18 +1,17 @@
-//package org.example.eatopia.common.infra.config;
-//
-//import lombok.RequiredArgsConstructor;
-//import org.example.eatopia.common.core.interceptor.LoginInterceptor;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-//import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-//
-//@Configuration
-//@RequiredArgsConstructor
-//public class WebConfig implements WebMvcConfigurer {
+package org.example.eatopia.common.infra.config;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+@RequiredArgsConstructor
+public class WebConfig implements WebMvcConfigurer {
 //    private final LoginInterceptor loginInterceptor;
-//
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-/// /        registry.addInterceptor(loginInterceptor).addPathPatterns("/**");
-//    }
-//}
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(loginInterceptor).addPathPatterns("/**");
+    }
+}
