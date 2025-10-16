@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * 설정 파일에서 시크릿 키와 만료 시간을 읽어와 JWT 관련 작업을 처리
  */
 @Component
+@Slf4j
 public class JwtProvider {
 
     @Value("${jwt.secret-key}")
@@ -100,38 +102,19 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    /**
-     * 토큰의 유효성을 검사
-     *
-     * @param token JWT 문자열
-     * @return 유효성 여부
-     */
-//    public boolean validateToken(String token) {
-//        // Jwts 파서를 사용하여 토큰의 유효성 검사 및 서명 확인
-//        try {
-//            Jwts.parser()
-//                    .setSigningKey(key)
-//                    .build()
-//                    .parseClaimsJws(token);
-//            return true;
-//        } catch (Exception e) {
-//            // 유효하지 않은 토큰, 만료된 토큰 등 예외 발생 시 false 반환
-//            return false;
-//        }
-//    }
     public boolean validateToken(String token) {
         // Jwts 파서를 사용하여 토큰의 유효성 검사 및 서명 확인
         try {
             Jwts.parser().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            // log.info("잘못된 JWT 서명입니다.");
+            log.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
-            // log.info("만료된 JWT 토큰입니다.");
+            log.info("만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            // log.info("지원되지 않는 JWT 토큰입니다.");
+            log.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            // log.info("JWT 토큰이 잘못되었습니다.");
+            log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
     }
