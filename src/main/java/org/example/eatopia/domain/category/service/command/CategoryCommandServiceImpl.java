@@ -51,9 +51,19 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
         // 수정 대상 확인
         Category category = categoryQueryService.getCategoryOrElseThrow(categoryId);
 
-        Category newParent = categoryValidator.validateUpdateRequest(category, request);
+        categoryValidator.validateUpdateName(request.name());
 
-        category.update(request.name(), newParent);
+        Category newParent = categoryValidator.validateUpdateParentId(category, request.parentId());
+
+        // 이름 업데이트
+        if (request.name() != null) {
+            category.updateName(request.name());
+        }
+
+        // parentId
+        if (newParent != null) {
+            category.updateParentId(newParent);
+        }
 
         return CategoryResponse.from(category);
     }

@@ -44,14 +44,15 @@ public class Category extends BaseEntity {
                 .build();
     }
 
-    // 수정
-    public void update(String name, Category parent) {
+    // 이름 변경
+    public void updateName(String name) {
         if (name != null) {
             this.name = name;
         }
-        if (parent != this) {
-            this.parent = parent;
-            this.depth = (parent == null) ? 1 : 2;
-        }
+    }
+
+    // 부모 변경
+    public void updateParentId(Category parent) {
+        this.parent = parent;
     }
 }
