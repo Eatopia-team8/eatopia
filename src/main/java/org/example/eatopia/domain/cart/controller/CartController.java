@@ -5,10 +5,12 @@ import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.auth.dto.AuthUser;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
+import org.example.eatopia.domain.cart.dto.response.CartResponse;
 import org.example.eatopia.domain.cart.service.command.CartCommandService;
 import org.example.eatopia.domain.cart.service.query.CartQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,5 +28,12 @@ public class CartController {
 
         CartCreateResponse createCartItem = cartCommandService.createCartItem(authUser.getId(), request);
         return ResponseEntity.ok(Response.success(createCartItem));
+    }
+
+    @GetMapping("/v1/carts")
+    public ResponseEntity<Response<CartResponse>> getCart(@AuthenticationPrincipal AuthUser authUser) {
+
+        CartResponse cartResponse = cartQueryService.getCartByUser(authUser.getId());
+        return ResponseEntity.ok(Response.success(cartResponse));
     }
 }
