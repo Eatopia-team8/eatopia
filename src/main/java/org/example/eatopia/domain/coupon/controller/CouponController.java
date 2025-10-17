@@ -9,9 +9,7 @@ import org.example.eatopia.domain.coupon.service.command.CouponCommandService;
 import org.example.eatopia.domain.coupon.service.query.CouponQueryService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +23,14 @@ public class CouponController {
                                                  @AuthenticationPrincipal UserDetails userAuth) {
 
         CouponResponse response = couponCommandService.createCoupon(request);
+
+        return Response.success(response);
+    }
+
+    @GetMapping("/v1/coupons/{couponId}")
+    public Response<CouponResponse> getCoupon(@PathVariable Long couponId) {
+
+        CouponResponse response = couponQueryService.getCoupon(couponId);
 
         return Response.success(response);
     }

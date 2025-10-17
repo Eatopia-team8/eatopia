@@ -21,8 +21,10 @@ public record CouponResponse(
         Boolean isPercent,
         BigDecimal discountValue,
         BigDecimal maxDiscountAmount,
-        BigDecimal minOrderAmount) {
-
+        BigDecimal minOrderAmount,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
 
     public static CouponResponse from(Coupon coupon) {
 
@@ -42,7 +44,9 @@ public record CouponResponse(
                 coupon.getPercent(),
                 coupon.getDiscountValue(),
                 coupon.getMaxDiscountAmount(),
-                coupon.getMinOrderAmount()
+                coupon.getMinOrderAmount(),
+                coupon.getCreatedAt(),
+                coupon.getUpdatedAt()
         );
     }
 }
