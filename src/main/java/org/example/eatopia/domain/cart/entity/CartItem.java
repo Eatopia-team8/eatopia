@@ -2,6 +2,7 @@ package org.example.eatopia.domain.cart.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
@@ -17,18 +18,38 @@ public class CartItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long cartId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cartId;
 
-    @Column(nullable = false)
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
-    @Column(nullable = false)
+    @Column(name = "quantity", nullable = false)
     private int quantity;
 
-    @Column(precision = 10, nullable = false)
+    @Column(name = "price", precision = 10, nullable = false)
     private BigDecimal price;
 
-    @Column(nullable = false)
+    @Column(name = "is_selected", nullable = false)
     private boolean isSelected;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private CartItem(Cart cartId, Long productId, int quantity, BigDecimal price, boolean isSelected) {
+        this.cartId = cartId;
+        this.productId = productId;
+        this.quantity = quantity;
+        this.price = price;
+        this.isSelected = isSelected;
+    }
+
+    public static CartItem create(Cart cart, Long productId, int quantity, BigDecimal price) {
+        return CartItem.builder()
+                .cartId(cart)
+                .productId(productId)
+                .quantity(quantity)
+                .price(price)
+                .isSelected(true)
+                .build();
+    }
 }
