@@ -12,7 +12,9 @@ public record CategoryResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
+
     public static CategoryResponse from(Category category) {
+
         return new CategoryResponse(
                 category.getId(),
                 category.getName(),
