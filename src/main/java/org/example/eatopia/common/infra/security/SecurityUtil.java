@@ -1,8 +1,8 @@
 package org.example.eatopia.common.infra.security;
 
 import org.example.eatopia.common.core.exception.GlobalException;
-import org.example.eatopia.common.core.exception.errorcode.CommonErrorCode;
 import org.example.eatopia.domain.auth.dto.AuthUser;
+import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +32,7 @@ public class SecurityUtil {
 
         // 2. 인증 정보가 없거나 익명 사용자일 경우 예외 처리
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            throw new GlobalException(CommonErrorCode.UNAUTHORIZED);
+            throw new GlobalException(AuthErrorCode.UNAUTHORIZED);
         }
 
         //3. Principal(인증주체) 객체가 AuthUser타입인지 확인하고 반환

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class AuthCommandServiceImpl implements AuthCommandService {
+    
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;

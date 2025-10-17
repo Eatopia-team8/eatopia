@@ -27,8 +27,10 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<Response<AuthLoginResponse>> login(@Valid @RequestBody AuthLoginRequest request) {
+
         //중간변수를 활용하여 서비스 호출 및 결과받기
         AuthLoginResponse response = authCommandService.login(request);
+        
         //공통응답포맷에 맞춰 성공응답반환
         return ResponseEntity.ok(Response.success(response));
     }

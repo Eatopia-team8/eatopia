@@ -39,9 +39,7 @@ public class UserController {
      * @return AuthUserResponse DTO (ID, Name, Email, Role 포함)
      */
     @GetMapping("userInfo")
-    public ResponseEntity<Response<AuthUserResponse>> getCurrentUserInfo(
-            @AuthenticationPrincipal AuthUser authUser
-    ) {
+    public ResponseEntity<Response<AuthUserResponse>> getCurrentUserInfo(@AuthenticationPrincipal AuthUser authUser) {
         AuthUserResponse response = AuthUserResponse.from(authUser);
         return ResponseEntity.ok(Response.success(response));
     }

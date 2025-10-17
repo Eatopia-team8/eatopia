@@ -16,7 +16,7 @@ import org.example.eatopia.common.core.entity.SoftDeleteEntity;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "auth_tokens")
-public class AuthToken extends SoftDeleteEntity {
+public class RefreshToken extends SoftDeleteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class AuthToken extends SoftDeleteEntity {
     private String refreshToken;
 
     @Builder
-    private AuthToken(Long userId, String refreshToken) {
+    private RefreshToken(Long userId, String refreshToken) {
         this.userId = userId;
         this.refreshToken = refreshToken;
     }
@@ -38,8 +38,8 @@ public class AuthToken extends SoftDeleteEntity {
     /**
      * 리프레시 토큰 정보를 생성하는 정적 팩토리 메소드.
      */
-    public static AuthToken create(Long userId, String refreshToken) {
-        return AuthToken.builder()
+    public static RefreshToken create(Long userId, String refreshToken) {
+        return RefreshToken.builder()
                 .userId(userId)
                 .refreshToken(refreshToken)
                 .build();
