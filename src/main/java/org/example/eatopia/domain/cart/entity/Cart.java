@@ -19,7 +19,7 @@ public class Cart extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @OneToMany(mappedBy = "cartId", cascade = CascadeType.ALL, orphanRemoval = true)

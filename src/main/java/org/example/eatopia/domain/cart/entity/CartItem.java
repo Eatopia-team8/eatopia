@@ -22,16 +22,16 @@ public class CartItem extends BaseEntity {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cartId;
 
-    @Column(nullable = false)
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
-    @Column(nullable = false)
+    @Column(name = "quantity", nullable = false)
     private int quantity;
 
-    @Column(precision = 10, nullable = false)
+    @Column(name = "price", precision = 10, nullable = false)
     private BigDecimal price;
 
-    @Column(nullable = false)
+    @Column(name = "is_selected", nullable = false)
     private boolean isSelected;
 
     @Builder(access = AccessLevel.PRIVATE)
