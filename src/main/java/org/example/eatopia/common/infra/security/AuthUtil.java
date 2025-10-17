@@ -10,7 +10,7 @@ import java.util.Collections;
 /**
  * JWT 토큰 생성에 필요한 Spring Security Authentication 객체를 생성하는 유틸리티.
  * <p>
- * User 엔티티를 받아 Authentication 객체를 생성하는 중복 코드를 처리합니다.
+ * User 엔티티를 받아 Authentication 객체를 생성하는 중복 코드를 처리
  */
 public class AuthUtil {
     private AuthUtil() {
@@ -18,10 +18,10 @@ public class AuthUtil {
     }
 
     /**
-     * User 엔티티를 기반으로 JWT 생성에 필요한 Authentication 객체를 생성합니다.
+     * User 엔티티를 기반으로 JWT 생성에 필요한 Authentication 객체를 생성
      * <p>
-     * Principal로 User ID(String)를 사용합니다. 이 객체는 **JWT 생성에 필요한 클레임 데이터**를 담는 용도로 사용되며,
-     * 실제 시스템 인증은 JwtAuthenticationToken이 담당합니다.
+     * Principal로 User ID(String)를 사용 이 객체는 **JWT 생성에 필요한 클레임 데이터**를 담는 용도로 사용됨
+     * 실제 시스템 인증은 JwtAuthenticationToken이 담당
      *
      * @param user User 엔티티
      * @return Authentication 객체 (인증 전 상태)

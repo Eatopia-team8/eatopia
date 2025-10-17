@@ -24,7 +24,7 @@ public record AuthLoginResponse(
         String token
 ) {
     /**
-     * User 엔티티와 발급된 JWT 토큰을 응답 DTO로 변환합니다.
+     * User 엔티티와 발급된 JWT 토큰을 응답 DTO로 변환
      *
      * @param user  User 엔티티
      * @param token 발급된 JWT 토큰
