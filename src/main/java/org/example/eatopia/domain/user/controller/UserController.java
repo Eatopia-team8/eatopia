@@ -39,7 +39,7 @@ public class UserController {
     /**
      * 전체 사용자 목록을 조회 (페이지네이션 적용)
      */
-    @GetMapping
+    @GetMapping("allUsers")
     public ResponseEntity<Response<Page<UserDetailResponse>>> getAllUsers(
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
 
