@@ -10,6 +10,7 @@ import org.example.eatopia.domain.user.config.UserRole;
 
 /**
  * 시스템의 사용자 정보를 나타내는 엔티티
+ * (사용자 속성 및 관리 책임)
  */
 @Entity
 @Getter
@@ -37,7 +38,7 @@ public class User extends SoftDeleteEntity {
     private String email;
 
     @Column(nullable = false, length = 100)
-    private String password;
+    private String password; // 암호화된 비밀번호 저장
 
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
@@ -52,13 +53,8 @@ public class User extends SoftDeleteEntity {
     }
 
     /**
-     * 회원가입 비즈니스 로직을 처리하는 정적 팩토리 메서드. 사용자를 생성하며 기본 역할(BUYER)을 부여
-     *
-     * @param email    사용자 이메일
-     * @param password 암호화된 비밀번호
-     * @param name     사용자 이름
-     * @param userRole 요청받은 사용자 역할 (BUYER, SELLER, ADMIN)
-     * @return 생성된 User 엔티티
+     * 회원가입 비즈니스 로직을 처리하는 정적 팩토리 메서드.
+     * (Auth 도메인 서비스에서 호출됨)
      */
     public static User signUp(String email, String password, String name, UserRole userRole) {
         return User.builder()
@@ -71,12 +67,8 @@ public class User extends SoftDeleteEntity {
 
     /**
      * 사용자의 비밀번호를 변경하는 비즈니스 메서드.
-     *
-     * @param password 변경할 새 비밀번호 (암호화된 상태)
      */
     public void updatePassword(String password) {
         this.password = password;
     }
-
-
 }

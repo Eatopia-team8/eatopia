@@ -9,8 +9,7 @@ import org.example.eatopia.common.core.entity.SoftDeleteEntity;
 
 /**
  * Refresh Token 정보를 저장하는 엔티티.
- * <p>
- * 장기간 사용자 세션을 유지하고 Access Token 재발급을 위해 사용
+ * (인증/보안 책임)
  */
 @Entity
 @Getter
@@ -22,14 +21,14 @@ public class RefreshToken extends SoftDeleteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 사용자 엔티티와의 1:1 관계 또는 사용자 ID (PK)를 저장
+    // 사용자 ID (PK)를 저장하여 User 엔티티와 연결
     @Column(nullable = false, unique = true)
     private Long userId;
 
     @Column(nullable = false, length = 500)
     private String refreshToken;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE) // 빌더 접근 제어자 지정
     private RefreshToken(Long userId, String refreshToken) {
         this.userId = userId;
         this.refreshToken = refreshToken;

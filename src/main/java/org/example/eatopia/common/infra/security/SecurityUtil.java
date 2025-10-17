@@ -1,8 +1,8 @@
 package org.example.eatopia.common.infra.security;
 
 import org.example.eatopia.common.core.exception.GlobalException;
-import org.example.eatopia.domain.auth.dto.AuthUser;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +26,7 @@ public class SecurityUtil {
      * @return 현재 로그인된 AuthUser 객체
      * @throws GlobalException 인증 정보가 Security Context에 없을 경우 발생
      */
-    public static AuthUser getAuthUser() {
+    public static UserPrincipal getAuthUser() {
         // 1. SecurityContext에서 Authentication객체 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -37,8 +37,8 @@ public class SecurityUtil {
 
         //3. Principal(인증주체) 객체가 AuthUser타입인지 확인하고 반환
         Object principal = authentication.getPrincipal();
-        if (principal instanceof AuthUser) {
-            return (AuthUser) principal;
+        if (principal instanceof UserPrincipal) {
+            return (UserPrincipal) principal;
         } else {
             throw new RuntimeException("현재 Principal 객체가 예상된 AuthUser 타입이 아닙니다.");
         }

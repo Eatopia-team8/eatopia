@@ -1,6 +1,6 @@
 package org.example.eatopia.common.infra.security;
 
-import org.example.eatopia.domain.auth.dto.AuthUser;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -13,10 +13,10 @@ import java.util.Collection;
  */
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
-    private final AuthUser principal;
+    private final UserPrincipal principal;
     private final String token;
 
-    public JwtAuthenticationToken(AuthUser principal, String token, Collection<? extends GrantedAuthority> authorities) {
+    public JwtAuthenticationToken(UserPrincipal principal, String token, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.token = token;

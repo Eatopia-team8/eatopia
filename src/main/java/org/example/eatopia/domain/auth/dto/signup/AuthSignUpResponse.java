@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.user.dto;
+package org.example.eatopia.domain.auth.dto.signup;
 
 import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.enttiy.User;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * @param role      사용자 권한
  * @param token     발급된 JWT 토큰 (회원가입 후 바로 발급)
  */
-public record UserSignUpResponse(
+public record AuthSignUpResponse(
         Long id,
         String email,
         String name,
@@ -33,8 +33,8 @@ public record UserSignUpResponse(
      * @return UserSignUpResponse DTO
      */
     // of 정적 팩토리 메소드 사용
-    public static UserSignUpResponse of(User user, String token) {
-        return new UserSignUpResponse(
+    public static AuthSignUpResponse of(User user, String token) {
+        return new AuthSignUpResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
