@@ -37,4 +37,14 @@ public class CategoryController {
 
         return ResponseEntity.ok(Response.success(response));
     }
+
+    // 카테고리 삭제
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/v1/categories/{categoryId}")
+    public ResponseEntity<Response<Void>> deleteCategory(@PathVariable Long categoryId) {
+
+        categoryCommandService.deleteCategory(categoryId);
+
+        return ResponseEntity.ok(Response.success(null));
+    }
 }

@@ -5,6 +5,8 @@ import org.example.eatopia.domain.category.dto.request.CategoryCreateRequest;
 import org.example.eatopia.domain.category.dto.request.CategoryUpdateRequest;
 import org.example.eatopia.domain.category.dto.response.CategoryResponse;
 import org.example.eatopia.domain.category.entity.Category;
+import org.example.eatopia.domain.category.exception.CategoryErrorCode;
+import org.example.eatopia.domain.category.exception.CategoryException;
 import org.example.eatopia.domain.category.repository.CategoryRepository;
 import org.example.eatopia.domain.category.service.query.CategoryQueryService;
 import org.example.eatopia.domain.category.validator.CategoryValidator;
@@ -54,5 +56,19 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
         category.update(request.name(), newParent);
 
         return CategoryResponse.from(category);
+    }
+
+    // 카테고리 삭제
+    @Override
+    public void deleteCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CTG_ID_NOT_FOUND));
+
+        // 하위 카테고리가 있는지 확인
+        if (categoryRepository.existsByParentId(categoryId)) {
+            throw new CategoryException(CategoryErrorCode.CTG_HAS_CHILDREN);
+        }
+
+        categoryRepository.delete(category);
     }
 }
