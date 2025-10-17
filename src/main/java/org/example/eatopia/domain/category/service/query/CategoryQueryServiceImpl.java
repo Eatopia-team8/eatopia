@@ -32,13 +32,11 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
             return List.of();
         }
 
-        List<Category> parents = allCategories.stream()
-                .filter(c -> c.getParent() == null)
-                .toList();
+        Map<Boolean, List<Category>> partitionedCategories = allCategories.stream()
+                .collect(Collectors.partitioningBy(c -> c.getParent() == null));
 
-        List<Category> children = allCategories.stream()
-                .filter(c -> c.getParent() != null)
-                .toList();
+        List<Category> parents = partitionedCategories.get(true);
+        List<Category> children = partitionedCategories.get(false);
 
         return buildHierarchy(parents, children);
     }
