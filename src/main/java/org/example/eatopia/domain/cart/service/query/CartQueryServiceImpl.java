@@ -27,7 +27,7 @@ public class CartQueryServiceImpl implements CartQueryService {
 
         Cart cart = getCart(userId);
 
-        List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart);
+        List<CartItem> cartItems = cartItemRepository.findAllByCart(cart);
 
         // TODO: 추후 상품명 컬럼 추가
         // 상품 이름은 임시로 "상품명"으로 처리
