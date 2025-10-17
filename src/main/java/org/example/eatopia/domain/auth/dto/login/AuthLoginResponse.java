@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.auth.dto;
+package org.example.eatopia.domain.auth.dto.login;
 
 import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.enttiy.User;

@@ -30,7 +30,8 @@ public class GlobalExceptionHandler {
                         ErrorResponseDto.of(
                                 errorCode.getHttpStatus().value(),
                                 errorCode.getCode(),
-                                errorCode.getMessage(),
+                                // 💡 수정: GlobalException 내부에서 포맷팅된 메시지(ID 포함)를 사용합니다.
+                                ex.getMessage(),
                                 request.getRequestURI()
                         )
                 );

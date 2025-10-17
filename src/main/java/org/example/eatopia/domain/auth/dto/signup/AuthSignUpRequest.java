@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.user.dto;
+package org.example.eatopia.domain.auth.dto.signup;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ import org.example.eatopia.domain.user.enttiy.User;
  * @param password 사용자 비밀번호
  * @param name     사용자 이름
  */
-public record UserSignUpRequest(
+public record AuthSignUpRequest(
         @NotBlank(message = "이메일은 필수 입력 항목입니다.")
         @Email(message = "유효한 이메일 형식이 아닙니다.")
         @Size(max = 50)
@@ -42,7 +42,7 @@ public record UserSignUpRequest(
      * @return User 엔티티
      */
     // toEntity 정적 팩토리 메소드 사용
-    public static User toEntity(UserSignUpRequest request, String encodedPassword, UserRole role) {
+    public static User toEntity(AuthSignUpRequest request, String encodedPassword, UserRole role) {
         return User.signUp(
                 request.email(),
                 encodedPassword,

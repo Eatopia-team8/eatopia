@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.auth.dto;
+package org.example.eatopia.domain.auth.dto.login;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
