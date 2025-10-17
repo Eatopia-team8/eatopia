@@ -2,6 +2,7 @@ package org.example.eatopia.domain.category.service.command;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.category.dto.request.CategoryCreateRequest;
+import org.example.eatopia.domain.category.dto.request.CategoryUpdateRequest;
 import org.example.eatopia.domain.category.dto.response.CategoryResponse;
 import org.example.eatopia.domain.category.entity.Category;
 import org.example.eatopia.domain.category.repository.CategoryRepository;
@@ -36,5 +37,22 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
         newCategory = categoryRepository.save(newCategory);
 
         return CategoryResponse.from(newCategory);
+    }
+
+    /**
+     * 카테고리 수정
+     * depth1 카테고리는 parentId 수정 불가
+     * depth2 카테고리는 parentId 수정 가능 (다른 카테고리로 이동 가능)
+     */
+    @Override
+    public CategoryResponse updateCategory(Long categoryId, CategoryUpdateRequest request) {
+        // 수정 대상 확인
+        Category category = categoryQueryService.getCategoryOrElseThrow(categoryId);
+
+        Category newParent = categoryValidator.validateUpdateRequest(category, request);
+
+        category.update(request.name(), newParent);
+
+        return CategoryResponse.from(category);
     }
 }
