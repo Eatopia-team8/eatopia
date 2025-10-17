@@ -33,21 +33,21 @@ public record UserSignUpRequest(
 
 ) {
     /**
-     * 요청 DTO(UserSignUpRequest)를 User 엔티티로 변환합니다.
+     * 요청 DTO(UserSignUpRequest)를 User 엔티티로 변환
      * <p>
-     * 암호화된 비밀번호를 주입받아 User 엔티티의 정적 팩토리 메소드(`signUp`)를 호출합니다.
+     * 암호화된 비밀번호를 주입받아 User 엔티티의 정적 팩토리 메소드(`signUp`)를 호출
      *
      * @param request         회원가입 요청 DTO
      * @param encodedPassword 암호화된 비밀번호
      * @return User 엔티티
      */
     // toEntity 정적 팩토리 메소드 사용
-    public static User toEntity(UserSignUpRequest request, String encodedPassword) {
+    public static User toEntity(UserSignUpRequest request, String encodedPassword, UserRole role) {
         return User.signUp(
                 request.email(),
                 encodedPassword,
                 request.name(),
-                request.role()
+                role
         );
     }
 }

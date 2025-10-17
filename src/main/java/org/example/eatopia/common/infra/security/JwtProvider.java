@@ -5,12 +5,13 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.example.eatopia.common.core.dto.JwtPayload;
+import org.example.eatopia.domain.auth.dto.AuthUser;
+import org.example.eatopia.domain.user.config.UserRole;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -28,52 +29,48 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtProvider {
 
+    private final long tokenValidityInMilliseconds;
     @Value("${jwt.secret-key}")
     private String secretKey;
-
     @Value("${jwt.access-token-expiration-milliseconds}")
     private long accessTokenExpirationMs;
-
     private Key key;
+
+    public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
+                       @Value("${jwt.access-token-expiration-milliseconds}") long tokenValidity) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.tokenValidityInMilliseconds = tokenValidity;
+    }
 
     /**
      * JWT 시크릿 키를 Base64 디코딩하여 Key 객체로 초기화
      */
     @PostConstruct
     public void init() {
-        // 시크릿 키를 Base64 디코딩
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        // Key 객체 생성
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * Authentication 객체로부터 JWT 액세스 토큰을 생성
-     *
-     * @param authentication 인증 객체
-     * @return JWT 문자열
-     */
-    public String generateToken(Authentication authentication) {
-        // 권한 정보를 문자열로 변환 (예: ROLE_BUYER,ROLE_SELLER)
-        String authorities = authentication.getAuthorities().stream()
+    public String createToken(JwtPayload payload) {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+
+        String authorities = payload.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        long now = (new Date()).getTime();
-        // 토큰 만료 시간 설정
-        Date accessTokenExpiresIn = new Date(now + accessTokenExpirationMs);
-
-        // JWT 빌더를 사용하여 토큰 생성
         return Jwts.builder()
-                .setSubject(authentication.getName()) // 토큰 제목 (일반적으로 사용자 ID)
-                .claim("auth", authorities)          // 사용자 권한 정보
-                .setExpiration(accessTokenExpiresIn) // 만료 시간
-                .signWith(key)                       // 서명
-                .compact();                          // 토큰 생성
+                .setSubject(payload.getUserId().toString()) // 사용자 ID를 Subject로 사용
+                .claim("auth", authorities)                 // 권한 정보
+                .claim("email", payload.getEmail())         // 추가 정보 (필요시)
+                .signWith(key, SignatureAlgorithm.HS512)    // 서명
+                .setExpiration(validity)                    // 만료 시간
+                .compact();
     }
 
     /**
-     * JWT 토큰에서 인증 정보를 추출
+     * JWT 토큰에서 인증 정보를 추출하고 AuthUser 객체를 Principal로 설정
      *
      * @param token JWT 문자열
      * @return 인증 객체 (Authentication)
@@ -82,49 +79,85 @@ public class JwtProvider {
         // 토큰에서 클레임(Claims) 추출
         Claims claims = parseClaims(token);
 
+        if (claims == null) {
+            return null;
+        }
+
         // JWT claims에서 권한(auth) 정보를 추출
         Object authClaim = claims.get("auth");
         if (authClaim == null) {
-            throw new IllegalArgumentException("JWT에 권한 정보가 없습니다.");
+            log.warn("JWT에 권한 정보가 없습니다.");
+            return null; // 권한 없으면 인증 실패 처리
         }
+        try {
+            // 1. Claims에서 필요한 정보 추출 및 변환
+            Long userId = Long.parseLong(claims.getSubject());
+            String userEmail = (String) claims.get("email");
+            String userName = (String) claims.get("name");
 
-        // 권한 문자열을 SimpleGrantedAuthority 객체 컬렉션으로 변환
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(authClaim.toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+            // 2. 권한 정보 변환 (Spring Security 내부용)
+            Collection<? extends GrantedAuthority> authorities =
+                    Arrays.stream(authClaim.toString().split(","))
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
 
+            // 3. UserRole Enum 추출
+            String authorityStr = authorities.iterator().next().getAuthority();
+            // ROLE_ 접두사 제거
+            String roleName = authorityStr.substring(authorityStr.indexOf('_') + 1);
+            UserRole userRole = UserRole.valueOf(roleName);
 
-        // Spring Security의 User 객체를 생성 (인증 주체: Principal)
-        User principal = new User(claims.getSubject(), "", authorities);
+            // 4. 커스텀 AuthUser 객체를 생성 (인증 주체: Principal)
+            AuthUser principal = new AuthUser(userId, userEmail, userName, userRole);
 
-        // 인증 토큰 반환
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+            // 5. 인증 토큰 반환
+            return new JwtAuthenticationToken(principal, token, authorities); // JwtAuthenticationToken 반환
+
+        } catch (IllegalArgumentException e) {
+            // JWT 클레임의 형식 변환 중 오류 발생 시 처리
+            log.error("JWT 클레임 처리 중 형식 변환 오류 발생: {}", e.getMessage());
+            return null;
+        } catch (RuntimeException e) {
+            // 예상치 못한 기타 런타임 오류
+            log.error("JWT 클레임 처리 중 예상치 못한 런타임 오류 발생: {}", e.getMessage());
+            return null;
+        }
     }
 
+    /**
+     * 토큰 유효성 검사 (로그 출력)
+     *
+     * @param token JWT 문자열
+     * @return 유효성 여부
+     */
     public boolean validateToken(String token) {
-        // Jwts 파서를 사용하여 토큰의 유효성 검사 및 서명 확인
         try {
-            Jwts.parser().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parser()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            log.info("잘못된 JWT 서명입니다: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            log.info("만료된 JWT 토큰입니다: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            log.info("지원되지 않는 JWT 토큰입니다: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            log.info("JWT 토큰이 잘못되었습니다: {}", e.getMessage());
         }
         return false;
     }
 
-    // JWT 토큰에서 Claims(본문)를 파싱하여 추출
     private Claims parseClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (JwtException e) {
+            return null;
+        }
     }
 }
