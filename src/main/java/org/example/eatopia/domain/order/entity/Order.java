@@ -40,13 +40,13 @@ public class Order extends BaseEntity {
     private BigDecimal totalProductPrice;
 
     @Column(nullable = false)
-    private BigDecimal discountProductPrice;
+    private BigDecimal discountProductPrice = BigDecimal.ZERO;
 
     @Column(nullable = false)
     private BigDecimal totalDeliveryPrice;
 
     @Column(nullable = false)
-    private BigDecimal discountDeliveryPrice;
+    private BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
 
     @Column(nullable = false)
     private BigDecimal finalPrice;

@@ -17,18 +17,21 @@ import java.util.UUID;
 @Transactional
 public class OrderCommandServiceImpl implements OrderCommandService {
 
+    // private final ProductQueryService productQueryService; //product 구현되면 추가 현재는 임의의 값으로 구현
+    private static final BigDecimal TEMPORARY_PRODUCT_PRICE = new BigDecimal("10000");
+    private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000");
+    private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
     private final OrderRepository orderRepository;
     private final OrderValidator orderValidator;
-    // private final ProductQueryService productQueryService; //product 구현되면 추가 현재는 임의의 값으로 구현
 
     @Override
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
         orderValidator.orderCreateValidate(request);
         //payment 구현을 위해 임시로 값 설정
-        BigDecimal totalProductPrice = new BigDecimal("10000");
-        BigDecimal totalDeliveryPrice = new BigDecimal("3000");
-        BigDecimal discountProductPrice = BigDecimal.ZERO;
-        BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
+        BigDecimal totalProductPrice = TEMPORARY_PRODUCT_PRICE;
+        BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
+        BigDecimal discountProductPrice = DEFAULT_DISCOUNT_PRICE;
+        BigDecimal discountDeliveryPrice = DEFAULT_DISCOUNT_PRICE;
 
         // 최종 결제 금액 계산
         BigDecimal finalPrice = totalProductPrice

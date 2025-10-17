@@ -14,10 +14,6 @@ public class OrderValidator {
     private final OrderRepository orderRepository;
 
     public void orderCreateValidate(OrderCreateRequest request) {
-        if (request == null) {
-            throw new GlobalException(OrderErrorCode.INVALID_ORDER_REQUEST);
-        }
-
         if (request.productId() == null) {
             throw new GlobalException(OrderErrorCode.PRODUCT_ID_REQUIRED);
         }
