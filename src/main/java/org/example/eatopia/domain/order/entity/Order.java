@@ -39,15 +39,14 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal totalProductPrice;
 
-    //나중에 계산하기 쉽게 초기에 설정
     @Column(nullable = false)
-    private BigDecimal discountProductPrice = BigDecimal.ZERO;
+    private BigDecimal discountProductPrice;
 
     @Column(nullable = false)
     private BigDecimal totalDeliveryPrice;
 
     @Column(nullable = false)
-    private BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
+    private BigDecimal discountDeliveryPrice;
 
     @Column(nullable = false)
     private BigDecimal finalPrice;
