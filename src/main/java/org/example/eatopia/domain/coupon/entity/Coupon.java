@@ -71,6 +71,7 @@ public class Coupon extends SoftDeleteEntity {
     private Integer totalQuantity;
 
     @Min(0)
+    @NotNull
     @Column(name = "issued_quantity", nullable = false, columnDefinition = "int default 0")
     private Integer issuedQuantity;
 

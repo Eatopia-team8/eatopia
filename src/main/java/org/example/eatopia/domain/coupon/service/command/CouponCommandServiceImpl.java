@@ -9,12 +9,15 @@ import org.example.eatopia.domain.coupon.validator.CouponValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CouponCommandServiceImpl implements CouponCommandService {
+
+    // 상수
+    private static final String CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final int CODE_LENGTH = 8;
+    private static final java.security.SecureRandom RANDOM = new java.security.SecureRandom();
 
     private final CouponRepository couponRepository;
     private final CouponValidator couponValidator;
@@ -40,18 +43,19 @@ public class CouponCommandServiceImpl implements CouponCommandService {
     // 헬퍼메서드
     private String generateUniqueCode() {
 
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        Random random = new Random();
         String code;
 
         do {
             StringBuilder sb = new StringBuilder(8);
 
             for (int i = 0; i < 8; i++) {
-                sb.append(chars.charAt(random.nextInt(chars.length())));
+                sb.append(CODE_CHARS.charAt(RANDOM.nextInt(CODE_CHARS.length())));
             }
             code = sb.toString();
-        } while (couponRepository.existsByCode(code)); // 중복 시 재시도
+
+        } while (// 중복 시 재시도
+                couponRepository.existsByCode(code)
+        );
 
         return code;
     }

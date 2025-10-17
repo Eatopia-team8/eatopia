@@ -33,10 +33,6 @@ public record CouponCreateRequest(
         @Min(value = 0, message = "총 발급 수량은 0 이상이어야 합니다.")
         Integer totalQuantity,
 
-        Integer issuedQuantity,
-
-        Integer remainingQuantity,
-
         @NotNull(message = "할인 형태는 필수입니다.")
         Boolean isPercent,
 
@@ -71,11 +67,5 @@ public record CouponCreateRequest(
         if (usageLimit == null) {
             usageLimit = 1;
         }
-
-        // 수량 관련
-        if (totalQuantity == null) {
-            totalQuantity = 0;
-        }
-        remainingQuantity = totalQuantity;
     }
 }
