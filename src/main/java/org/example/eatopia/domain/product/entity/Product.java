@@ -35,7 +35,7 @@ public class Product extends BaseEntity {
     private Long stock;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 20, scale = 0)
     private ProductStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
