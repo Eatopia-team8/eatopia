@@ -5,6 +5,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.example.eatopia.common.core.dto.JwtPayload;
 import org.example.eatopia.domain.auth.dto.AuthUser;
 import org.example.eatopia.domain.user.config.UserRole;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +29,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtProvider {
 
+    private final long tokenValidityInMilliseconds;
     @Value("${jwt.secret-key}")
     private String secretKey;
-
     @Value("${jwt.access-token-expiration-milliseconds}")
     private long accessTokenExpirationMs;
-
     private Key key;
+
+    public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
+                       @Value("${jwt.access-token-expiration-milliseconds}") long tokenValidity) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.tokenValidityInMilliseconds = tokenValidity;
+    }
 
     /**
      * JWT 시크릿 키를 Base64 디코딩하여 Key 객체로 초기화
@@ -45,30 +52,20 @@ public class JwtProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * Authentication 객체로부터 JWT 액세스 토큰을 생성
-     *
-     * @param authentication 인증 객체
-     * @param userId         사용자 고유 ID (Long 타입)
-     * @param name           사용자 이름 (String 타입)
-     * @param email          사용자 이메일 (String 타입)
-     * @return JWT 문자열
-     */
-    public String generateToken(Authentication authentication, Long userId, String name, String email) {
-        String authorities = authentication.getAuthorities().stream()
+    public String createToken(JwtPayload payload) {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+
+        String authorities = payload.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        long now = (new Date()).getTime();
-        Date accessTokenExpiresIn = new Date(now + accessTokenExpirationMs);
-
         return Jwts.builder()
-                .setSubject(userId.toString())
-                .claim("auth", authorities)
-                .claim("name", name)
-                .claim("email", email)
-                .setExpiration(accessTokenExpiresIn)
-                .signWith(key)
+                .setSubject(payload.getUserId().toString()) // 사용자 ID를 Subject로 사용
+                .claim("auth", authorities)                 // 권한 정보
+                .claim("email", payload.getEmail())         // 추가 정보 (필요시)
+                .signWith(key, SignatureAlgorithm.HS512)    // 서명
+                .setExpiration(validity)                    // 만료 시간
                 .compact();
     }
 
