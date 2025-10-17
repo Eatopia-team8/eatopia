@@ -52,7 +52,7 @@ public class User extends SoftDeleteEntity {
     }
 
     /**
-     * 회원가입 비즈니스 로직을 처리하는 정적 팩토리 메서드. 사용자를 생성하며 기본 역할(BUYER)을 부여합니다.
+     * 회원가입 비즈니스 로직을 처리하는 정적 팩토리 메서드. 사용자를 생성하며 기본 역할(BUYER)을 부여
      *
      * @param email    사용자 이메일
      * @param password 암호화된 비밀번호

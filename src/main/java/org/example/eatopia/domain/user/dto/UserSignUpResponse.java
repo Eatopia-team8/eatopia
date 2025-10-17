@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 /**
  * 회원가입 성공 후 응답 정보를 담는 DTO (record 사용)
  * <p>
- * 생성된 사용자 정보와 발급된 JWT 토큰을 포함합니다.
+ * 생성된 사용자 정보와 발급된 JWT 토큰을 포함
  *
  * @param id        사용자 고유 ID
  * @param email     사용자 이메일
@@ -26,7 +26,7 @@ public record UserSignUpResponse(
         String token
 ) {
     /**
-     * User 엔티티와 발급된 JWT 토큰을 응답 DTO(UserSignUpResponse)로 변환합니다.
+     * User 엔티티와 발급된 JWT 토큰을 응답 DTO(UserSignUpResponse)로 변환
      *
      * @param user  User 엔티티
      * @param token 발급된 JWT 토큰
