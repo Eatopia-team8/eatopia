@@ -22,6 +22,7 @@ public record ProductCreateRequest(
         @NotNull(message = "상태는 필수입니다.")
         ProductStatus status,
 
+        @NotNull(message = "카테고리는 필수입니다.")
         Long categoryId
 ) {
 }
