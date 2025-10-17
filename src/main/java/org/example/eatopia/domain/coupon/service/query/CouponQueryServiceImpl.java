@@ -18,7 +18,7 @@ public class CouponQueryServiceImpl implements CouponQueryService {
 
     public CouponResponse getCoupon(Long couponId) {
 
-        Coupon coupon = couponRepository.findCouponById(couponId)
+        Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(() -> new CouponException(CouponErrorCode.NotFoundCouponId));
 
         CouponResponse response = CouponResponse.from(coupon);
