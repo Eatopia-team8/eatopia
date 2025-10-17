@@ -7,6 +7,10 @@ import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.service.command.CouponCommandService;
 import org.example.eatopia.domain.coupon.service.query.CouponQueryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +37,13 @@ public class CouponController {
         CouponResponse response = couponQueryService.getCoupon(couponId);
 
         return Response.success(response);
+    }
+
+    @GetMapping("/v1/admin/coupons")
+    public Response<Page<CouponResponse>> getCreatedCoupons(@PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<CouponResponse> responses = couponQueryService.getCreatedCoupons(pageable);
+
+        return Response.success(responses);
     }
 }
