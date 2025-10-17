@@ -11,7 +11,7 @@ public record CartItemResponse(
         BigDecimal price,
         int quantity,
         BigDecimal totalPrice,
-        boolean isSeledted,
+        boolean isSelected,
         LocalDateTime createdAt
 ) {
     public static CartItemResponse of(CartItem cartItem, String name) {
