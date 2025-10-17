@@ -53,7 +53,7 @@ public class UserController {
      */
     @GetMapping("/user-detail/{userId}")
     public ResponseEntity<Response<UserDetailResponse>> getUserById(@PathVariable Long userId) {
-        //Query Service를 사용하여 개별 사용자 조회
+
         UserDetailResponse response = userQueryService.getUserById(userId);
         return ResponseEntity.ok(Response.success(response));
     }
