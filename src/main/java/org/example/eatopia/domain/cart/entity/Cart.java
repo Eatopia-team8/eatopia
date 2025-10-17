@@ -2,9 +2,13 @@ package org.example.eatopia.domain.cart.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,6 +19,20 @@ public class Cart extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "user_id")
     private Long userId;
+
+    @OneToMany(mappedBy = "cartId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items = new ArrayList<>();
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private Cart(Long userId) {
+        this.userId = userId;
+    }
+
+    public static Cart create(Long userId) {
+        return Cart.builder()
+                .userId(userId)
+                .build();
+    }
 }
