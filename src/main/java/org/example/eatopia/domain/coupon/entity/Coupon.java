@@ -12,7 +12,6 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Entity
 @Getter
@@ -24,7 +23,7 @@ public class Coupon extends SoftDeleteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     //@ManyToOne(fetch = FetchType.LAZY)
     //@JoinColumn(name = "user_id", nullable = false)
@@ -95,10 +94,10 @@ public class Coupon extends SoftDeleteEntity {
     @Column(name = "min_order_amount", precision = 19)
     private BigDecimal minOrderAmount;
 
-    public static Coupon of(CouponCreateRequest request) {
+    public static Coupon of(CouponCreateRequest request, String code) {
 
         return Coupon.builder()
-                .code(generateRandomCode())
+                .code(code)
                 .name(request.name())
                 .description(request.description())
                 .startDate(request.startDate())
@@ -109,24 +108,11 @@ public class Coupon extends SoftDeleteEntity {
                 .usageLimit(request.usageLimit())
                 .totalQuantity(request.totalQuantity())
                 .issuedQuantity(0)
-                .remainingQuantity(request.totalQuantity() == null ? 0 : request.totalQuantity())
+                .remainingQuantity(request.totalQuantity())
                 .percent(request.isPercent())
                 .discountValue(request.discountValue())
-                .maxDiscountAmount(request.maxDiscountAmount() != null ? (request.maxDiscountAmount()) : null)
-                .minOrderAmount(request.minOrderAmount() != null ? request.minOrderAmount() : null)
+                .maxDiscountAmount(request.maxDiscountAmount())
+                .minOrderAmount(request.minOrderAmount())
                 .build();
-    }
-
-    private static String generateRandomCode() {
-
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder sb = new StringBuilder(8);
-        Random random = new Random();
-
-        for (int i = 0; i < 8; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
-        }
-
-        return sb.toString();
     }
 }

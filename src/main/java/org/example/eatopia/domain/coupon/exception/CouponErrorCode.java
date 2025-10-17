@@ -14,7 +14,7 @@ public enum CouponErrorCode implements ErrorCode {
     InvalidTotalQuantity(HttpStatus.BAD_REQUEST, "CPN-003", "총 발급 수량은 0 이상이어야 합니다."),
     PastStartDate(HttpStatus.BAD_REQUEST, "CPN-004", "쿠폰 시작일은 현재 시각 이후여야 합니다."),
     InvalidMinOrderAmount(HttpStatus.BAD_REQUEST, "CPN-005", "최소 주문 금액은 할인 금액보다 커야 합니다."),
-    NotFoundCouponId(HttpStatus.NOT_FOUND, "CPN-006",  "");
+    NotFoundCouponId(HttpStatus.NOT_FOUND, "CPN-006", "해당 쿠폰을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -16,7 +16,7 @@ public class CouponValidator {
         LocalDateTime endDate = request.endDate();
 
         // 종료일이 시작일보다 앞서는지
-        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+        if (endDate.isBefore(startDate)) {
             throw new CouponException(CouponErrorCode.IllegalEndDate);
         }
 

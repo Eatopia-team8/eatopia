@@ -24,7 +24,7 @@ public record CouponResponse(
         BigDecimal minOrderAmount) {
 
 
-    public static CouponResponse of(Coupon coupon) {
+    public static CouponResponse from(Coupon coupon) {
 
         return new CouponResponse(
                 coupon.getCode(),

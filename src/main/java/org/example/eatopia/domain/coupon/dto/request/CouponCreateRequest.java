@@ -53,15 +53,29 @@ public record CouponCreateRequest(
 
     public CouponCreateRequest {
 
+        // 기본값 설정
+        // 시작일이 현재 이후면 아직 비활성화
         if (isActive == null) {
             isActive = !startDate.isAfter(LocalDateTime.now());
         }
 
-        // 기본값 설정
-        if (isNewUserOnly == null) isNewUserOnly = false;
-        if (isFirstOrderOnly == null) isFirstOrderOnly = false;
-        if (usageLimit == null) usageLimit = 1;
-        issuedQuantity = 0;
+        // 신규회원/첫주문 여부
+        if (isNewUserOnly == null) {
+            isNewUserOnly = false;
+        }
+        if (isFirstOrderOnly == null) {
+            isFirstOrderOnly = false;
+        }
+
+        // 사용 가능 횟수
+        if (usageLimit == null) {
+            usageLimit = 1;
+        }
+
+        // 수량 관련
+        if (totalQuantity == null) {
+            totalQuantity = 0;
+        }
         remainingQuantity = totalQuantity;
     }
 }
