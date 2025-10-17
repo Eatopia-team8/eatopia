@@ -20,7 +20,7 @@ public class CartItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cartId;
+    private Cart cart;
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
@@ -35,8 +35,8 @@ public class CartItem extends BaseEntity {
     private boolean isSelected;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CartItem(Cart cartId, Long productId, int quantity, BigDecimal price, boolean isSelected) {
-        this.cartId = cartId;
+    private CartItem(Cart cart, Long productId, int quantity, BigDecimal price, boolean isSelected) {
+        this.cart = cart;
         this.productId = productId;
         this.quantity = quantity;
         this.price = price;
@@ -45,7 +45,7 @@ public class CartItem extends BaseEntity {
 
     public static CartItem create(Cart cart, Long productId, int quantity, BigDecimal price) {
         return CartItem.builder()
-                .cartId(cart)
+                .cart(cart)
                 .productId(productId)
                 .quantity(quantity)
                 .price(price)
