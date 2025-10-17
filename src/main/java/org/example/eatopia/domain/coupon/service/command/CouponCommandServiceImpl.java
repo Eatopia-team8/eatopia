@@ -46,9 +46,9 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         String code;
 
         do {
-            StringBuilder sb = new StringBuilder(8);
+            StringBuilder sb = new StringBuilder(CODE_LENGTH);
 
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < CODE_LENGTH; i++) {
                 sb.append(CODE_CHARS.charAt(RANDOM.nextInt(CODE_CHARS.length())));
             }
             code = sb.toString();
