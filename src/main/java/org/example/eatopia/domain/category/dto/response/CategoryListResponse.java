@@ -13,7 +13,9 @@ public record CategoryListResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
+
     public static CategoryListResponse of(Category parent, List<CategoryResponse> children) {
+
         return new CategoryListResponse(
                 parent.getId(),
                 parent.getName(),
