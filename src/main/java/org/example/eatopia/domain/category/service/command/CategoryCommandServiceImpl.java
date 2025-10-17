@@ -61,8 +61,7 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
     // 카테고리 삭제
     @Override
     public void deleteCategory(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CTG_ID_NOT_FOUND));
+        Category category = categoryQueryService.getCategoryOrElseThrow(categoryId);
 
         // 하위 카테고리가 있는지 확인
         if (categoryRepository.existsByParentId(categoryId)) {
