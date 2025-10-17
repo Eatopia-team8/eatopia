@@ -2,20 +2,17 @@ package org.example.eatopia.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
+import org.example.eatopia.common.infra.security.AuthUtil;
 import org.example.eatopia.common.infra.security.JwtProvider;
 import org.example.eatopia.domain.user.dto.UserSignUpRequest;
 import org.example.eatopia.domain.user.dto.UserSignUpResponse;
 import org.example.eatopia.domain.user.enttiy.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -45,14 +42,8 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 4. JWT 토큰 생성 로직 (회원가입 후 바로 발급)
 
         // 4-1. JWT 생성을 위한 Spring Security 인증 객체(Authentication) 생성
-        String authority = "ROLE_" + savedUser.getUserRole().name();
-        org.springframework.security.core.userdetails.User principal = new org.springframework.security.core.userdetails.User(
-                savedUser.getId().toString(),
-                savedUser.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority(authority))
-        );
         // Authentication 객체는 토큰에 담길 사용자 정보와 권한을 포함.
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+        Authentication authentication = AuthUtil.createAuthentication(savedUser);
 
         Long userId = savedUser.getId();
         String name = savedUser.getName();
@@ -64,6 +55,4 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 5. 저장된 엔티티와 토큰을 포함하여 응답 DTO로 변환 후 반환
         return UserSignUpResponse.of(savedUser, jwt);
     }
-
-
 }

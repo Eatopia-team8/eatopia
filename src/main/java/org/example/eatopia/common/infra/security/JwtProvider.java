@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.domain.auth.dto.AuthUser;
 import org.example.eatopia.domain.user.config.UserRole;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -115,11 +114,15 @@ public class JwtProvider {
             AuthUser principal = new AuthUser(userId, userEmail, userName, userRole);
 
             // 5. 인증 토큰 반환
-            return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+            return new JwtAuthenticationToken(principal, token, authorities); // JwtAuthenticationToken 반환
 
+        } catch (IllegalArgumentException e) {
+            // JWT 클레임의 형식 변환 중 오류 발생 시 처리
+            log.error("JWT 클레임 처리 중 형식 변환 오류 발생: {}", e.getMessage());
+            return null;
         } catch (RuntimeException e) {
-            // Long.parseLong 실패, UserRole.valueOf 실패 등 내부 논리 오류 발생 시 처리
-            log.error("JWT 클레임 처리 중 런타임 오류 발생: {}", e.getMessage());
+            // 예상치 못한 기타 런타임 오류
+            log.error("JWT 클레임 처리 중 예상치 못한 런타임 오류 발생: {}", e.getMessage());
             return null;
         }
     }
