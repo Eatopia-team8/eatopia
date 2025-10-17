@@ -10,6 +10,7 @@ import org.example.eatopia.domain.auth.dto.login.AuthLoginResponse;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpRequest;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpResponse;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
+import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.enttiy.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;
@@ -32,15 +33,24 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     private final UserRepository userRepository;
 
     /**
-     * 회원가입 및 토큰 발행에 필요한 JwtPayload를 생성합니다.
+     * JWT 토큰 발행 로직을 분리하여 중복을 제거합니다. (DRY)
      */
-    private JwtPayload createPayload(User user) {
+    private String issueToken(User user) {
+        JwtPayload payload = createJwtPayloadFromUser(user);
+        return jwtProvider.createToken(payload);
+    }
+
+    /**
+     * 회원가입 및 토큰 발행에 필요한 JwtPayload를 User 엔티티로부터 생성합니다.
+     * (메서드 이름 변경: createPayload -> createJwtPayloadFromUser)
+     */
+    private JwtPayload createJwtPayloadFromUser(User user) {
         // 사용자 권한 정보를 GrantedAuthority 컬렉션으로 변환
         Collection<SimpleGrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name())
         );
 
-        log.info("User's name being sent to JwtPayload: {}", user.getName());
+        log.info("User name for JWT: {}", user.getName());
 
         return JwtPayload.builder()
                 .userId(user.getId())
@@ -57,24 +67,30 @@ public class AuthCommandServiceImpl implements AuthCommandService {
             throw new GlobalException(UserErrorCode.DUPLICATE_EMAIL);
         }
 
+        // 역할(Role) 유효성 검사
+        if (request.role() != UserRole.BUYER && request.role() != UserRole.SELLER) {
+            throw new GlobalException(AuthErrorCode.ACCESS_DENIED);
+        }
+
         // 2. 비밀번호 암호화 및 User 엔티티 생성
         String encodedPassword = passwordEncoder.encode(request.password());
-        User user = AuthSignUpRequest.toEntity(request, encodedPassword, request.role());
+        User user = User.signUp(
+                request.email(),
+                encodedPassword,
+                request.name(),
+                request.role()
+        );
 
         // 3. 사용자 정보 저장
         User savedUser = userRepository.save(user);
 
-        // 4. JWT 토큰 생성 로직 (AuthCommandServiceImpl이 직접 수행)
-        JwtPayload payload = createPayload(savedUser);
-        String jwt = jwtProvider.createToken(payload);
+        // 4. JWT 토큰 생성 (issueToken 헬퍼 메서드 사용)
+        String jwt = issueToken(savedUser);
 
         // 5. 응답 DTO로 변환 후 반환
         return AuthSignUpResponse.of(savedUser, jwt);
     }
 
-    /**
-     * 사용자의 로그인 정보를 검증하고, 성공 시 JWT 토큰을 발급
-     */
     @Override
     public AuthLoginResponse login(AuthLoginRequest request) {
         //1. 이메일로 사용자 조회
@@ -86,9 +102,8 @@ public class AuthCommandServiceImpl implements AuthCommandService {
             throw new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS);
         }
 
-        // 3. 토큰 발급 로직 (AuthCommandServiceImpl이 직접 수행)
-        JwtPayload payload = createPayload(user);
-        String jwt = jwtProvider.createToken(payload);
+        // 3. 토큰 발급 로직 (issueToken 헬퍼 메서드 사용)
+        String jwt = issueToken(user);
 
         return AuthLoginResponse.of(user, jwt);
     }

@@ -6,11 +6,10 @@ import org.example.eatopia.domain.user.dto.UserDetailResponse;
 import org.example.eatopia.domain.user.enttiy.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,18 +20,16 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     public UserDetailResponse getUserById(Long userId) {
-        //ID로 사용자 조회 없으면 예외 발생
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
+
         return UserDetailResponse.of(user);
     }
 
     @Override
-    public List<UserDetailResponse> getAllUsers() {
-        //모든 사용자 정보를 조회하여 DTO목록으로 변환
-        return userRepository.findAll().stream()
-                .map(UserDetailResponse::of)
-                .collect(Collectors.toList());
+    public Page<UserDetailResponse> getAllUsers(Pageable pageable) {
+        // JPA Repository의 findAll(Pageable)을 사용하여 DB에서 페이지 단위로 조회
+        return userRepository.findAll(pageable)
+                .map(UserDetailResponse::of);
     }
-
 }

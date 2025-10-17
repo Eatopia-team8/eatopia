@@ -3,7 +3,6 @@ package org.example.eatopia.common.infra.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.common.core.dto.JwtPayload;
 import org.example.eatopia.domain.user.config.UserRole;
@@ -40,16 +39,6 @@ public class JwtProvider {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.tokenValidityInMilliseconds = tokenValidity;
-    }
-
-    /**
-     * JWT 시크릿 키를 Base64 디코딩하여 Key 객체로 초기화 (PostConstruct를 사용하여 중복 제거)
-     */
-    @PostConstruct
-    public void init() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
-        // tokenValidityInMilliseconds는 생성자에서 이미 초기화되었으므로 그대로 둡니다.
     }
 
     /**

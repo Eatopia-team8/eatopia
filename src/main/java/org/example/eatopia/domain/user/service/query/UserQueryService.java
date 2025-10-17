@@ -1,8 +1,8 @@
 package org.example.eatopia.domain.user.service.query;
 
 import org.example.eatopia.domain.user.dto.UserDetailResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserQueryService {
     /**
@@ -11,7 +11,7 @@ public interface UserQueryService {
     UserDetailResponse getUserById(Long userId);
 
     /**
-     * 전체 사용자 목록을 조회
+     * 전체 사용자 목록을 페이지네이션하여 조회합니다.
      */
-    List<UserDetailResponse> getAllUsers();
+    Page<UserDetailResponse> getAllUsers(Pageable pageable);
 }
