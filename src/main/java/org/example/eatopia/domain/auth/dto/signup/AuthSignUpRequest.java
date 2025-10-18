@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.example.eatopia.domain.user.config.UserRole;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 
 /**
  * 사용자 회원가입 요청 정보를 담는 DTO

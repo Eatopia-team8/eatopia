@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.user.enttiy;
+package org.example.eatopia.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

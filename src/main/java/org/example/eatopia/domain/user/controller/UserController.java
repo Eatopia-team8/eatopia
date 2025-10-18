@@ -58,7 +58,7 @@ public class UserController {
      * 비밀번호 변경 (Token값 체크하여 ID 기반으로 변경)
      */
     @PatchMapping("/change-password")
-    public ResponseEntity<Response<UserResponse>> changePassword(
+    public ResponseEntity<Response<Void>> changePassword(
             @AuthenticationPrincipal UserPrincipal authUser,
             @Valid @RequestBody UserPasswordChangeRequest request) {
         //UserCommandService를 통해 비밀번호 변경 처리

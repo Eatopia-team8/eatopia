@@ -11,7 +11,7 @@ import org.example.eatopia.domain.auth.dto.signup.AuthSignUpRequest;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpResponse;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.example.eatopia.domain.user.config.UserRole;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

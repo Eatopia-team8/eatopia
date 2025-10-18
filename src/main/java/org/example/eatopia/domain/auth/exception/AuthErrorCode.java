@@ -8,7 +8,10 @@ import org.springframework.http.HttpStatus;
 public enum AuthErrorCode implements ErrorCode {
     UNAUTHORIZED_CREDENTIALS(HttpStatus.UNAUTHORIZED, "USR-002", "이메일 또는 비밀번호가 일치하지 않습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON-003", "인증 정보가 유효하지 않습니다."),
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMON-004", "해당 자원에 접근할 권한이 없습니다.");
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMON-004", "해당 자원에 접근할 권한이 없습니다."),
+
+    INVALID_RESET_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-005", "유효하지 않거나 사용된 재설정 토큰입니다."),
+    EXPIRED_RESET_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-006", "재설정 토큰이 만료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -1,7 +1,7 @@
 package org.example.eatopia.common.infra.security;
 
 import org.example.eatopia.common.core.dto.JwtPayload;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;

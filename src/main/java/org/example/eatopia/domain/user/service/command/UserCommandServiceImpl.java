@@ -5,8 +5,8 @@ import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.example.eatopia.domain.user.dto.UserPasswordChangeRequest;
 import org.example.eatopia.domain.user.dto.UserPasswordResetRequest;
-import org.example.eatopia.domain.user.enttiy.PasswordResetToken;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.PasswordResetToken;
+import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.PasswordResetTokenRepository;
 import org.example.eatopia.domain.user.repository.UserRepository;
@@ -52,19 +52,20 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, request.email()));
 
         // 2. 재설정 토큰 유효성 검증
+        //토큰 값 자체가 DB에 없는 경우: INVALID_RESET_TOKEN 사용
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.resetToken())
-                .orElseThrow(() -> new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS)); // 토큰 값 자체가 DB에 없음
+                .orElseThrow(() -> new GlobalException(AuthErrorCode.INVALID_RESET_TOKEN));
 
         // a. 토큰의 사용자 ID가 일치하는지 확인 (보안 체크)
         if (!resetToken.getUserId().equals(user.getId())) {
-            // 이메일은 맞지만 토큰이 다른 사용자 소유인 경우
-            throw new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS);
+            //토큰은 있지만 소유자가 다른 경우: INVALID_RESET_TOKEN 사용
+            throw new GlobalException(AuthErrorCode.INVALID_RESET_TOKEN);
         }
 
         // b. 토큰 만료 확인
         if (resetToken.isExpired()) {
-            // 만료된 토큰 처리
-            throw new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS);
+            //만료된 토큰 처리: EXPIRED_RESET_TOKEN 사용
+            throw new GlobalException(AuthErrorCode.EXPIRED_RESET_TOKEN);
         }
 
         // 3. 새 비밀번호 인코딩
