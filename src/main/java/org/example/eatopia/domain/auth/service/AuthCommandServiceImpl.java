@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,12 +29,19 @@ import java.util.List;
 @Slf4j
 public class AuthCommandServiceImpl implements AuthCommandService {
 
+    // 회원가입 시 허용할 역할 목록
+    private static final List<UserRole> ALLOWED_SIGNUP_ROLES = Arrays.asList(
+            UserRole.BUYER,
+            UserRole.SELLER,
+            UserRole.ADMIN
+    );
+
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
 
     /**
-     * JWT 토큰 발행 로직을 분리하여 중복을 제거합니다. (DRY)
+     * JWT 토큰 발행 로직을 분리하여 중복을 제거
      */
     private String issueToken(User user) {
         JwtPayload payload = createJwtPayloadFromUser(user);
@@ -41,8 +49,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     }
 
     /**
-     * 회원가입 및 토큰 발행에 필요한 JwtPayload를 User 엔티티로부터 생성합니다.
-     * (메서드 이름 변경: createPayload -> createJwtPayloadFromUser)
+     * 회원가입 및 토큰 발행에 필요한 JwtPayload를 User 엔티티로부터 생성
      */
     private JwtPayload createJwtPayloadFromUser(User user) {
         // 사용자 권한 정보를 GrantedAuthority 컬렉션으로 변환
@@ -62,17 +69,17 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
     @Override
     public AuthSignUpResponse signUp(AuthSignUpRequest request) {
-        // 1. 이메일 중복 확인
+        // 1. 역할(Role) 유효성 검증
+        if (!ALLOWED_SIGNUP_ROLES.contains(request.role())) {
+            throw new GlobalException(AuthErrorCode.ACCESS_DENIED, "허용되지 않은 사용자 역할입니다.");
+        }
+
+        // 2. 이메일 중복 확인
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new GlobalException(UserErrorCode.DUPLICATE_EMAIL);
         }
 
-        // 역할(Role) 유효성 검사
-        if (request.role() != UserRole.BUYER && request.role() != UserRole.SELLER) {
-            throw new GlobalException(AuthErrorCode.ACCESS_DENIED);
-        }
-
-        // 2. 비밀번호 암호화 및 User 엔티티 생성
+        // 3. 비밀번호 인코딩 및 User 엔티티 생성
         String encodedPassword = passwordEncoder.encode(request.password());
         User user = User.signUp(
                 request.email(),
@@ -81,13 +88,13 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 request.role()
         );
 
-        // 3. 사용자 정보 저장
+        // 4. 사용자 정보 저장
         User savedUser = userRepository.save(user);
 
-        // 4. JWT 토큰 생성 (issueToken 헬퍼 메서드 사용)
+        // 5. JWT 토큰 생성 (issueToken 헬퍼 메서드 사용)
         String jwt = issueToken(savedUser);
 
-        // 5. 응답 DTO로 변환 후 반환
+        // 6. 응답 DTO로 변환 후 반환
         return AuthSignUpResponse.of(savedUser, jwt);
     }
 

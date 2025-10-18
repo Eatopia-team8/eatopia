@@ -53,7 +53,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         // 회원가입, 로그인 API는 인증 없이 허용
-                        .requestMatchers("/v1/auth/signup", "/v1/auth/login").permitAll()
+                        .requestMatchers("/v1/auth/signup", "/v1/auth/login", "/v1/auth/password-reset").permitAll()
 
                         // Swagger 및 정적 리소스 경로 허용
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
