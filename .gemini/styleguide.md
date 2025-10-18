@@ -391,7 +391,7 @@ public static AuthRegisterResponse from(User user) {
 
 ## 7. Entity 규칙
 
-* **Builder + Mapper 클래스 + 의미 있는 비즈니스 메서드** 조합
+* **Builder + 의미 있는 비즈니스 메서드** 조합
 
 ```java
 
