@@ -7,6 +7,7 @@ import org.example.eatopia.domain.product.enums.ProductStatus;
 import java.math.BigDecimal;
 
 public record ProductCreateRequest(
+
         @NotBlank(message = "상품명은 필수입니다.")
         String name,
 
