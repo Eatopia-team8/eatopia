@@ -6,6 +6,8 @@ import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,15 @@ public class CouponQueryServiceImpl implements CouponQueryService {
                 .orElseThrow(() -> new CouponException(CouponErrorCode.NotFoundCouponId));
 
         CouponResponse response = CouponResponse.from(coupon);
+
+        return response;
+    }
+
+    public Page<CouponResponse> getCreatedCoupons(Pageable pageble) {
+
+        Page<Coupon> coupons = couponRepository.findAll(pageble);
+
+        Page<CouponResponse> response = coupons.map(CouponResponse::from);
 
         return response;
     }

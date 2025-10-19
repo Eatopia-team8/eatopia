@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record CouponResponse(
+        Long id,
         String code,
         String name,
         String description,
@@ -29,6 +30,7 @@ public record CouponResponse(
     public static CouponResponse from(Coupon coupon) {
 
         return new CouponResponse(
+                coupon.getId(),
                 coupon.getCode(),
                 coupon.getName(),
                 coupon.getDescription(),
