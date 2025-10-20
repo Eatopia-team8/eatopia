@@ -1,5 +1,6 @@
 package org.example.eatopia.domain.product.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -33,19 +34,15 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         // 하위 카테고리 ID 목록 조회
         List<Long> categoryIds = categoryQueryService.getCategoryIdsWithChildren(condition.categoryId());
 
+        // 공통 검색 조건 생성
+        BooleanBuilder searchConditions = buildSearchConditions(condition, categoryIds);
+
         // 상품 목록 조회
         List<Product> content = queryFactory
                 .selectFrom(product)
                 .leftJoin(product.category, category).fetchJoin()
                 .leftJoin(product.seller).fetchJoin()
-                .where(
-                        keywordContains(condition.keyword()),
-                        categoryIdIn(categoryIds),
-                        statusEq(condition.status()),
-                        priceGoe(condition.minPrice()),
-                        priceLoe(condition.maxPrice()),
-                        statusNotHide() // HIDE 상태는 기본적으로 제외
-                )
+                .where(searchConditions)
                 .orderBy(product.createdAt.desc()) // 신상품 정렬 기준
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -55,59 +52,66 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         JPAQuery<Long> countQuery = queryFactory
                 .select(product.count())
                 .from(product)
-                .where(
-                        keywordContains(condition.keyword()),
-                        categoryIdIn(categoryIds),
-                        statusEq(condition.status()),
-                        priceGoe(condition.minPrice()),
-                        priceLoe(condition.maxPrice()),
-                        statusNotHide()
-                );
+                .where(searchConditions);
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-    // 키워드 검색 (상품명 or 설명에 포함)
-    private BooleanExpression keywordContains(String keyword) {
-        if (!StringUtils.hasText(keyword)) {
-            return null;
-        }
-        return product.name.containsIgnoreCase(keyword)
-                .or(product.description.containsIgnoreCase(keyword));
+    // 상품 검색 통합해서 BooleanBuilder 생성
+    private BooleanBuilder buildSearchConditions(ProductSearchCondition condition, List<Long> categoryIds) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // HIDE 상태는 기본적으로 제외 (필수 조건)
+        builder.and(statusNotHide());
+
+        // 선택적 조건들
+        appendKeywordCondition(builder, condition.keyword());
+        appendCategoryCondition(builder, categoryIds);
+        appendStatusCondition(builder, condition.status());
+        appendPriceCondition(builder, condition.minPrice(), condition.maxPrice());
+
+        return builder;
     }
 
-    // 카테고리 ID 목록으로 필터링
-    private BooleanExpression categoryIdIn(List<Long> categoryIds) {
-        return categoryIds != null && !categoryIds.isEmpty()
-                ? product.category.id.in(categoryIds)
-                : null;
+    // 키워드 검색 (상품명 or 설명에 포함)
+    private void appendKeywordCondition(BooleanBuilder builder, String keyword) {
+        if (StringUtils.hasText(keyword)) {
+            builder.and(product.name.containsIgnoreCase(keyword)
+                    .or(product.description.containsIgnoreCase(keyword)));
+        }
+    }
+
+    // 카테고리 필터링
+    private void appendCategoryCondition(BooleanBuilder builder, List<Long> categoryIds) {
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            builder.and(product.category.id.in(categoryIds));
+        }
     }
 
     // 상태 필터링
-    private BooleanExpression statusEq(String status) {
-        if (!StringUtils.hasText(status)) {
-            return null;
-        }
-        try {
-            ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
-            return product.status.eq(productStatus);
-        } catch (IllegalArgumentException e) {
-            return null;
+    private void appendStatusCondition(BooleanBuilder builder, String status) {
+        if (StringUtils.hasText(status)) {
+            try {
+                ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
+                builder.and(product.status.eq(productStatus));
+            } catch (IllegalArgumentException e) {
+                // 유효하지 않은 상태는 무시
+            }
         }
     }
 
+    // 가격 범위 필터
+    private void appendPriceCondition(BooleanBuilder builder, BigDecimal minPrice, BigDecimal maxPrice) {
+        if (minPrice != null) {
+            builder.and(product.price.goe(minPrice));
+        }
+        if (maxPrice != null) {
+            builder.and(product.price.loe(maxPrice));
+        }
+    }
+    
     // HIDE 상태 제외
     private BooleanExpression statusNotHide() {
         return product.status.ne(ProductStatus.HIDE);
-    }
-
-    // 최소 가격 이상
-    private BooleanExpression priceGoe(BigDecimal minPrice) {
-        return minPrice != null ? product.price.goe(minPrice) : null;
-    }
-
-    // 최대 가격 이하
-    private BooleanExpression priceLoe(BigDecimal maxPrice) {
-        return maxPrice != null ? product.price.loe(maxPrice) : null;
     }
 }
