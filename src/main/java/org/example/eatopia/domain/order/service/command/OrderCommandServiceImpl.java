@@ -1,13 +1,14 @@
 package org.example.eatopia.domain.order.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderStatus;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
-import org.example.eatopia.domain.payment.service.command.PaymentCommandService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
     private final OrderRepository orderRepository;
     private final OrderValidator orderValidator;
-    private final PaymentCommandService paymentCommandService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
@@ -76,7 +77,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         Order order = orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
         orderValidator.orderCancelValidate(order);
         order.updateStatus(OrderStatus.CANCELED);
-        paymentCommandService.cancelPaymentByOrder(order);
+        eventPublisher.publishEvent(new OrderCancelledEvent(order));
 
         return OrderDetailResponse.from(order);
     }
