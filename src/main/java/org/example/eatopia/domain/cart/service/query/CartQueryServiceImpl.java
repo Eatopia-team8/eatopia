@@ -7,6 +7,7 @@ import org.example.eatopia.domain.cart.entity.Cart;
 import org.example.eatopia.domain.cart.entity.CartItem;
 import org.example.eatopia.domain.cart.repository.CartItemRepository;
 import org.example.eatopia.domain.cart.repository.CartRepository;
+import org.example.eatopia.domain.product.entity.Product;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +28,13 @@ public class CartQueryServiceImpl implements CartQueryService {
 
         Cart cart = getCart(userId);
 
-        List<CartItem> cartItems = cartItemRepository.findAllByCart(cart);
+        List<CartItem> cartItems = cartItemRepository.findAllByCartWithProduct(cart.getId());
 
-        // TODO: 추후 상품명 컬럼 추가
-        // 상품 이름은 임시로 "상품명"으로 처리
         List<CartItemResponse> itemResponses = cartItems.stream()
-                .map(cartItem -> CartItemResponse.of(cartItem, "상품명", BigDecimal.ZERO))
+                .map(cartItem -> {
+                    Product product = cartItem.getProduct();
+                    return CartItemResponse.of(cartItem, product.getName(), product.getPrice());
+                })
                 .collect(Collectors.toList());
 
         // 총액,할인,최종 금액 계산
