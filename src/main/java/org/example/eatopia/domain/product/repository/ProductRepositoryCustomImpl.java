@@ -4,7 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.example.eatopia.domain.category.entity.Category;
+import org.example.eatopia.domain.category.service.query.CategoryQueryService;
 import org.example.eatopia.domain.product.dto.request.ProductSearchCondition;
 import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.product.enums.ProductStatus;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.example.eatopia.domain.category.entity.QCategory.category;
@@ -26,12 +25,13 @@ import static org.example.eatopia.domain.product.entity.QProduct.product;
 public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final CategoryQueryService categoryQueryService;
 
     @Override
     public Page<Product> searchProducts(ProductSearchCondition condition, Pageable pageable) {
 
         // 하위 카테고리 ID 목록 조회
-        List<Long> categoryIds = getCategoryIds(condition.categoryId());
+        List<Long> categoryIds = categoryQueryService.getCategoryIdsWithChildren(condition.categoryId());
 
         // 상품 목록 조회
         List<Product> content = queryFactory
@@ -65,45 +65,6 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-    }
-
-    /**
-     * 카테고리 ID에 따른 하위 카테고리 ID 목록 조회
-     * - 부모 카테고리인 경우: 해당 부모를 가진 모든 자식 카테고리 ID 반환
-     * - 자식 카테고리인 경우: 해당 카테고리 ID만 반환
-     */
-    private List<Long> getCategoryIds(Long categoryId) {
-        if (categoryId == null) {
-            return null;
-        }
-
-        // 해당 카테고리 조회
-        Category targetCategory = queryFactory
-                .selectFrom(category)
-                .where(category.id.eq(categoryId))
-                .fetchOne();
-
-        if (targetCategory == null) {
-            return null;
-        }
-
-        List<Long> categoryIds = new ArrayList<>();
-
-        // 부모 카테고리인 경우 (parent_id가 null)
-        if (targetCategory.getParent() == null) {
-            // 해당 부모를 가진 모든 자식 카테고리 ID 조회
-            List<Long> childIds = queryFactory
-                    .select(category.id)
-                    .from(category)
-                    .where(category.parent.id.eq(categoryId))
-                    .fetch();
-            categoryIds.addAll(childIds);
-        } else {
-            // 자식 카테고리인 경우 해당 ID만 추가
-            categoryIds.add(categoryId);
-        }
-
-        return categoryIds.isEmpty() ? null : categoryIds;
     }
 
     // 키워드 검색 (상품명 or 설명에 포함)

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -87,5 +88,34 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
     public Category getCategoryOrElseThrow(Long categoryId) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryException(CategoryErrorCode.CTG_ID_NOT_FOUND));
+    }
+
+    // Product 도메인에서 사용할 카테고리 ID 목록 조회
+    @Override
+    public List<Long> getCategoryIdsWithChildren(Long categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+
+        Category targetCategory = categoryRepository.findById(categoryId)
+                .orElse(null);
+
+        if (targetCategory == null) {
+            return null;
+        }
+
+        List<Long> categoryIds = new ArrayList<>();
+
+        // 부모 카테고리인 경우 (parent_id가 null)
+        if (targetCategory.getParent() == null) {
+            // 해당 부모를 가진 모든 자식 카테고리 ID 조회
+            List<Long> childIds = categoryRepository.findIdsByParentId(categoryId);
+            categoryIds.addAll(childIds);
+        } else {
+            // 자식 카테고리인 경우 해당 ID만 추가
+            categoryIds.add(categoryId);
+        }
+
+        return categoryIds.isEmpty() ? null : categoryIds;
     }
 }

@@ -25,4 +25,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // 부모 ID 목록으로 하위 카테고리 일괄 조회
     @Query("SELECT c FROM Category c WHERE c.parent.id IN :parentIds ORDER BY c.id")
     List<Category> findByParentIdIn(@Param("parentIds") List<Long> parentIds);
+
+    // 부모 ID에 해당하는 모든 자식 카테고리의 ID 조회
+    @Query("SELECT c.id FROM Category c WHERE c.parent.id = :parentId")
+    List<Long> findIdsByParentId(@Param("parentId") Long parentId);
 }
