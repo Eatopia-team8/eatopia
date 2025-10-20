@@ -2,10 +2,10 @@ package org.example.eatopia.domain.payment.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.eatopia.domain.auth.dto.AuthUser;
 import org.example.eatopia.domain.payment.dto.request.PaymentCreateRequest;
 import org.example.eatopia.domain.payment.dto.response.PaymentResponse;
 import org.example.eatopia.domain.payment.service.command.PaymentCommandService;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +22,7 @@ public class PaymentController {
 
     @PostMapping
     public ResponseEntity<PaymentResponse> createPayment(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal UserPrincipal authUser,
             @RequestBody @Valid PaymentCreateRequest request
     ) {
         Long userId = authUser.getId();
