@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.example.eatopia.common.core.entity.SoftDeleteEntity;
 import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
+import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
+import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
@@ -115,5 +117,17 @@ public class Coupon extends SoftDeleteEntity {
                 .maxDiscountAmount(request.maxDiscountAmount())
                 .minOrderAmount(request.minOrderAmount())
                 .build();
+    }
+
+    public void issue() {
+
+        this.issuedQuantity++;
+
+        if (this.totalQuantity != null) {
+            if (this.remainingQuantity <= 0) {
+                throw new CouponException(CouponErrorCode.SOLD_OUT_COUPON);
+            }
+            this.remainingQuantity--;
+        }
     }
 }

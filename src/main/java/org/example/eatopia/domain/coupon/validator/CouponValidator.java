@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.coupon.validator;
 
 import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
+import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,22 @@ public class CouponValidator {
         // 수량 검증
         if (request.totalQuantity() != null && request.totalQuantity() < 0) {
             throw new CouponException(CouponErrorCode.InvalidTotalQuantity);
+        }
+    }
+
+    public void validateDownloadable(Coupon coupon) {
+
+        if (!coupon.getIsActive()) {
+            throw new CouponException(CouponErrorCode.DEACTIVATED_COUPON);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(coupon.getEndDate())) {
+            throw new CouponException(CouponErrorCode.INVALID_DOWNLOAD_DATE);
+        }
+
+        if (coupon.getTotalQuantity() != null && coupon.getRemainingQuantity() <= 0) {
+            throw new CouponException(CouponErrorCode.SOLD_OUT_COUPON);
         }
     }
 }

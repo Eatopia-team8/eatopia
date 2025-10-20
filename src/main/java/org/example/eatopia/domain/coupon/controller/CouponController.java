@@ -7,10 +7,12 @@ import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.service.command.CouponCommandService;
 import org.example.eatopia.domain.coupon.service.query.CouponQueryService;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,16 @@ public class CouponController {
         CouponResponse response = couponCommandService.createCoupon(request);
 
         return Response.success(response);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_BUYER')")
+    @PostMapping("/v1/coupons/{couponId}/download")
+    public Response<Void> downloadCoupon(@AuthenticationPrincipal UserPrincipal authUser,
+                                         @PathVariable Long couponId) {
+
+        couponCommandService.downloadCoupon(authUser, couponId);
+
+        return Response.success(null);
     }
 
     @GetMapping("/v1/coupons/{couponId}")
