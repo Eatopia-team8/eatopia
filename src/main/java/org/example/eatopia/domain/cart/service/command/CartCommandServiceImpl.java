@@ -52,7 +52,7 @@ public class CartCommandServiceImpl implements CartCommandService {
         CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
                 .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
 
-        if (request.operation().equals(QuantityChangeType.DECREMENT) && cartItem.getQuantity() == 0) {
+        if (request.operation().equals(QuantityChangeType.DECREMENT) && cartItem.getQuantity() < 1) {
             throw new GlobalException(CartErrorCode.CANNOT_DECREMENT);
         }
 
