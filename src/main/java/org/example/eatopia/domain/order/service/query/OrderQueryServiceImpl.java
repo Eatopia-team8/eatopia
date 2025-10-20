@@ -34,4 +34,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
         return ordersPage.map(OrderResponse::from);
     }
+
+    @Override
+    public Order findOrderById(Long orderId) {
+        return orderValidator.findByIdOrThrow(orderId);
+    }
 }
