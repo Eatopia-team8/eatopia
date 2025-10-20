@@ -2,6 +2,7 @@ package org.example.eatopia.domain.user.service.query;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
+import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.example.eatopia.domain.user.dto.UserDetailResponse;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
@@ -17,6 +18,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserQueryServiceImpl implements UserQueryService {
 
     private final UserRepository userRepository;
+
+    // ID로 활성사용자를 조회하고 탈퇴여부 검사
+    public User getActiveUserById(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
+
+        if (user.getDeletedAt() != null) {
+            throw new GlobalException(AuthErrorCode.USER_IS_DELETED);
+        }
+        return user;
+    }
+
+    // Email로 활성사용자를 조회하고 탈퇴여부 검사
+    public User getActiveUserByEmail(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, email));
+
+        // 탈퇴 상태 확인 로직
+        if (user.getDeletedAt() != null) {
+            throw new GlobalException(AuthErrorCode.USER_IS_DELETED);
+        }
+        return user;
+    }
 
     @Override
     public UserDetailResponse getUserById(Long userId) {

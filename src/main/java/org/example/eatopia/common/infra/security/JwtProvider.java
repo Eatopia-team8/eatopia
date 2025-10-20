@@ -37,14 +37,19 @@ public class JwtProvider {
 
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
                        @Value("${jwt.access-token-expiration-milliseconds}") long tokenValidity) {
-        // 생성자에서는 필드 초기화만 담당합니다.
+        // 생성자에서는 필드 초기화만 담당
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.tokenValidityInMilliseconds = tokenValidity;
     }
 
     /**
-     * JWT 토큰 생성.
+     * JWT 토큰을 생성
+     *
+     * <p>제공된 페이로드 정보를 기반으로 Access Token을 빌드하고 서명.</p>
+     *
+     * @param payload JWT 클레임에 포함될 사용자 정보 (ID, 이메일, 권한 등)
+     * @return 서명된 JWT 문자열 (Access Token)
      */
     public String createToken(JwtPayload payload) {
         long now = (new Date()).getTime();
@@ -66,6 +71,12 @@ public class JwtProvider {
 
     /**
      * JWT 토큰에서 인증 정보를 추출하고 UserPrincipal 객체를 Principal로 설정
+     *
+     * <p>토큰의 유효성을 검증하고, 클레임 정보를 기반으로 Spring Security의
+     * 인증 객체(Authentication)를 생성</p>
+     *
+     * @param token JWT 문자열
+     * @return 인증 객체 (Authentication)
      */
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
@@ -116,6 +127,9 @@ public class JwtProvider {
         }
     }
 
+    /**
+     * 토큰 유효성 검사 (로그 출력)
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parser()

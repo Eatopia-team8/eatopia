@@ -11,4 +11,7 @@ public interface AuthCommandService {
 
     // 회원가입을 처리하고 JWT 토큰을 포함한 응답을 반환
     AuthSignUpResponse signUp(AuthSignUpRequest request);
+
+    //회원탈퇴 하고 토큰 무효화처리
+    void withdrawUser(Long userId);
 }
