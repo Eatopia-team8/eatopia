@@ -5,6 +5,7 @@ import lombok.*;
 import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.domain.category.entity.Category;
 import org.example.eatopia.domain.product.enums.ProductStatus;
+import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
 
@@ -42,8 +43,13 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private User seller;
+
     public static Product create(String name, String description, String thumbnailUrl,
-                                 BigDecimal price, Long stock, ProductStatus status, Category category) {
+                                 BigDecimal price, Long stock, ProductStatus status,
+                                 Category category, User seller) {
 
         return Product.builder()
                 .name(name)
@@ -53,6 +59,7 @@ public class Product extends BaseEntity {
                 .stock(stock)
                 .status(status)
                 .category(category)
+                .seller(seller)
                 .build();
     }
 }

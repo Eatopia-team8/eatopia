@@ -5,5 +5,5 @@ import org.example.eatopia.domain.product.dto.response.ProductResponse;
 
 public interface ProductCommandService {
 
-    ProductResponse createProduct(ProductCreateRequest request);
+    ProductResponse createProduct(ProductCreateRequest request, Long userId);
 }

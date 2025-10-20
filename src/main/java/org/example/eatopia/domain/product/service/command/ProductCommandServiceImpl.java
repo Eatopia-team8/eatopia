@@ -6,13 +6,12 @@ import org.example.eatopia.domain.category.service.query.CategoryQueryService;
 import org.example.eatopia.domain.product.dto.request.ProductCreateRequest;
 import org.example.eatopia.domain.product.dto.response.ProductResponse;
 import org.example.eatopia.domain.product.entity.Product;
-import org.example.eatopia.domain.product.exception.ProductErrorCode;
-import org.example.eatopia.domain.product.exception.ProductException;
 import org.example.eatopia.domain.product.repository.ProductRepository;
+import org.example.eatopia.domain.product.validator.ProductValidator;
+import org.example.eatopia.domain.user.entity.User;
+import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -21,28 +20,21 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     private final ProductRepository productRepository;
     private final CategoryQueryService categoryQueryService;
+    private final ProductValidator productValidator;
+    private final UserQueryService userQueryService;
 
     // 상품 등록
     @Override
-    public ProductResponse createProduct(ProductCreateRequest request) {
-        // 가격 검증
-        if (request.price().compareTo(BigDecimal.ZERO) < 0) {
-            throw new ProductException(ProductErrorCode.PRD_INVALID_PRICE);
-        }
+    public ProductResponse createProduct(ProductCreateRequest request, Long userId) {
 
-        // 재고 검증
-        if (request.stock() < 0) {
-            throw new ProductException(ProductErrorCode.PRD_INVALID_STOCK);
-        }
+        productValidator.validateProductRequest(request);
 
         // 카테고리 조회
         Category category = categoryQueryService.getCategoryOrElseThrow(request.categoryId());
 
-        // 상위 카테고리 상품 등록 불가
-        if (category.getParent() == null) {
-            throw new ProductException(ProductErrorCode.PRD_INVALID_CATEGORY);
-        }
+        productValidator.validateCategory(category);
 
+        User seller = userQueryService.getUserEntityById(userId);
 
         Product product = Product.create(
                 request.name(),
@@ -51,7 +43,8 @@ public class ProductCommandServiceImpl implements ProductCommandService {
                 request.price(),
                 request.stock(),
                 request.status(),
-                category
+                category,
+                seller
         );
 
         product = productRepository.save(product);
