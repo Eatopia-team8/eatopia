@@ -1,7 +1,7 @@
 package org.example.eatopia.domain.auth.dto.login;
 
 import org.example.eatopia.domain.user.config.UserRole;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 

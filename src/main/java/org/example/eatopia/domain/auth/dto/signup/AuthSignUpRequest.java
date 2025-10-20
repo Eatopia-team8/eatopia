@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.example.eatopia.domain.user.config.UserRole;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 
 /**
  * 사용자 회원가입 요청 정보를 담는 DTO
@@ -15,6 +15,7 @@ import org.example.eatopia.domain.user.enttiy.User;
  * @param name     사용자 이름
  */
 public record AuthSignUpRequest(
+
         @NotBlank(message = "이메일은 필수 입력 항목입니다.")
         @Email(message = "유효한 이메일 형식이 아닙니다.")
         @Size(max = 50)

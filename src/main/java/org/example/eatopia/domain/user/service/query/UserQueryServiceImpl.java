@@ -3,7 +3,7 @@ package org.example.eatopia.domain.user.service.query;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.user.dto.UserDetailResponse;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -24,6 +24,12 @@ public class UserQueryServiceImpl implements UserQueryService {
                 .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
 
         return UserDetailResponse.of(user);
+    }
+
+    @Override
+    public User getUserEntityById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
     }
 
     @Override

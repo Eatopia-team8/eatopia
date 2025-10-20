@@ -1,6 +1,6 @@
 package org.example.eatopia.domain.user.repository;
 
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

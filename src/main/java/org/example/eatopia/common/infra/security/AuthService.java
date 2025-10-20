@@ -1,7 +1,7 @@
 package org.example.eatopia.common.infra.security;
 
 import org.example.eatopia.common.core.dto.JwtPayload;
-import org.example.eatopia.domain.user.enttiy.User;
+import org.example.eatopia.domain.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class AuthService {
     }
 
     /**
-     * 사용자 객체(User)를 기반으로 JWT 생성에 필요한 페이로드와 토큰을 생성합니다.
+     * 사용자 객체(User)를 기반으로 JWT 생성에 필요한 페이로드와 토큰을 생성
      *
      * @param user 인증된 User 객체
      * @return 생성된 JWT
