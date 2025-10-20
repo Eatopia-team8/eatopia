@@ -8,7 +8,6 @@ import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.entity.Cart;
 import org.example.eatopia.domain.cart.entity.CartItem;
-import org.example.eatopia.domain.cart.enums.QuantityChangeType;
 import org.example.eatopia.domain.cart.exception.CartErrorCode;
 import org.example.eatopia.domain.cart.repository.CartItemRepository;
 import org.example.eatopia.domain.cart.repository.CartRepository;
@@ -52,15 +51,13 @@ public class CartCommandServiceImpl implements CartCommandService {
         CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
                 .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
 
-        if (request.operation() == QuantityChangeType.DECREMENT && cartItem.getQuantity() < 1) {
+        int newQuantity = request.operation().apply(cartItem.getQuantity());
+
+        if (newQuantity < 1) {
             throw new GlobalException(CartErrorCode.CANNOT_DECREMENT);
         }
 
-        if (request.operation() == QuantityChangeType.INCREMENT) {
-            cartItem.updateQuantity(cartItem.getQuantity() + 1);
-        } else if (request.operation() == QuantityChangeType.DECREMENT) {
-            cartItem.updateQuantity(cartItem.getQuantity() - 1);
-        }
+        cartItem.updateQuantity(newQuantity);
 
         return CartItemResponse.of(cartItem, product.getName(), product.getPrice());
     }

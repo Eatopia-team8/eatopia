@@ -9,8 +9,14 @@ import lombok.RequiredArgsConstructor;
 public enum QuantityChangeType {
 
     @JsonProperty("increment")
-    INCREMENT, // 증가
+    INCREMENT(1), // 증가
 
     @JsonProperty("decrement")
-    DECREMENT // 감소
+    DECREMENT(-1); // 감소
+
+    private final int quantityChange;
+
+    public int apply(int quantity) {
+        return quantity + quantityChange;
+    }
 }
