@@ -53,4 +53,9 @@ public class CartItem extends BaseEntity {
                 .isSelected(true)
                 .build();
     }
+
+    public static CartItem updateQuantity(int quantity) {
+
+        return CartItem.builder().quantity(quantity).build();
+    }
 }

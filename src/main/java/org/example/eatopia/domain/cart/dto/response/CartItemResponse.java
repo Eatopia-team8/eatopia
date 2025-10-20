@@ -14,9 +14,8 @@ public record CartItemResponse(
         boolean isSelected,
         LocalDateTime createdAt
 ) {
-    public static CartItemResponse of(CartItem cartItem, String name) {
+    public static CartItemResponse of(CartItem cartItem, String name, BigDecimal price) {
 
-        BigDecimal price = cartItem.getPrice();
         BigDecimal decimalQuantity = BigDecimal.valueOf(cartItem.getQuantity());
 
         return new CartItemResponse(

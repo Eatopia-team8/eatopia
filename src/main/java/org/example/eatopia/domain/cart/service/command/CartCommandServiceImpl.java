@@ -1,12 +1,19 @@
 package org.example.eatopia.domain.cart.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
+import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
+import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.entity.Cart;
 import org.example.eatopia.domain.cart.entity.CartItem;
+import org.example.eatopia.domain.cart.enums.QuantityChangeType;
+import org.example.eatopia.domain.cart.exception.CartErrorCode;
 import org.example.eatopia.domain.cart.repository.CartItemRepository;
 import org.example.eatopia.domain.cart.repository.CartRepository;
+import org.example.eatopia.domain.product.entity.Product;
+import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +26,7 @@ public class CartCommandServiceImpl implements CartCommandService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final ProductQueryService productQueryService;
 
     @Override
     public CartCreateResponse createCartItem(Long userId, CartCreateRequest request) {
@@ -34,5 +42,26 @@ public class CartCommandServiceImpl implements CartCommandService {
         cartItemRepository.save(cartItem);
 
         return CartCreateResponse.from("상품이름");
+    }
+
+    @Override
+    public CartItemResponse updateQuantity(Long productId, CartUpdateQuantityRequest request, Long userId) {
+
+        Product product = productQueryService.getProductOrElseThrow(productId);
+
+        CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
+                .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
+
+        if (request.operation().equals(QuantityChangeType.DECREMENT) && cartItem.getQuantity() == 0) {
+            throw new GlobalException(CartErrorCode.CANNOT_DECREMENT);
+        }
+
+        if (request.operation().equals(QuantityChangeType.INCREMENT)) {
+            cartItem.updateQuantity(cartItem.getQuantity() + 1);
+        } else if (request.operation().equals(QuantityChangeType.DECREMENT)) {
+            cartItem.updateQuantity(cartItem.getQuantity() - 1);
+        }
+
+        return CartItemResponse.of(cartItem, product.getName(), product.getPrice());
     }
 }

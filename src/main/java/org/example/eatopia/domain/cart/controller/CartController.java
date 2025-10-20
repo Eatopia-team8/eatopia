@@ -3,17 +3,16 @@ package org.example.eatopia.domain.cart.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
+import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
+import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.dto.response.CartResponse;
 import org.example.eatopia.domain.cart.service.command.CartCommandService;
 import org.example.eatopia.domain.cart.service.query.CartQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,5 +36,15 @@ public class CartController {
         CartResponse cartResponse = cartQueryService.getCartByUser(authUser.getId());
 
         return ResponseEntity.ok(Response.success(cartResponse));
+    }
+
+    @PatchMapping("/v1/carts/items/{productId}")
+    public ResponseEntity<Response<CartItemResponse>> updateQuantity(@PathVariable Long productId,
+                                                                     @RequestBody CartUpdateQuantityRequest request,
+                                                                     @AuthenticationPrincipal UserPrincipal authUser) {
+
+        CartItemResponse cartResponse = cartCommandService.updateQuantity(productId, request, authUser.getId());
+
+        return null;
     }
 }
