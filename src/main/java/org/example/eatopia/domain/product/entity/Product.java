@@ -81,7 +81,7 @@ public class Product extends BaseEntity {
 
     public void verifySeller(Long userId) {
         if (!this.seller.getId().equals(userId)) {
-            throw new ProductException(ProductErrorCode.PRD_UPDATE_NO_PERMISSION);
+            throw new ProductException(ProductErrorCode.PRD_NO_PERMISSION);
         }
     }
 }
