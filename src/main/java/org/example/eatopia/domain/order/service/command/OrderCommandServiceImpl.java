@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -62,21 +63,18 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
     @Override
     public OrderDetailResponse successOrder(Long userId, Long orderId) {
-        Order order = orderValidator.findByIdAndUserIdOrThrow(orderId, userId);
-
-        orderValidator.orderSuccessValidate(order);
-        order.updateStatus(OrderStatus.SUCCESS);
-
-        return OrderDetailResponse.from(order);
+        return updateOrderStatus(userId, orderId, OrderStatus.SUCCESS, orderValidator::orderSuccessValidate);
     }
 
     @Override
     public OrderDetailResponse cancelOrder(Long userId, Long orderId) {
+        return updateOrderStatus(userId, orderId, OrderStatus.CANCELED, orderValidator::orderCancelValidate);
+    }
+
+    private OrderDetailResponse updateOrderStatus(Long userId, Long orderId, OrderStatus newStatus, Consumer<Order> validator) {
         Order order = orderValidator.findByIdAndUserIdOrThrow(orderId, userId);
-
-        orderValidator.orderCancelValidate(order);
-        order.updateStatus(OrderStatus.CANCELED);
-
+        validator.accept(order);
+        order.updateStatus(newStatus);
         return OrderDetailResponse.from(order);
     }
 }

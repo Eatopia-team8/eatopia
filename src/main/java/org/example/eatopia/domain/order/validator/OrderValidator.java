@@ -25,14 +25,16 @@ public class OrderValidator {
     }
 
     public void orderSuccessValidate(Order order) {
-        if (order.getStatus() != OrderStatus.PENDING) {
-            throw new GlobalException(OrderErrorCode.CANNOT_SUCCESS_ORDER);
-        }
+        validateOrderStatusIsPending(order, OrderErrorCode.CANNOT_SUCCESS_ORDER);
     }
 
     public void orderCancelValidate(Order order) {
+        validateOrderStatusIsPending(order, OrderErrorCode.CANNOT_CANCEL_ORDER);
+    }
+
+    private void validateOrderStatusIsPending(Order order, OrderErrorCode errorCode) {
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new GlobalException(OrderErrorCode.CANNOT_CANCEL_ORDER);
+            throw new GlobalException(errorCode);
         }
     }
 

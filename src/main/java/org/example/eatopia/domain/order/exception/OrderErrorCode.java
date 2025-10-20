@@ -12,7 +12,7 @@ public enum OrderErrorCode implements ErrorCode {
     PRODUCT_ID_REQUIRED(HttpStatus.BAD_REQUEST, "ORD-002", "상품 ID는 필수입니다."),
     SELLER_ID_REQUIRED(HttpStatus.BAD_REQUEST, "ORD-003", "판매자 ID는 필수입니다."),
     CANNOT_CANCEL_ORDER(HttpStatus.BAD_REQUEST, "ORD-004", "주문을 취소할 수 없는 상태입니다."),
-    CANNOT_SUCCESS_ORDER(HttpStatus.BAD_REQUEST, "ORD-006", "주문을 완료할 수 없는 상태입니다.");
+    CANNOT_SUCCESS_ORDER(HttpStatus.BAD_REQUEST, "ORD-005", "주문을 완료할 수 없는 상태입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
