@@ -40,7 +40,7 @@ public class CouponController {
 
         couponCommandService.downloadCoupon(authUser, couponId);
 
-        return Response.success(null);
+        return Response.success();
     }
 
     @GetMapping("/v1/coupons/{couponId}")
