@@ -62,4 +62,30 @@ public class Product extends BaseEntity {
                 .seller(seller)
                 .build();
     }
+
+    public void update(String name, String description, String thumbnailUrl,
+                       BigDecimal price, Long stock, ProductStatus status, Category category) {
+
+        if (name != null) {
+            this.name = name;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        if (thumbnailUrl != null) {
+            this.thumbnailUrl = thumbnailUrl;
+        }
+        if (price != null) {
+            this.price = price;
+        }
+        if (stock != null) {
+            this.stock = stock;
+        }
+        if (status != null) {
+            this.status = status;
+        }
+        if (category != null) {
+            this.category = category;
+        }
+    }
 }
