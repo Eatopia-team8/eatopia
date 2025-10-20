@@ -52,13 +52,13 @@ public class CartCommandServiceImpl implements CartCommandService {
         CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
                 .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
 
-        if (request.operation().equals(QuantityChangeType.DECREMENT) && cartItem.getQuantity() < 1) {
+        if (request.operation() == QuantityChangeType.DECREMENT && cartItem.getQuantity() < 1) {
             throw new GlobalException(CartErrorCode.CANNOT_DECREMENT);
         }
 
-        if (request.operation().equals(QuantityChangeType.INCREMENT)) {
+        if (request.operation() == QuantityChangeType.INCREMENT) {
             cartItem.updateQuantity(cartItem.getQuantity() + 1);
-        } else if (request.operation().equals(QuantityChangeType.DECREMENT)) {
+        } else if (request.operation() == QuantityChangeType.DECREMENT) {
             cartItem.updateQuantity(cartItem.getQuantity() - 1);
         }
 
