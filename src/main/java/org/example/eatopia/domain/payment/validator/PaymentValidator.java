@@ -13,7 +13,7 @@ public class PaymentValidator {
     private final OrderQueryService orderQueryService;
 
     public Order paymentCreateValidate(Long userId, Long orderId) {
-        Order order = orderQueryService.findOrderById(orderId);
+        Order order = orderQueryService.findOrderByIdAndUser(userId, orderId);
 
         if (!order.getUserId().equals(userId)) {
             throw new GlobalException(PaymentErrorCode.PAYMENT_NOT_FOUND);

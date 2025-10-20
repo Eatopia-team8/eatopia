@@ -36,7 +36,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public Order findOrderById(Long orderId) {
-        return orderValidator.findByIdOrThrow(orderId);
+    public Order findOrderByIdAndUser(Long userId, Long orderId) {
+        return orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
     }
 }

@@ -11,5 +11,5 @@ public interface OrderQueryService {
 
     Page<OrderResponse> getOrders(Long userId, Pageable pageable);
 
-    Order findOrderById(Long orderId);
+    Order findOrderByIdAndUser(Long userId, Long orderId);
 }
