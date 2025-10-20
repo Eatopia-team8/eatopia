@@ -34,4 +34,12 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
 
         return PaymentResponse.from(savedPayment);
     }
+
+    @Override
+    public void cancelPaymentByOrder(Order order) {
+        paymentRepository.findByOrder(order).ifPresent(payment -> {
+            paymentValidator.paymentCancelValidate(payment);
+            payment.updateStatus(PaymentStatus.CANCELED);
+        });
+    }
 }

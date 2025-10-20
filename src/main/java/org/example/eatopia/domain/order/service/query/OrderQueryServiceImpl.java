@@ -23,7 +23,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
      */
     @Override
     public OrderDetailResponse getOrder(Long userId, Long orderId) {
-        Order order = orderValidator.findByIdAndUserIdOrThrow(orderId, userId);
+        Order order = orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
 
         return OrderDetailResponse.from(order);
     }

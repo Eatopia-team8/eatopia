@@ -38,8 +38,8 @@ public class OrderValidator {
         }
     }
 
-    public Order findByIdAndUserIdOrThrow(Long orderId, Long userId) {
-        return orderRepository.findByIdAndUserId(orderId, userId)
+    public Order findByIdAndUserIdOrThrow(Long userId, Long orderId) {
+        return orderRepository.findByIdAndUserId(userId, orderId)
                 .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
     }
 }
