@@ -1,12 +1,14 @@
 package org.example.eatopia.domain.order.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderStatus;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
     private final OrderRepository orderRepository;
     private final OrderValidator orderValidator;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
@@ -66,15 +69,23 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         return updateOrderStatus(userId, orderId, OrderStatus.SUCCESS, orderValidator::orderSuccessValidate);
     }
 
+    /**
+     * 주문 취소시 payment도 취소
+     */
     @Override
     public OrderDetailResponse cancelOrder(Long userId, Long orderId) {
-        return updateOrderStatus(userId, orderId, OrderStatus.CANCELED, orderValidator::orderCancelValidate);
+        Order order = orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
+        orderValidator.orderCancelValidate(order);
+        order.updateStatus(OrderStatus.CANCELED);
+        eventPublisher.publishEvent(new OrderCancelledEvent(order));
+
+        return OrderDetailResponse.from(order);
     }
 
-    private OrderDetailResponse updateOrderStatus(Long userId, Long orderId, OrderStatus newStatus, Consumer<Order> validator) {
-        Order order = orderValidator.findByIdAndUserIdOrThrow(orderId, userId);
+    private OrderDetailResponse updateOrderStatus(Long userId, Long orderId, OrderStatus status, Consumer<Order> validator) {
+        Order order = orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
         validator.accept(order);
-        order.updateStatus(newStatus);
+        order.updateStatus(status);
         return OrderDetailResponse.from(order);
     }
 }
