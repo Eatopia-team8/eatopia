@@ -9,4 +9,6 @@ public interface ProductCommandService {
     ProductResponse createProduct(ProductCreateRequest request, Long userId);
 
     ProductResponse updateProduct(Long productId, ProductUpdateRequest request, Long userId);
+
+    void deleteProduct(Long productId, Long userId);
 }
