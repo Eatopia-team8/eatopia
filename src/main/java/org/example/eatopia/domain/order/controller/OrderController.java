@@ -1,12 +1,12 @@
 package org.example.eatopia.domain.order.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.eatopia.domain.auth.dto.AuthUser;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.dto.response.OrderResponse;
 import org.example.eatopia.domain.order.service.command.OrderCommandService;
 import org.example.eatopia.domain.order.service.query.OrderQueryService;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,7 +28,7 @@ public class OrderController {
      */
     @PostMapping
     public ResponseEntity<OrderDetailResponse> createOrder(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal UserPrincipal authUser,
             @RequestBody OrderCreateRequest request
     ) {
         Long userId = authUser.getId();
@@ -39,7 +39,7 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrder(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal UserPrincipal authUser,
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
@@ -49,7 +49,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<Page<OrderResponse>> getOrders(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal UserPrincipal authUser,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Long userId = authUser.getId();
