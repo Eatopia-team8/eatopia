@@ -23,11 +23,6 @@ public class OrderValidator {
         }
     }
 
-    public Order findByIdOrThrow(Long orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
-    }
-
     public Order findByIdAndUserIdOrThrow(Long orderId, Long userId) {
         return orderRepository.findByIdAndUserId(orderId, userId)
                 .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
