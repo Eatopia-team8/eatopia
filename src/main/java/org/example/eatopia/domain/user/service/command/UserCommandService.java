@@ -3,6 +3,7 @@ package org.example.eatopia.domain.user.service.command;
 import org.example.eatopia.domain.user.dto.UserEmailForPasswordReset;
 import org.example.eatopia.domain.user.dto.UserPasswordChangeRequest;
 import org.example.eatopia.domain.user.dto.UserPasswordResetRequest;
+import org.example.eatopia.domain.user.dto.UserUpdateProfileRequest;
 
 public interface UserCommandService {
 
@@ -16,4 +17,7 @@ public interface UserCommandService {
 
     //이메일과 재설정 토큰을 사용하여 비밀번호를 재설정
     void resetPassword(UserPasswordResetRequest request);
+
+    //유저 정보(회사이름, 주소) 업데이트
+    void updateProfile(Long id, UserUpdateProfileRequest request);
 }

@@ -1,0 +1,17 @@
+package org.example.eatopia.domain.user.dto;
+
+import jakarta.validation.constraints.Size;
+
+/**
+ * 사용자 프로필 업데이트 요청 DTO
+ * (SELLER는 회사명이 필수로 검증됨, 주소는 선택 사항)
+ */
+public record UserUpdateProfileRequest(
+
+        @Size(max = 255, message = "주소는 255자를 초과할 수 없습니다.")
+        String address,
+
+        @Size(max = 100, message = "회사명은 100자를 초과할 수 없습니다.")
+        String company
+) {
+}
