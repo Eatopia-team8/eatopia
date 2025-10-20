@@ -43,9 +43,7 @@ public class JwtProvider {
         this.tokenValidityInMilliseconds = tokenValidity;
     }
 
-    /**
-     * JWT 토큰 생성.
-     */
+
     public String createToken(JwtPayload payload) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
@@ -64,9 +62,6 @@ public class JwtProvider {
                 .compact();
     }
 
-    /**
-     * JWT 토큰에서 인증 정보를 추출하고 UserPrincipal 객체를 Principal로 설정
-     */
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
 

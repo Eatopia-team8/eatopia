@@ -10,9 +10,11 @@ import org.example.eatopia.domain.auth.dto.login.AuthLoginResponse;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpRequest;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpResponse;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
+import org.example.eatopia.domain.auth.repository.AuthRepository;
 import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
+import org.example.eatopia.domain.user.repository.PasswordResetTokenRepository;
 import org.example.eatopia.domain.user.repository.UserRepository;
 import org.example.eatopia.domain.user.validator.UserValidator;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,6 +42,8 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final AuthRepository authRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserValidator userValidator;
 
     //JWT 토큰 발행 로직을 분리하여 중복을 제거
@@ -51,6 +55,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
     //회원가입 및 토큰 발행에 필요한 JwtPayload를 User 엔티티로부터 생성
     private JwtPayload createJwtPayloadFromUser(User user) {
+
         // 사용자 권한 정보를 GrantedAuthority 컬렉션으로 변환
         Collection<SimpleGrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name())
@@ -100,16 +105,49 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
     @Override
     public AuthLoginResponse login(AuthLoginRequest request) {
-        //1. 이메일로 사용자 조회
+
+        // 1. 탈퇴자를 포함하여 이메일로 사용자 조회
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS));
 
-        // 2. 비밀번호 검증
+        // 2. [상태 검사] 찾은 사용자가 탈퇴자인지 확인 (가장 먼저 실행)
+        if (user.getDeletedAt() != null) {
+            // 탈퇴자로 확인되면 전용 오류 발생
+            throw new GlobalException(AuthErrorCode.USER_IS_DELETED);
+        }
+
+        // 3. 비밀번호 검증 (Validator 사용)
         userValidator.validateCurrentPassword(request.password(), user.getPassword());
 
-        // 3. 토큰 발급 로직 (issueToken 헬퍼 메서드 사용)
+        // 4. 토큰 발급 로직
         String jwt = issueToken(user);
 
         return AuthLoginResponse.of(user, jwt);
     }
+
+    @Override
+    public void withdrawUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
+
+        //이미 탈퇴된 사용자인지 확인
+        if (user.getDeletedAt() != null) {
+            throw new GlobalException(AuthErrorCode.USER_ALREADY_WITHDRAWN);
+        }
+
+        //1. Soft Delete처리
+        user.softDelete();
+        userRepository.save(user);
+
+        //2. Refresh Token 무효화
+        authRepository.findByUserId(userId)
+                .ifPresent(authRepository::delete);
+
+        //3. 비밀번호 재설정 토큰 무효화
+        passwordResetTokenRepository.findByUserId(userId)
+                .ifPresent(passwordResetTokenRepository::delete);
+
+        log.info("사용자 ID [{}]의 회원 탈퇴(Soft Delete)가 완료되었으며, 모든 토큰이 무효화되었습니다.", userId);
+    }
+
 }

@@ -8,11 +8,10 @@ import org.example.eatopia.domain.auth.dto.login.AuthLoginResponse;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpRequest;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpResponse;
 import org.example.eatopia.domain.auth.service.AuthCommandService;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,4 +50,16 @@ public class AuthController {
         return ResponseEntity.ok(Response.success(response));
     }
 
+    /**
+     * Soft Delete방식으로 회원탈퇴 및 토큰 무효화
+     *
+     * @param authUser Security Context에서 추출된 사용자 주체
+     */
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<Response<Void>> withdrawUser(@AuthenticationPrincipal UserPrincipal authUser) {
+
+        //토큰에서 추출한 userId를 사용
+        authCommandService.withdrawUser(authUser.getId());
+        return ResponseEntity.ok(Response.success(null));
+    }
 }
