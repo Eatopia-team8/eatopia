@@ -8,9 +8,9 @@ import org.example.eatopia.domain.user.dto.UserPasswordChangeRequest;
 import org.example.eatopia.domain.user.dto.UserPasswordResetRequest;
 import org.example.eatopia.domain.user.entity.PasswordResetToken;
 import org.example.eatopia.domain.user.entity.User;
-import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.PasswordResetTokenRepository;
 import org.example.eatopia.domain.user.repository.UserRepository;
+import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.example.eatopia.domain.user.validator.UserValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,37 +30,13 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserValidator userValidator;
-
-    // ID로 활성사용자를 조회하고 탈퇴여부 검사
-    public User getActiveUserById(Long userId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
-
-        if (user.getDeletedAt() != null) {
-            throw new GlobalException(AuthErrorCode.USER_IS_DELETED);
-        }
-        return user;
-    }
-
-    // Email로 활성사용자를 조회하고 탈퇴여부 검사
-    private User getActiveUserByEmail(String email) {
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, email));
-
-        // 탈퇴 상태 확인 로직
-        if (user.getDeletedAt() != null) {
-            throw new GlobalException(AuthErrorCode.USER_IS_DELETED);
-        }
-        return user;
-    }
+    private final UserQueryService userQueryService;
 
     @Override
     public void changePassword(Long userId, UserPasswordChangeRequest request) {
 
         // 1. 활성 사용자 조회 및 탈퇴자 검사
-        User user = getActiveUserById(userId);
+        User user = userQueryService.getActiveUserById(userId);
 
         // 2. 현재 비밀번호 검증
         userValidator.validateCurrentPassword(request.oldPassword(), user.getPassword());
@@ -76,7 +52,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     public String requestPasswordResetToken(UserEmailForPasswordReset request) {
 
         // 1. 활성 사용자 조회 및 탈퇴자 검사
-        User user = getActiveUserByEmail(request.email());
+        User user = userQueryService.getActiveUserByEmail(request.email());
 
         // 2. 기존 토큰 삭제 및 새 토큰 생성/저장
         passwordResetTokenRepository.findByUserId(user.getId())
@@ -100,7 +76,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     public void resetPassword(UserPasswordResetRequest request) {
 
         // 1. 활성 사용자 조회 및 탈퇴자 검사
-        User user = getActiveUserByEmail(request.email());
+        User user = userQueryService.getActiveUserByEmail(request.email());
 
         // 2. 재설정 토큰 유효성 검증 (나머지 로직 유지)
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.resetToken())

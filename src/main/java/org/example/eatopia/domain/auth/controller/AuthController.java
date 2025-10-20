@@ -60,6 +60,7 @@ public class AuthController {
 
         //토큰에서 추출한 userId를 사용
         authCommandService.withdrawUser(authUser.getId());
+        
         return ResponseEntity.ok(Response.success(null));
     }
 }
