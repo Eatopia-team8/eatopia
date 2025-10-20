@@ -51,7 +51,7 @@ public class User extends SoftDeleteEntity {
         this.userRole = userRole;
         this.name = name;
     }
-    
+
     //회원가입 비즈니스 로직을 처리하는 정적 팩토리메서드
     public static User signUp(String email, String password, String name, UserRole userRole) {
         return User.builder()
@@ -70,5 +70,22 @@ public class User extends SoftDeleteEntity {
     //관리자인지 확인하는 비즈니스 메서드
     public boolean isAdmin() {
         return this.userRole == UserRole.ADMIN;
+    }
+
+    //판매자인지 확인하는 비즈니스 메서드
+    public boolean isSeller() {
+        return this.userRole == UserRole.SELLER;
+    }
+
+    //사용자의 프로필 정보(주소, 회사명)를 업데이트하는 비즈니스 메서드
+    public void updateProfile(String address, String company) {
+        if (address != null && !address.trim().isEmpty()) { // 주소가 null이 아니고 비어있지 않은 경우에만 업데이트
+            this.address = address;
+        }
+        if (this.isAdmin() || this.isSeller()) {
+            if (company != null && !company.trim().isEmpty()) { // 회사명이 null이 아니고 비어있지 않은 경우에만 업데이트
+                this.company = company;
+            }
+        }
     }
 }

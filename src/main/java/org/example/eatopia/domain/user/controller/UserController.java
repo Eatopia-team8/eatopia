@@ -87,4 +87,18 @@ public class UserController {
         userCommandService.resetPassword(request);
         return ResponseEntity.ok(Response.success(null));
     }
+
+    /**
+     * 사용자의 프로필정보(주소, 회사명)을 업데이트
+     */
+    @PatchMapping("/update-profile")
+    public ResponseEntity<Response<Void>> updateProfile(
+            @AuthenticationPrincipal UserPrincipal authUser,
+            @Valid @RequestBody UserUpdateProfileRequest request) {
+
+        userCommandService.updateProfile(authUser.getId(), request);
+
+        return ResponseEntity.ok(Response.success(null));
+    }
+
 }
