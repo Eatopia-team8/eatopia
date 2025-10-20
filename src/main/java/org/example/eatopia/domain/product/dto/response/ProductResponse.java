@@ -44,7 +44,9 @@ public record ProductResponse(
             String company,
             String email
     ) {
+
         public static SellerInfo from(User user) {
+            
             return new SellerInfo(
                     user.getId(),
                     user.getName(),
