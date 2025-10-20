@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.entity.Order;
+import org.example.eatopia.domain.order.entity.OrderStatus;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +59,22 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         Order savedOrder = orderRepository.save(order);
 
         return OrderDetailResponse.from(savedOrder);
+    }
+
+    @Override
+    public OrderDetailResponse successOrder(Long userId, Long orderId) {
+        return updateOrderStatus(userId, orderId, OrderStatus.SUCCESS, orderValidator::orderSuccessValidate);
+    }
+
+    @Override
+    public OrderDetailResponse cancelOrder(Long userId, Long orderId) {
+        return updateOrderStatus(userId, orderId, OrderStatus.CANCELED, orderValidator::orderCancelValidate);
+    }
+
+    private OrderDetailResponse updateOrderStatus(Long userId, Long orderId, OrderStatus newStatus, Consumer<Order> validator) {
+        Order order = orderValidator.findByIdAndUserIdOrThrow(orderId, userId);
+        validator.accept(order);
+        order.updateStatus(newStatus);
+        return OrderDetailResponse.from(order);
     }
 }
