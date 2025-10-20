@@ -53,7 +53,7 @@ public class CartItem extends BaseEntity {
     }
 
     public void addQuantity(int quantity) {
-        this.quantity = quantity;
+        this.quantity += quantity;
     }
 
     public void updateQuantity(QuantityChangeType opration) {
