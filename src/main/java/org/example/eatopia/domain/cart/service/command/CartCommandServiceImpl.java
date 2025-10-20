@@ -36,12 +36,18 @@ public class CartCommandServiceImpl implements CartCommandService {
             throw new GlobalException(CartErrorCode.PRODUCT_NOT_FOR_SALE);
         }
 
+        // Cart 조회 + 없으면 생성
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseGet(() -> cartRepository.save(Cart.create(userId)));
 
-        // CartItem 생성
-        CartItem cartItem = CartItem.create(cart, product, request.quantity());
-        cartItemRepository.save(cartItem);
+        // CartItem 조회 후 존재하면 수량 증가, 없으면 새로 생성
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
+        if (cartItem != null) {
+            cartItem.setQuantity(cartItem.getQuantity() + request.quantity());
+        } else {
+            cartItem = CartItem.create(cart, product, request.quantity());
+            cartItemRepository.save(cartItem);
+        }
 
         return CartCreateResponse.from(product.getName());
     }

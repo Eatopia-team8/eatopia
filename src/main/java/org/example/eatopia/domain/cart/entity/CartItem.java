@@ -52,6 +52,10 @@ public class CartItem extends BaseEntity {
                 .build();
     }
 
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     public void updateQuantity(QuantityChangeType opration) {
 
         int newQuantity = opration.apply(this.getQuantity());
