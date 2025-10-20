@@ -111,14 +111,14 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 2. BUYER가 company 필드를 보냈는지 검사
         if (user.getUserRole().name().equals("BUYER")) {
             // company 값이 null이 아닌 경우(즉, JSON에 포함되어 넘어온 경우)
-            if (request.company() != null && !request.company().trim().isEmpty()) {
+            if (request.company() != null) { // company가 null이 아니면 예외 발생
                 throw new GlobalException(UserErrorCode.USER_DONT_INPUT_COMPANY_NAME);
             }
         }
 
         // 3. SELLER 역할일 때 company 필수 검증 (ADMIN은 자동 통과)
         if (user.isSeller() || user.isAdmin()) {
-            if (request.company() == null || request.company().trim().isEmpty()) {
+            if (request.company() == null || request.company().trim().isEmpty()) { // 회사명이 null이거나 비어있으면 예외 발생
                 throw new GlobalException(UserErrorCode.INVALID_INPUT, "판매자(SELLER)는 회사명을 반드시 입력해야 합니다.");
             }
         }
