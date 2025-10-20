@@ -32,7 +32,7 @@ public class CartQueryServiceImpl implements CartQueryService {
         // TODO: 추후 상품명 컬럼 추가
         // 상품 이름은 임시로 "상품명"으로 처리
         List<CartItemResponse> itemResponses = cartItems.stream()
-                .map(cartItem -> CartItemResponse.of(cartItem, "상품명"))
+                .map(cartItem -> CartItemResponse.of(cartItem, "상품명", BigDecimal.ZERO))
                 .collect(Collectors.toList());
 
         // 총액,할인,최종 금액 계산
