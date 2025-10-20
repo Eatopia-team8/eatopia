@@ -31,6 +31,7 @@ public class Cart extends BaseEntity {
     }
 
     public static Cart create(Long userId) {
+
         return Cart.builder()
                 .userId(userId)
                 .build();

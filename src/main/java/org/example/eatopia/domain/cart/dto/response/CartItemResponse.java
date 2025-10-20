@@ -22,7 +22,7 @@ public record CartItemResponse(
         return new CartItemResponse(
                 cartItem.getProductId(),
                 name,
-                cartItem.getPrice(),
+                price,
                 cartItem.getQuantity(),
                 price.multiply(decimalQuantity),
                 cartItem.isSelected(),

@@ -27,6 +27,7 @@ public class CartController {
                                                                        @AuthenticationPrincipal UserPrincipal authUser) {
 
         CartCreateResponse createCartItem = cartCommandService.createCartItem(authUser.getId(), request);
+
         return ResponseEntity.ok(Response.success(createCartItem));
     }
 
@@ -34,6 +35,7 @@ public class CartController {
     public ResponseEntity<Response<CartResponse>> getCart(@AuthenticationPrincipal UserPrincipal authUser) {
 
         CartResponse cartResponse = cartQueryService.getCartByUser(authUser.getId());
+
         return ResponseEntity.ok(Response.success(cartResponse));
     }
 }

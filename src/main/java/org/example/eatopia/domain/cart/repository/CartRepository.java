@@ -12,6 +12,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     Optional<Cart> findByUserId(Long userId);
 
     default Cart findByUserIdOrThrow(Long userId) {
+
         return findByUserId(userId)
                 .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
     }

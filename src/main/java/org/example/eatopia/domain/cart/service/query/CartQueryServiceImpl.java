@@ -47,6 +47,7 @@ public class CartQueryServiceImpl implements CartQueryService {
 
     @Override
     public Cart getCart(Long userId) {
+
         return cartRepository.findByUserIdOrThrow(userId);
     }
 }

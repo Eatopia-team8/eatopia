@@ -13,6 +13,7 @@ public record CartResponse(
         BigDecimal discountAmount,
         BigDecimal finalAmount
 ) {
+
     public static CartResponse of(
             Cart cart,
             List<CartItemResponse> items,
@@ -20,6 +21,7 @@ public record CartResponse(
             BigDecimal discountAmount,
             BigDecimal finalAmount
     ) {
+
         return new CartResponse(
                 cart.getId(),
                 cart.getUserId(),

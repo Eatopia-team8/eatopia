@@ -44,6 +44,7 @@ public class CartItem extends BaseEntity {
     }
 
     public static CartItem create(Cart cart, Long productId, int quantity, BigDecimal price) {
+
         return CartItem.builder()
                 .cart(cart)
                 .productId(productId)
