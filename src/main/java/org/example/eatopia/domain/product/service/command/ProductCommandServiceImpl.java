@@ -90,4 +90,15 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
         return ProductResponse.from(product);
     }
+
+    // 상품 삭제
+    @Override
+    public void deleteProduct(Long productId, Long userId) {
+
+        Product product = productQueryService.getProductOrElseThrow(productId);
+
+        product.verifySeller(userId);
+
+        productRepository.delete(product);
+    }
 }
