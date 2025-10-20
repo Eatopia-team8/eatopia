@@ -38,3 +38,7 @@ out/
 
 # 개인 환경설정 파일 제외
 application-local.yml
+
+# QueryDSL
+/build/generated/
+**/generated/
