@@ -16,8 +16,6 @@ import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -37,7 +35,7 @@ public class CartCommandServiceImpl implements CartCommandService {
 
         // CartItem 생성
         // TODO: 상품 엔티티 가격, 이름 get
-        CartItem cartItem = CartItem.create(cart, request.productId(), request.quantity(), BigDecimal.ONE);
+        CartItem cartItem = CartItem.create(cart, request.productId(), request.quantity());
         cartItemRepository.save(cartItem);
 
         return CartCreateResponse.from("상품이름");

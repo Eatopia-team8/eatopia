@@ -10,8 +10,6 @@ import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.enums.QuantityChangeType;
 import org.example.eatopia.domain.cart.exception.CartErrorCode;
 
-import java.math.BigDecimal;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,28 +29,23 @@ public class CartItem extends BaseEntity {
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
-    @Column(name = "price", precision = 10, nullable = false)
-    private BigDecimal price;
-
     @Column(name = "is_selected", nullable = false)
     private boolean isSelected;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CartItem(Cart cart, Long productId, int quantity, BigDecimal price, boolean isSelected) {
+    private CartItem(Cart cart, Long productId, int quantity, boolean isSelected) {
         this.cart = cart;
         this.productId = productId;
         this.quantity = quantity;
-        this.price = price;
         this.isSelected = isSelected;
     }
 
-    public static CartItem create(Cart cart, Long productId, int quantity, BigDecimal price) {
+    public static CartItem create(Cart cart, Long productId, int quantity) {
 
         return CartItem.builder()
                 .cart(cart)
                 .productId(productId)
                 .quantity(quantity)
-                .price(price)
                 .isSelected(true)
                 .build();
     }
