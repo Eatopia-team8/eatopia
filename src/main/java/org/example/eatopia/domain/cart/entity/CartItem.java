@@ -9,6 +9,7 @@ import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.enums.QuantityChangeType;
 import org.example.eatopia.domain.cart.exception.CartErrorCode;
+import org.example.eatopia.domain.product.entity.Product;
 
 @Entity
 @Getter
@@ -23,8 +24,9 @@ public class CartItem extends BaseEntity {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    @Column(name = "product_id", nullable = false)
-    private Long productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
@@ -33,18 +35,18 @@ public class CartItem extends BaseEntity {
     private boolean isSelected;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CartItem(Cart cart, Long productId, int quantity, boolean isSelected) {
+    private CartItem(Cart cart, Product product, int quantity, boolean isSelected) {
         this.cart = cart;
-        this.productId = productId;
+        this.product = product;
         this.quantity = quantity;
         this.isSelected = isSelected;
     }
 
-    public static CartItem create(Cart cart, Long productId, int quantity) {
+    public static CartItem create(Cart cart, Product product, int quantity) {
 
         return CartItem.builder()
                 .cart(cart)
-                .productId(productId)
+                .product(product)
                 .quantity(quantity)
                 .isSelected(true)
                 .build();

@@ -40,7 +40,7 @@ public class CartCommandServiceImpl implements CartCommandService {
                 .orElseGet(() -> cartRepository.save(Cart.create(userId)));
 
         // CartItem 생성
-        CartItem cartItem = CartItem.create(cart, request.productId(), request.quantity());
+        CartItem cartItem = CartItem.create(cart, product, request.quantity());
         cartItemRepository.save(cartItem);
 
         return CartCreateResponse.from(product.getName());
