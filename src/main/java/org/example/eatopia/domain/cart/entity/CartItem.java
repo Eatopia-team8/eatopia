@@ -9,8 +9,7 @@ import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.enums.QuantityChangeType;
 import org.example.eatopia.domain.cart.exception.CartErrorCode;
-
-import java.math.BigDecimal;
+import org.example.eatopia.domain.product.entity.Product;
 
 @Entity
 @Getter
@@ -25,36 +24,36 @@ public class CartItem extends BaseEntity {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    @Column(name = "product_id", nullable = false)
-    private Long productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
-
-    @Column(name = "price", precision = 10, nullable = false)
-    private BigDecimal price;
 
     @Column(name = "is_selected", nullable = false)
     private boolean isSelected;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CartItem(Cart cart, Long productId, int quantity, BigDecimal price, boolean isSelected) {
+    private CartItem(Cart cart, Product product, int quantity, boolean isSelected) {
         this.cart = cart;
-        this.productId = productId;
+        this.product = product;
         this.quantity = quantity;
-        this.price = price;
         this.isSelected = isSelected;
     }
 
-    public static CartItem create(Cart cart, Long productId, int quantity, BigDecimal price) {
+    public static CartItem create(Cart cart, Product product, int quantity) {
 
         return CartItem.builder()
                 .cart(cart)
-                .productId(productId)
+                .product(product)
                 .quantity(quantity)
-                .price(price)
                 .isSelected(true)
                 .build();
+    }
+
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
     }
 
     public void updateQuantity(QuantityChangeType opration) {

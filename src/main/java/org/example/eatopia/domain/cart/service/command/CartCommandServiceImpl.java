@@ -12,11 +12,10 @@ import org.example.eatopia.domain.cart.exception.CartErrorCode;
 import org.example.eatopia.domain.cart.repository.CartItemRepository;
 import org.example.eatopia.domain.cart.repository.CartRepository;
 import org.example.eatopia.domain.product.entity.Product;
+import org.example.eatopia.domain.product.enums.ProductStatus;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @Service
 @Transactional
@@ -30,17 +29,27 @@ public class CartCommandServiceImpl implements CartCommandService {
     @Override
     public CartCreateResponse createCartItem(Long userId, CartCreateRequest request) {
 
+        Product product = productQueryService.getProductOrElseThrow(request.productId());
+
+        // 판매상품인지 체크
+        if (product.getStatus() != ProductStatus.AVAILABLE) {
+            throw new GlobalException(CartErrorCode.PRODUCT_NOT_FOR_SALE);
+        }
+
+        // Cart 조회 + 없으면 생성
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseGet(() -> cartRepository.save(Cart.create(userId)));
 
-        // TODO: 상품의 재고가 없으면 예외 반환
+        // CartItem 조회 후 존재하면 수량 증가, 없으면 새로 생성
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
+        if (cartItem != null) {
+            cartItem.addQuantity(request.quantity());
+        } else {
+            cartItem = CartItem.create(cart, product, request.quantity());
+            cartItemRepository.save(cartItem);
+        }
 
-        // CartItem 생성
-        // TODO: 상품 엔티티 가격, 이름 get
-        CartItem cartItem = CartItem.create(cart, request.productId(), request.quantity(), BigDecimal.ONE);
-        cartItemRepository.save(cartItem);
-
-        return CartCreateResponse.from("상품이름");
+        return CartCreateResponse.from(product.getName());
     }
 
     @Override

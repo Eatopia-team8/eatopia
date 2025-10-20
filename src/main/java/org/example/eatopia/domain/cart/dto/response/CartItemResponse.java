@@ -19,7 +19,7 @@ public record CartItemResponse(
         BigDecimal decimalQuantity = BigDecimal.valueOf(cartItem.getQuantity());
 
         return new CartItemResponse(
-                cartItem.getProductId(),
+                cartItem.getProduct().getId(),
                 name,
                 price,
                 cartItem.getQuantity(),
