@@ -20,12 +20,7 @@ public class AuthController {
 
     private final AuthCommandService authCommandService;
 
-    /**
-     * 사용자 회원가입을 처리하고 JWT 토큰을 즉시 발급
-     *
-     * @param request 회원가입에 필요한 정보(이메일, 비밀번호, 이름)를 담은 DTO
-     * @return 생성된 사용자의 정보와 JWT 토큰이 담긴 응답 DTO
-     */
+    //회원가입
     @PostMapping("/signup")
     public ResponseEntity<Response<AuthSignUpResponse>> signUp(@Valid @RequestBody AuthSignUpRequest request) {
         // 중간 변수를 활용하여 서비스 호출 및 결과 받기
@@ -34,12 +29,7 @@ public class AuthController {
         return ResponseEntity.ok(Response.success(response));
     }
 
-    /**
-     * 사용자 로그인을 처리하고 JWT 토큰을 발급
-     *
-     * @param request 로그인 정보(이메일, 비밀번호)
-     * @return JWT 토큰
-     */
+    //로그인처리
     @PostMapping("/login")
     public ResponseEntity<Response<AuthLoginResponse>> login(@Valid @RequestBody AuthLoginRequest request) {
 
@@ -50,17 +40,22 @@ public class AuthController {
         return ResponseEntity.ok(Response.success(response));
     }
 
-    /**
-     * Soft Delete방식으로 회원탈퇴 및 토큰 무효화
-     *
-     * @param authUser Security Context에서 추출된 사용자 주체
-     */
+    //로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Response<Void>> logout(@AuthenticationPrincipal UserPrincipal authUser) {
+
+        authCommandService.logout(authUser.getId());
+
+        return ResponseEntity.ok(Response.success(null));
+    }
+
+    //회원탈퇴
     @DeleteMapping("/withdraw")
     public ResponseEntity<Response<Void>> withdrawUser(@AuthenticationPrincipal UserPrincipal authUser) {
 
         //토큰에서 추출한 userId를 사용
         authCommandService.withdrawUser(authUser.getId());
-        
+
         return ResponseEntity.ok(Response.success(null));
     }
 }

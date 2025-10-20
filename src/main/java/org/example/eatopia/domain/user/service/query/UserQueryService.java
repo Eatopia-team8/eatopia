@@ -14,9 +14,8 @@ public interface UserQueryService {
     //ID로 사용자 엔티티를 조회하여 반환
     User getUserEntityById(Long userId);
 
-
-    //전체 사용자 목록을 페이지네이션하여 조회합니다.
-    Page<UserDetailResponse> getAllUsers(Pageable pageable);
+    //관리자기능 - 전체 사용자 목록을 페이지네이션하여 조회합니다.
+    Page<UserDetailResponse> getAllUsersForAdmin(Long requestingUserId, Pageable pageable);
 
     //ID로 활성사용자를 조회하고 탈퇴여부를 검사
     User getActiveUserById(Long userId);

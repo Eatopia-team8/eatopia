@@ -52,7 +52,14 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, AnonymousAuthenticationFilter.class)
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v1/auth/signup", "/v1/auth/login", "/v1/users/password-reset", "/v1/users/request-password-reset").permitAll()
+                        .requestMatchers(
+                                "/v1/auth/signup",
+                                "/v1/auth/login",
+                                "/v1/users/password-reset",
+                                "/v1/users/request-password-reset",
+                                "/v1/products",
+                                "/v1/categories"
+                        ).permitAll()
 
                         // Swagger 및 정적 리소스 경로 허용
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()

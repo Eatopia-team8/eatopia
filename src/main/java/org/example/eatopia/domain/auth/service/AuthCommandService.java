@@ -14,4 +14,7 @@ public interface AuthCommandService {
 
     //회원탈퇴 하고 토큰 무효화처리
     void withdrawUser(Long userId);
+
+    //로그아웃 처리 및 토큰 무효화 처리
+    void logout(Long userId);
 }

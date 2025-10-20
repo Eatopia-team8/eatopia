@@ -51,11 +51,8 @@ public class User extends SoftDeleteEntity {
         this.userRole = userRole;
         this.name = name;
     }
-
-    /**
-     * 회원가입 비즈니스 로직을 처리하는 정적 팩토리 메서드.
-     * (Auth 도메인 서비스에서 호출됨)
-     */
+    
+    //회원가입 비즈니스 로직을 처리하는 정적 팩토리메서드
     public static User signUp(String email, String password, String name, UserRole userRole) {
         return User.builder()
                 .email(email)
@@ -65,10 +62,13 @@ public class User extends SoftDeleteEntity {
                 .build();
     }
 
-    /**
-     * 사용자의 비밀번호를 변경하는 비즈니스 메서드.
-     */
+    //사용자의 비밀번호를 변경하는 비즈니스 메서드
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    //관리자인지 확인하는 비즈니스 메서드
+    public boolean isAdmin() {
+        return this.userRole == UserRole.ADMIN;
     }
 }

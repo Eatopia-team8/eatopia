@@ -35,13 +35,14 @@ public class UserController {
     /**
      * 전체 사용자 목록을 조회 (페이지네이션 적용)
      */
-    @GetMapping("/allUsers")
-    public ResponseEntity<Response<Page<UserDetailResponse>>> getAllUsers(
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+    //Long requestingUserId, Pageable pageable
+    @GetMapping("/admin-use-userList")
+    public ResponseEntity<Response<Page<UserDetailResponse>>> getAllUsersForAdmin(
+            @AuthenticationPrincipal UserPrincipal authUser,
+            @PageableDefault(sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
 
-        // Query Service를 사용하여 페이지 단위로 목록 조회
-        Page<UserDetailResponse> usersPage = userQueryService.getAllUsers(pageable);
-        return ResponseEntity.ok(Response.success(usersPage)); // Page 객체 반환
+        Page<UserDetailResponse> usersPage = userQueryService.getAllUsersForAdmin(authUser.getId(), pageable);
+        return ResponseEntity.ok(Response.success(usersPage));
     }
 
     /**
