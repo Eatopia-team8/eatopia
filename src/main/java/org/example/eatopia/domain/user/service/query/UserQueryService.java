@@ -17,4 +17,10 @@ public interface UserQueryService {
 
     //전체 사용자 목록을 페이지네이션하여 조회합니다.
     Page<UserDetailResponse> getAllUsers(Pageable pageable);
+
+    //ID로 활성사용자를 조회하고 탈퇴여부를 검사
+    User getActiveUserById(Long userId);
+
+    //Email로 활성사용자를 조회하고 탈퇴여부를 검사
+    User getActiveUserByEmail(String email);
 }

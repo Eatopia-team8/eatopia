@@ -3,6 +3,7 @@ package org.example.eatopia.domain.product.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.category.entity.Category;
 import org.example.eatopia.domain.product.dto.request.ProductCreateRequest;
+import org.example.eatopia.domain.product.dto.request.ProductUpdateRequest;
 import org.example.eatopia.domain.product.exception.ProductErrorCode;
 import org.example.eatopia.domain.product.exception.ProductException;
 import org.springframework.stereotype.Component;
@@ -12,10 +13,16 @@ import java.math.BigDecimal;
 @Component
 @RequiredArgsConstructor
 public class ProductValidator {
-    // 가격 및 재고 검증
-    public void validateProductRequest(ProductCreateRequest request) {
+    // 생성용
+    public void validateCreateRequest(ProductCreateRequest request) {
         validatePrice(request.price());
         validateStock(request.stock());
+    }
+
+    // 수정용
+    public void validateUpdateRequest(ProductUpdateRequest request) {
+        if (request.price() != null) validatePrice(request.price());
+        if (request.stock() != null) validateStock(request.stock());
     }
 
     private void validatePrice(BigDecimal price) {
