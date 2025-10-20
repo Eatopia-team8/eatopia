@@ -18,8 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-
 @RestController
 @RequiredArgsConstructor
 public class ProductController {
@@ -70,20 +68,8 @@ public class ProductController {
 
     // 상품 목록 조회 (공통)
     @GetMapping("/v1/products")
-    public ResponseEntity<Response<Page<ProductResponse>>> searchProducts(@RequestParam(required = false) String keyword,
-                                                                          @RequestParam(required = false) Long categoryId,
-                                                                          @RequestParam(required = false) String status,
-                                                                          @RequestParam(required = false) BigDecimal minPrice,
-                                                                          @RequestParam(required = false) BigDecimal maxPrice,
+    public ResponseEntity<Response<Page<ProductResponse>>> searchProducts(@ModelAttribute ProductSearchCondition condition,
                                                                           @PageableDefault(size = 10) Pageable pageable) {
-
-        ProductSearchCondition condition = new ProductSearchCondition(
-                keyword,
-                categoryId,
-                status,
-                minPrice,
-                maxPrice
-        );
 
         Page<ProductResponse> response = productQueryService.searchProducts(condition, pageable);
 
