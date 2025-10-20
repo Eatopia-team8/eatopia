@@ -43,7 +43,7 @@ public class CartCommandServiceImpl implements CartCommandService {
         // CartItem 조회 후 존재하면 수량 증가, 없으면 새로 생성
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
         if (cartItem != null) {
-            cartItem.setQuantity(cartItem.getQuantity() + request.quantity());
+            cartItem.addQuantity(cartItem.getQuantity() + request.quantity());
         } else {
             cartItem = CartItem.create(cart, product, request.quantity());
             cartItemRepository.save(cartItem);
