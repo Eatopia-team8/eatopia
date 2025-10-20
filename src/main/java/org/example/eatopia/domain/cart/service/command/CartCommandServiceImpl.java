@@ -51,13 +51,7 @@ public class CartCommandServiceImpl implements CartCommandService {
         CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
                 .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
 
-        int newQuantity = request.operation().apply(cartItem.getQuantity());
-
-        if (newQuantity < 1) {
-            throw new GlobalException(CartErrorCode.CANNOT_DECREMENT);
-        }
-
-        cartItem.updateQuantity(newQuantity);
+        cartItem.updateQuantity(request.operation());
 
         return CartItemResponse.of(cartItem, product.getName(), product.getPrice());
     }

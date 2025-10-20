@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
+import org.example.eatopia.common.core.exception.GlobalException;
+import org.example.eatopia.domain.cart.enums.QuantityChangeType;
+import org.example.eatopia.domain.cart.exception.CartErrorCode;
 
 import java.math.BigDecimal;
 
@@ -54,7 +57,14 @@ public class CartItem extends BaseEntity {
                 .build();
     }
 
-    public void updateQuantity(int quantity) {
-        this.quantity = quantity;
+    public void updateQuantity(QuantityChangeType opration) {
+
+        int newQuantity = opration.apply(this.getQuantity());
+
+        if (newQuantity < 1) {
+            throw new GlobalException(CartErrorCode.CANNOT_DECREMENT);
+        }
+
+        this.quantity = newQuantity;
     }
 }
