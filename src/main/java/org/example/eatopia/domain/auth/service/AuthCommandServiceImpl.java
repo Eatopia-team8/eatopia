@@ -9,6 +9,7 @@ import org.example.eatopia.domain.auth.dto.login.AuthLoginRequest;
 import org.example.eatopia.domain.auth.dto.login.AuthLoginResponse;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpRequest;
 import org.example.eatopia.domain.auth.dto.signup.AuthSignUpResponse;
+import org.example.eatopia.domain.auth.entity.RefreshToken;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.example.eatopia.domain.auth.repository.AuthRepository;
 import org.example.eatopia.domain.user.config.UserRole;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -110,19 +112,45 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS));
 
-        // 2. [상태 검사] 찾은 사용자가 탈퇴자인지 확인 (가장 먼저 실행)
+        // 2. 찾은 사용자가 탈퇴자인지 확인
         if (user.getDeletedAt() != null) {
-            // 탈퇴자로 확인되면 전용 오류 발생
             throw new GlobalException(AuthErrorCode.USER_IS_DELETED);
         }
 
         // 3. 비밀번호 검증 (Validator 사용)
         userValidator.validateCurrentPassword(request.password(), user.getPassword());
 
-        // 4. 토큰 발급 로직
+        // 4. JWT (Access Token) 발급
         String jwt = issueToken(user);
 
+        // 5. Refresh Token 생성 및 저장 로직 추가
+        authRepository.findByUserId(user.getId())
+                .ifPresent(authRepository::delete);
+
+        String refreshTokenValue = UUID.randomUUID().toString();
+        RefreshToken refreshToken = RefreshToken.create(user.getId(), refreshTokenValue);
+
+        authRepository.save(refreshToken);
+
+        // 6. 응답 DTO로 변환
         return AuthLoginResponse.of(user, jwt);
+    }
+
+    @Override
+    public void logout(Long userId) {
+
+        authRepository.findByUserId(userId)
+                .ifPresentOrElse(
+                        //Refresh Token이 존재할 경우 삭제 및 로그 기록
+                        token -> {
+                            authRepository.delete(token);
+                            log.info("사용자 ID [{}]의 Refresh Token이 삭제되어 로그아웃 처리되었습니다.", userId);
+                        },
+                        //Refresh Token이 이미 없는 경우, 아무것도 하지 않고 조용히 종료
+                        () -> {
+                            throw new GlobalException(AuthErrorCode.USER_ALREADY_LOGGED_OUT);
+                        }
+                );
     }
 
     @Override
@@ -149,5 +177,4 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
         log.info("사용자 ID [{}]의 회원 탈퇴(Soft Delete)가 완료되었으며, 모든 토큰이 무효화되었습니다.", userId);
     }
-
 }

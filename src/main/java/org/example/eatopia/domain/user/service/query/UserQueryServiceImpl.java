@@ -46,6 +46,7 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     public UserDetailResponse getUserById(Long userId) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
 
@@ -54,13 +55,23 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     public User getUserEntityById(Long userId) {
+
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
     }
 
     @Override
-    public Page<UserDetailResponse> getAllUsers(Pageable pageable) {
-        // JPA Repository의 findAll(Pageable)을 사용하여 DB에서 페이지 단위로 조회
+    public Page<UserDetailResponse> getAllUsersForAdmin(Long requestingUserId, Pageable pageable) {
+
+        //1. 요청사용자(Admin) 조회
+        User requester = userRepository.findById(requestingUserId)
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, requestingUserId));
+
+        //2. Admin역할이 아니면 ACCESS_DENIED 오류 발생
+        if (!requester.getUserRole().name().equals("ADMIN")) {
+            throw new GlobalException(UserErrorCode.ACCESS_DENIED);
+        }
+
         return userRepository.findAll(pageable)
                 .map(UserDetailResponse::of);
     }

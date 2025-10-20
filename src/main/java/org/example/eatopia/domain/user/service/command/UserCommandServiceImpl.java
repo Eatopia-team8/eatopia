@@ -24,7 +24,8 @@ import java.util.UUID;
 @Transactional
 public class UserCommandServiceImpl implements UserCommandService {
 
-    private static final int EXPIRATION_HOURS = 24; // 토큰 만료 시간 (24시간)
+    //테스트를위한 30초짜리 토큰만료시간
+    private static final int EXPIRATION_SECONDS = 60;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -59,7 +60,7 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .ifPresent(passwordResetTokenRepository::delete);
 
         String token = UUID.randomUUID().toString();
-        LocalDateTime expiryDate = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
+        LocalDateTime expiryDate = LocalDateTime.now().plusSeconds(EXPIRATION_SECONDS);
 
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .userId(user.getId())
