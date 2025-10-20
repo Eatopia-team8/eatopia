@@ -43,8 +43,8 @@ public class CartController {
                                                                      @RequestBody CartUpdateQuantityRequest request,
                                                                      @AuthenticationPrincipal UserPrincipal authUser) {
 
-        CartItemResponse cartResponse = cartCommandService.updateQuantity(productId, request, authUser.getId());
+        CartItemResponse cartItemResponse = cartCommandService.updateQuantity(productId, request, authUser.getId());
 
-        return null;
+        return ResponseEntity.ok(Response.success(cartItemResponse));
     }
 }
