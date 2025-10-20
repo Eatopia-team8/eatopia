@@ -5,19 +5,21 @@ import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.service.query.OrderQueryService;
 import org.example.eatopia.domain.payment.exception.PaymentErrorCode;
+import org.example.eatopia.domain.payment.repository.PaymentRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class PaymentValidator {
     private final OrderQueryService orderQueryService;
+    private final PaymentRepository paymentRepository;
 
     public Order paymentCreateValidate(Long userId, Long orderId) {
         Order order = orderQueryService.findOrderByIdAndUser(userId, orderId);
 
-        if (!order.getUserId().equals(userId)) {
-            throw new GlobalException(PaymentErrorCode.PAYMENT_NOT_FOUND);
-        }
+        paymentRepository.findByOrder(order).ifPresent(payment -> {
+            throw new GlobalException(PaymentErrorCode.ALREADY_PAID_ORDER);
+        });
 
         return order;
     }
