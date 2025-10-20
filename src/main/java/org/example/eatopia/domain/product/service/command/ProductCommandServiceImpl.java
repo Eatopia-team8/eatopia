@@ -67,9 +67,7 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
         Product product = productQueryService.getProductOrElseThrow(productId);
 
-        if (!product.getSeller().getId().equals(userId)) {
-            throw new ProductException(ProductErrorCode.PRD_UPDATE_NO_PERMISSION);
-        }
+        product.verifySeller(userId);
 
         productValidator.validateUpdateRequest(request);
 

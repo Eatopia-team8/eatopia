@@ -5,9 +5,12 @@ import lombok.*;
 import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.domain.category.entity.Category;
 import org.example.eatopia.domain.product.enums.ProductStatus;
+import org.example.eatopia.domain.product.exception.ProductErrorCode;
+import org.example.eatopia.domain.product.exception.ProductException;
 import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -64,28 +67,21 @@ public class Product extends BaseEntity {
     }
 
     public void update(String name, String description, String thumbnailUrl,
-                       BigDecimal price, Long stock, ProductStatus status, Category category) {
+                       BigDecimal price, Long stock, ProductStatus status,
+                       Category category) {
 
-        if (name != null) {
-            this.name = name;
-        }
-        if (description != null) {
-            this.description = description;
-        }
-        if (thumbnailUrl != null) {
-            this.thumbnailUrl = thumbnailUrl;
-        }
-        if (price != null) {
-            this.price = price;
-        }
-        if (stock != null) {
-            this.stock = stock;
-        }
-        if (status != null) {
-            this.status = status;
-        }
-        if (category != null) {
-            this.category = category;
+        Optional.ofNullable(name).ifPresent(value -> this.name = value);
+        Optional.ofNullable(description).ifPresent(value -> this.description = value);
+        Optional.ofNullable(thumbnailUrl).ifPresent(value -> this.thumbnailUrl = value);
+        Optional.ofNullable(price).ifPresent(value -> this.price = value);
+        Optional.ofNullable(stock).ifPresent(value -> this.stock = value);
+        Optional.ofNullable(status).ifPresent(value -> this.status = value);
+        Optional.ofNullable(category).ifPresent(value -> this.category = value);
+    }
+
+    public void verifySeller(Long userId) {
+        if (!this.seller.getId().equals(userId)) {
+            throw new ProductException(ProductErrorCode.PRD_UPDATE_NO_PERMISSION);
         }
     }
 }
