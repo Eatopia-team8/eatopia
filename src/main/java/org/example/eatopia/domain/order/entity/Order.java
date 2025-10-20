@@ -78,4 +78,8 @@ public class Order extends BaseEntity {
                 .finalPrice(finalPrice)
                 .build();
     }
+
+    public void updateStatus(OrderStatus status) {
+        this.status = status;
+    }
 }

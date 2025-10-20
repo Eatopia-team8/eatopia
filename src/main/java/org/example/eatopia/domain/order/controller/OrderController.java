@@ -56,4 +56,15 @@ public class OrderController {
         Page<OrderResponse> ordersPage = orderQueryService.getOrders(userId, pageable);
         return ResponseEntity.ok(ordersPage);
     }
+
+    @PatchMapping("{orderId}/cancel")
+    public ResponseEntity<OrderDetailResponse> cancelOrder(
+            @AuthenticationPrincipal UserPrincipal authUser,
+            @PathVariable Long orderId
+    ) {
+        Long userId = authUser.getId();
+        OrderDetailResponse order = orderCommandService.cancelOrder(userId, orderId);
+
+        return ResponseEntity.ok(order);
+    }
 }

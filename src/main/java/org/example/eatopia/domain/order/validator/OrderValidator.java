@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.entity.Order;
+import org.example.eatopia.domain.order.entity.OrderStatus;
 import org.example.eatopia.domain.order.exception.OrderErrorCode;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,18 @@ public class OrderValidator {
 
         if (request.sellerId() == null) {
             throw new GlobalException(OrderErrorCode.SELLER_ID_REQUIRED);
+        }
+    }
+
+    public void orderSuccessValidate(Order order) {
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new GlobalException(OrderErrorCode.CANNOT_SUCCESS_ORDER);
+        }
+    }
+
+    public void orderCancelValidate(Order order) {
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new GlobalException(OrderErrorCode.CANNOT_CANCEL_ORDER);
         }
     }
 
