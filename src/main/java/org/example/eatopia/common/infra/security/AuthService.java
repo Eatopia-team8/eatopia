@@ -19,7 +19,7 @@ public class AuthService {
     }
 
     /**
-     * 사용자 객체(User)를 기반으로 JWT 생성에 필요한 페이로드와 토큰을 생성합니다.
+     * 사용자 객체(User)를 기반으로 JWT 생성에 필요한 페이로드와 토큰을 생성
      *
      * @param user 인증된 User 객체
      * @return 생성된 JWT

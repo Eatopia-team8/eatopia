@@ -27,6 +27,12 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
+    public User getUserEntityById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
+    }
+
+    @Override
     public Page<UserDetailResponse> getAllUsers(Pageable pageable) {
         // JPA Repository의 findAll(Pageable)을 사용하여 DB에서 페이지 단위로 조회
         return userRepository.findAll(pageable)

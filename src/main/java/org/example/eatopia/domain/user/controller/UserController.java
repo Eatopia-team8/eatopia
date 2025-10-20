@@ -69,6 +69,16 @@ public class UserController {
     }
 
     /**
+     * 비밀번호 재설정 토큰발급 요청
+     */
+    @PostMapping("/request-password-reset")
+    public ResponseEntity<Response<String>> requestPasswordResetToken(@Valid @RequestBody UserEmailForPasswordReset request) {
+
+        String token = userCommandService.requestPasswordResetToken(request);
+        return ResponseEntity.ok(Response.success(token));
+    }
+
+    /**
      * [로그인 불필요] 이메일과 재설정 토큰을 사용하여 비밀번호를 재설정
      */
     @PostMapping("/password-reset")

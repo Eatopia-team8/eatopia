@@ -3,6 +3,7 @@ package org.example.eatopia.domain.user.service.command;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
+import org.example.eatopia.domain.user.dto.UserEmailForPasswordReset;
 import org.example.eatopia.domain.user.dto.UserPasswordChangeRequest;
 import org.example.eatopia.domain.user.dto.UserPasswordResetRequest;
 import org.example.eatopia.domain.user.entity.PasswordResetToken;
@@ -10,18 +11,25 @@ import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.PasswordResetTokenRepository;
 import org.example.eatopia.domain.user.repository.UserRepository;
+import org.example.eatopia.domain.user.validator.UserValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserCommandServiceImpl implements UserCommandService {
 
+    private static final int EXPIRATION_HOURS = 24; // 토큰 만료 시간 (24시간)
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final UserValidator userValidator;
 
     @Override
     public void changePassword(Long userId, UserPasswordChangeRequest request) {
@@ -30,10 +38,7 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, userId));
 
         //2. 현재 비밀번호(OldPassword)검증
-        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
-            //비밀번호 불일치 시 Error띄우기
-            throw new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS);
-        }
+        userValidator.validateCurrentPassword(request.oldPassword(), user.getPassword());
 
         //3. 새 비밀번호(NewPassword) 인코딩
         String encodedNewPassword = passwordEncoder.encode(request.newPassword());
@@ -42,9 +47,32 @@ public class UserCommandServiceImpl implements UserCommandService {
         user.updatePassword(encodedNewPassword);
     }
 
-    /**
-     * [로그인 불필요] 이메일과 재설정 토큰을 사용하여 비밀번호를 재설정
-     */
+
+    //이메일로 비밀번호 재설정 토큰을 요청하고 생성
+    @Override
+    public String requestPasswordResetToken(UserEmailForPasswordReset request) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, request.email()));
+
+        passwordResetTokenRepository.findByUserId(user.getId())
+                .ifPresent(passwordResetTokenRepository::delete);
+
+        String token = UUID.randomUUID().toString();
+        LocalDateTime expiryDate = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
+
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .userId(user.getId())
+                .token(token)
+                .expiryDate(expiryDate)
+                .build();
+
+        passwordResetTokenRepository.save(resetToken);
+
+        return token;
+    }
+
+
+    //이메일과 재설정 토큰을 사용하여 비밀번호를 재설정
     @Override
     public void resetPassword(UserPasswordResetRequest request) {
         // 1. 사용자 조회 (Email 사용)

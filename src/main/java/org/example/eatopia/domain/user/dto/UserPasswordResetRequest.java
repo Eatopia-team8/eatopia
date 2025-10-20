@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
  * [USER 도메인] 로그인 없이 비밀번호 재설정 요청 DTO
  */
 public record UserPasswordResetRequest(
+
         @NotBlank(message = "이메일은 필수입니다.")
         @Email(message = "유효한 이메일 형식이 아닙니다.")
         String email,

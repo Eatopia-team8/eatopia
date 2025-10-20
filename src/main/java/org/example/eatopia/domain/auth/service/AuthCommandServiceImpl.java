@@ -14,6 +14,7 @@ import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;
+import org.example.eatopia.domain.user.validator.UserValidator;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,18 +40,16 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final UserValidator userValidator;
 
-    /**
-     * JWT 토큰 발행 로직을 분리하여 중복을 제거
-     */
+    //JWT 토큰 발행 로직을 분리하여 중복을 제거
     private String issueToken(User user) {
         JwtPayload payload = createJwtPayloadFromUser(user);
         return jwtProvider.createToken(payload);
     }
 
-    /**
-     * 회원가입 및 토큰 발행에 필요한 JwtPayload를 User 엔티티로부터 생성
-     */
+
+    //회원가입 및 토큰 발행에 필요한 JwtPayload를 User 엔티티로부터 생성
     private JwtPayload createJwtPayloadFromUser(User user) {
         // 사용자 권한 정보를 GrantedAuthority 컬렉션으로 변환
         Collection<SimpleGrantedAuthority> authorities = List.of(
@@ -69,6 +68,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
     @Override
     public AuthSignUpResponse signUp(AuthSignUpRequest request) {
+
         // 1. 역할(Role) 유효성 검증
         if (!ALLOWED_SIGNUP_ROLES.contains(request.role())) {
             throw new GlobalException(AuthErrorCode.ACCESS_DENIED, "허용되지 않은 사용자 역할입니다.");
@@ -105,9 +105,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS));
 
         // 2. 비밀번호 검증
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new GlobalException(AuthErrorCode.UNAUTHORIZED_CREDENTIALS);
-        }
+        userValidator.validateCurrentPassword(request.password(), user.getPassword());
 
         // 3. 토큰 발급 로직 (issueToken 헬퍼 메서드 사용)
         String jwt = issueToken(user);

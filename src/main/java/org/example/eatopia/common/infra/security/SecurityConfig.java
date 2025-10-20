@@ -52,8 +52,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, AnonymousAuthenticationFilter.class)
 
                 .authorizeHttpRequests(authorize -> authorize
-                        // 회원가입, 로그인 API는 인증 없이 허용
-                        .requestMatchers("/v1/auth/signup", "/v1/auth/login", "/v1/users/password-reset").permitAll()
+                        .requestMatchers("/v1/auth/signup", "/v1/auth/login", "/v1/users/password-reset", "/v1/users/request-password-reset").permitAll()
 
                         // Swagger 및 정적 리소스 경로 허용
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()

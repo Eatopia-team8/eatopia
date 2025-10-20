@@ -27,8 +27,10 @@ import java.util.stream.Collectors;
 public class JwtProvider {
 
     private final long tokenValidityInMilliseconds;
+
     @Value("${jwt.secret-key}")
     private String secretKey;
+
     @Value("${jwt.access-token-expiration-milliseconds}")
     private long accessTokenExpirationMs;
     private Key key;
