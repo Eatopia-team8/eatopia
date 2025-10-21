@@ -12,6 +12,7 @@ import org.example.eatopia.domain.product.exception.ProductException;
 import org.example.eatopia.domain.product.repository.ProductRepository;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.example.eatopia.domain.product.validator.ProductValidator;
+import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
@@ -93,12 +94,12 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 상품 삭제
     @Override
-    public void deleteProduct(Long productId, Long userId) {
+    public void deleteProduct(Long productId, Long userId, UserRole userRole) {
 
         Product product = productQueryService.getProductOrElseThrow(productId);
         User user = userQueryService.getUserEntityById(userId);
 
-        product.verifySellerOrAdmin(userId, user.isAdmin());
+        product.verifySellerOrAdmin(userId, userRole == UserRole.ADMIN);
 
         productRepository.delete(product);
     }

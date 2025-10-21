@@ -54,7 +54,7 @@ public class ProductController {
     public ResponseEntity<Response<Void>> deleteProduct(@PathVariable Long productId,
                                                         @AuthenticationPrincipal UserPrincipal authUser) {
 
-        productCommandService.deleteProduct(productId, authUser.getId());
+        productCommandService.deleteProduct(productId, authUser.getId(), authUser.getUserRole());
 
         return ResponseEntity.ok(Response.success());
     }
