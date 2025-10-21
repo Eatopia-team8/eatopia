@@ -18,13 +18,9 @@ public class OrderEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handlePaymentCompleted(PaymentCompletedEvent event) {
-        try {
-            log.info("주문 성공 처리 중 Order ID: {}", event.orderId());
-            orderCommandService.successOrder(event.userId(), event.orderId());
-            log.info("주문 성공 처리가 완료되었습니다. Order ID: {}", event.orderId());
-        } catch (Exception e) {
-            log.error("주문 성공 처리 중 오류 발생  Order ID: {}", event.orderId(), e);
-        }
+        log.info("주문 성공 처리 중 Order ID: {}", event.orderId());
+        orderCommandService.successOrder(event.userId(), event.orderId());
+        log.info("주문 성공 처리가 완료되었습니다. Order ID: {}", event.orderId());
     }
 
     @TransactionalEventListener
