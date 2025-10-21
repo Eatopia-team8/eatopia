@@ -14,11 +14,13 @@ import org.example.eatopia.domain.cart.service.command.CartCommandService;
 import org.example.eatopia.domain.cart.service.query.CartQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ROLE_BUYER')")
 public class CartController {
 
     private final CartCommandService cartCommandService;
