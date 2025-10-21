@@ -3,6 +3,7 @@ package org.example.eatopia.domain.cart.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
+import org.example.eatopia.domain.cart.dto.request.CartSelectionRequest;
 import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
@@ -46,5 +47,15 @@ public class CartController {
         CartItemResponse cartItemResponse = cartCommandService.updateQuantity(productId, request, authUser.getId());
 
         return ResponseEntity.ok(Response.success(cartItemResponse));
+    }
+
+    @PatchMapping("/v1/carts/items/{productId}/select")
+    public ResponseEntity<Response<Void>> updateItemSelection(@PathVariable Long productId,
+                                                              @RequestBody CartSelectionRequest request,
+                                                              @AuthenticationPrincipal UserPrincipal authUser) {
+
+        cartCommandService.updateItemSelection(productId, request, authUser.getId());
+
+        return ResponseEntity.ok(Response.success());
     }
 }

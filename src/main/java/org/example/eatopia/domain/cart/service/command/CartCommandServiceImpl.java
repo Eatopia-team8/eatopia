@@ -3,6 +3,7 @@ package org.example.eatopia.domain.cart.service.command;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
+import org.example.eatopia.domain.cart.dto.request.CartSelectionRequest;
 import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
@@ -63,5 +64,16 @@ public class CartCommandServiceImpl implements CartCommandService {
         cartItem.updateQuantity(request.operation());
 
         return CartItemResponse.of(cartItem, product.getName(), product.getPrice());
+    }
+
+    @Override
+    public void updateItemSelection(Long productId, CartSelectionRequest request, Long userId) {
+
+        Product product = productQueryService.getProductOrElseThrow(productId);
+
+        CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
+                .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
+
+        cartItem.updateIsSelected(request.isSelected());
     }
 }

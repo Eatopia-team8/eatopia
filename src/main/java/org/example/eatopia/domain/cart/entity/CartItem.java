@@ -66,4 +66,8 @@ public class CartItem extends BaseEntity {
 
         this.quantity = newQuantity;
     }
+
+    public void updateIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
+    }
 }
