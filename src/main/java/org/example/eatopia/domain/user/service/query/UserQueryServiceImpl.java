@@ -3,7 +3,7 @@ package org.example.eatopia.domain.user.service.query;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
-import org.example.eatopia.domain.user.dto.UserDetailResponse;
+import org.example.eatopia.domain.user.dto.response.UserDetailResponse;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;

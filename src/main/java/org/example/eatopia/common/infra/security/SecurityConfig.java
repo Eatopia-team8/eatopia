@@ -55,8 +55,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/v1/auth/signup",
                                 "/v1/auth/login",
+                                "/v1/users/newpassword-foremail",
                                 "/v1/users/password-reset",
-                                "/v1/users/request-password-reset",
                                 "/v1/products",
                                 "/v1/categories"
                         ).permitAll()

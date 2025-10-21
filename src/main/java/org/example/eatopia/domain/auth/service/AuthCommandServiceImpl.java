@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.common.core.dto.JwtPayload;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.common.infra.security.JwtProvider;
-import org.example.eatopia.domain.auth.dto.login.AuthLoginRequest;
-import org.example.eatopia.domain.auth.dto.login.AuthLoginResponse;
-import org.example.eatopia.domain.auth.dto.signup.AuthSignUpRequest;
-import org.example.eatopia.domain.auth.dto.signup.AuthSignUpResponse;
+import org.example.eatopia.domain.auth.dto.request.AuthLoginRequest;
+import org.example.eatopia.domain.auth.dto.request.AuthSignUpRequest;
+import org.example.eatopia.domain.auth.dto.response.AuthLoginResponse;
+import org.example.eatopia.domain.auth.dto.response.AuthSignUpResponse;
 import org.example.eatopia.domain.auth.entity.RefreshToken;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.example.eatopia.domain.auth.repository.AuthRepository;
@@ -129,7 +129,6 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
         String refreshTokenValue = UUID.randomUUID().toString();
         RefreshToken refreshToken = RefreshToken.create(user.getId(), refreshTokenValue);
-
         authRepository.save(refreshToken);
 
         // 6. 응답 DTO로 변환

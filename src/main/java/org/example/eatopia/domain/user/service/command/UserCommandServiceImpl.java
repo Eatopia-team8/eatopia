@@ -1,12 +1,14 @@
 package org.example.eatopia.domain.user.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.common.core.exception.GlobalException;
+import org.example.eatopia.common.infra.mail.MailService;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
-import org.example.eatopia.domain.user.dto.UserEmailForPasswordReset;
-import org.example.eatopia.domain.user.dto.UserPasswordChangeRequest;
-import org.example.eatopia.domain.user.dto.UserPasswordResetRequest;
-import org.example.eatopia.domain.user.dto.UserUpdateProfileRequest;
+import org.example.eatopia.domain.user.dto.request.UserMailRequest;
+import org.example.eatopia.domain.user.dto.request.UserPasswordChangeRequest;
+import org.example.eatopia.domain.user.dto.request.UserPasswordResetRequest;
+import org.example.eatopia.domain.user.dto.request.UserUpdateProfileRequest;
 import org.example.eatopia.domain.user.entity.PasswordResetToken;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,14 +29,12 @@ import java.util.UUID;
 @Transactional
 public class UserCommandServiceImpl implements UserCommandService {
 
-    //테스트를위한 30초짜리 토큰만료시간
-    private static final int EXPIRATION_SECONDS = 60;
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserValidator userValidator;
     private final UserQueryService userQueryService;
+    private final MailService mailService;
 
     @Override
     public void changePassword(Long userId, UserPasswordChangeRequest request) {
@@ -49,29 +50,39 @@ public class UserCommandServiceImpl implements UserCommandService {
         user.updatePassword(encodedNewPassword);
     }
 
-
-    //이메일로 비밀번호 재설정 토큰을 요청하고 생성
     @Override
-    public String requestPasswordResetToken(UserEmailForPasswordReset request) {
+    public void newPasswordForEmail(UserMailRequest request) {
 
         // 1. 활성 사용자 조회 및 탈퇴자 검사
         User user = userQueryService.getActiveUserByEmail(request.email());
 
-        // 2. 기존 토큰 삭제 및 새 토큰 생성/저장
-        passwordResetTokenRepository.findByUserId(user.getId())
-                .ifPresent(passwordResetTokenRepository::delete);
+        // 2. 기존 토큰 확인 및 쿨다운 검사
+        Optional<PasswordResetToken> existingTokenOpt = passwordResetTokenRepository.findByUserId(user.getId());
 
+        if (existingTokenOpt.isPresent()) {
+            PasswordResetToken existingToken = existingTokenOpt.get();
+            LocalDateTime coolDownTime = existingToken.getCreatedAt().plusMinutes(Const.RE_ISSUE_COOL_DOWN_MINUTES);
+
+            if (LocalDateTime.now().isBefore(coolDownTime)) {
+                throw new GlobalException(AuthErrorCode.TOKEN_ALREADY_ISSUED);
+            } else {
+                passwordResetTokenRepository.delete(existingToken);
+                passwordResetTokenRepository.flush();
+            }
+        }
+
+        // 3. 새 토큰 생성 및 저장
         String token = UUID.randomUUID().toString();
-        LocalDateTime expiryDate = LocalDateTime.now().plusSeconds(EXPIRATION_SECONDS);
-
+        LocalDateTime expiryDate = LocalDateTime.now().plusSeconds(Const.RESET_TOKEN_EXPIRATION_SECONDS);
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .userId(user.getId())
                 .token(token)
                 .expiryDate(expiryDate)
                 .build();
-
         passwordResetTokenRepository.save(resetToken);
-        return token;
+
+        // 4. MailService 호출
+        mailService.sendPasswordResetMail(user.getEmail(), token);
     }
 
     //이메일과 재설정 토큰을 사용하여 비밀번호를 재설정
