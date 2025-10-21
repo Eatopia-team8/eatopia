@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.cart.service.command;
 
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionUpdateRequest;
 import org.example.eatopia.domain.cart.dto.request.CartSelectionRequest;
 import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
@@ -12,4 +13,6 @@ public interface CartCommandService {
     CartItemResponse updateQuantity(Long productId, CartUpdateQuantityRequest request, Long userId);
 
     void updateItemSelection(Long productId, CartSelectionRequest request, Long userId);
+
+    void updateItemSelections(CartItemsSelectionUpdateRequest request, Long userId);
 }
