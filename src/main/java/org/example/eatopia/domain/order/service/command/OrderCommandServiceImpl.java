@@ -1,30 +1,32 @@
 package org.example.eatopia.domain.order.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderStatus;
+import org.example.eatopia.domain.order.exception.OrderErrorCode;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
+import org.example.eatopia.domain.product.entity.Product;
+import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class OrderCommandServiceImpl implements OrderCommandService {
 
-    // private final ProductQueryService productQueryService; //product 구현되면 추가 현재는 임의의 값으로 구현
-    private static final BigDecimal TEMPORARY_PRODUCT_PRICE = new BigDecimal("10000");
     private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000");
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
+    private final ProductQueryService productQueryService;
     private final OrderRepository orderRepository;
     private final OrderValidator orderValidator;
     private final ApplicationEventPublisher eventPublisher;
@@ -32,8 +34,12 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Override
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
         orderValidator.orderCreateValidate(request);
-        //payment 구현을 위해 임시로 값 설정
-        BigDecimal totalProductPrice = TEMPORARY_PRODUCT_PRICE;
+
+        Product product = productQueryService.getProductOrElseThrow(request.productId());
+        orderValidator.validateStock(product, request.quantity());
+
+        BigDecimal totalProductPrice = product.getPrice()
+                .multiply(new BigDecimal(request.quantity()));
         BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
         BigDecimal discountProductPrice = DEFAULT_DISCOUNT_PRICE;
         BigDecimal discountDeliveryPrice = DEFAULT_DISCOUNT_PRICE;
@@ -52,6 +58,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 request.productId(),
                 request.sellerId(),
                 code,
+                request.quantity(),
                 totalProductPrice,
                 discountProductPrice,
                 totalDeliveryPrice,
@@ -66,7 +73,15 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
     @Override
     public OrderDetailResponse successOrder(Long userId, Long orderId) {
-        return updateOrderStatus(userId, orderId, OrderStatus.SUCCESS, orderValidator::orderSuccessValidate);
+        Order order = orderRepository.findByUserIdAndId(userId, orderId)
+                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+
+        orderValidator.orderSuccessValidate(order);
+
+        //주문 성공하면 재고 차감하는 로직 추가
+
+        order.updateStatus(OrderStatus.SUCCESS);
+        return OrderDetailResponse.from(order);
     }
 
     /**
@@ -74,18 +89,13 @@ public class OrderCommandServiceImpl implements OrderCommandService {
      */
     @Override
     public OrderDetailResponse cancelOrder(Long userId, Long orderId) {
-        Order order = orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
+        Order order = orderRepository.findByUserIdAndId(userId, orderId)
+                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+
         orderValidator.orderCancelValidate(order);
         order.updateStatus(OrderStatus.CANCELED);
         eventPublisher.publishEvent(new OrderCancelledEvent(order));
 
-        return OrderDetailResponse.from(order);
-    }
-
-    private OrderDetailResponse updateOrderStatus(Long userId, Long orderId, OrderStatus status, Consumer<Order> validator) {
-        Order order = orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
-        validator.accept(order);
-        order.updateStatus(status);
         return OrderDetailResponse.from(order);
     }
 }

@@ -11,5 +11,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findByUserId(Long userId, Pageable pageable);
 
-    Optional<Order> findByIdAndUserId(Long orderId, Long userId);
+    Optional<Order> findByUserIdAndId(Long userId, Long orderId);
+
+    boolean existsByUserId(Long userId);
 }

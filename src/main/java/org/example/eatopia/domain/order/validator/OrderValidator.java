@@ -6,13 +6,12 @@ import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderStatus;
 import org.example.eatopia.domain.order.exception.OrderErrorCode;
-import org.example.eatopia.domain.order.repository.OrderRepository;
+import org.example.eatopia.domain.product.entity.Product;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class OrderValidator {
-    private final OrderRepository orderRepository;
 
     public void orderCreateValidate(OrderCreateRequest request) {
         if (request.productId() == null) {
@@ -38,8 +37,9 @@ public class OrderValidator {
         }
     }
 
-    public Order findByIdAndUserIdOrThrow(Long userId, Long orderId) {
-        return orderRepository.findByIdAndUserId(userId, orderId)
-                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+    public void validateStock(Product product, Long quantity) {
+        if (product.getStock() < quantity) {
+            throw new GlobalException(OrderErrorCode.OUT_OF_STOCK);
+        }
     }
 }
