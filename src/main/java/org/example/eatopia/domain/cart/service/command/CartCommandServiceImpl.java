@@ -3,7 +3,7 @@ package org.example.eatopia.domain.cart.service.command;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemSelectionRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemsDeleteRequest;
 import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionRequest;
 import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
@@ -16,10 +16,10 @@ import org.example.eatopia.domain.cart.repository.CartRepository;
 import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.product.enums.ProductStatus;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
+import org.example.eatopia.domain.user.entity.User;
+import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -29,6 +29,7 @@ public class CartCommandServiceImpl implements CartCommandService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductQueryService productQueryService;
+    private final UserQueryService userQueryService;
 
     @Override
     public CartCreateResponse createCartItem(Long userId, CartCreateRequest request) {
@@ -40,9 +41,10 @@ public class CartCommandServiceImpl implements CartCommandService {
             throw new GlobalException(CartErrorCode.PRODUCT_NOT_FOR_SALE);
         }
 
+        User user = userQueryService.getUserEntityById(userId);
         // Cart 조회 + 없으면 생성
         Cart cart = cartRepository.findByUserId(userId)
-                .orElseGet(() -> cartRepository.save(Cart.create(userId)));
+                .orElseGet(() -> cartRepository.save(Cart.create(user)));
 
         // CartItem 조회 후 존재하면 수량 증가, 없으면 새로 생성
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
@@ -70,21 +72,14 @@ public class CartCommandServiceImpl implements CartCommandService {
     }
 
     @Override
-    public void updateItemSelection(Long productId, CartItemSelectionRequest request, Long userId) {
+    public void updateItemSelections(CartItemsSelectionRequest request, Long userId) {
 
-        CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
-                .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
-
-        cartItem.updateIsSelected(request.isSelected());
+        cartItemRepository.updateSelectionItems(userId, request.productIds(), request.isSelected());
     }
 
     @Override
-    public void updateItemSelections(CartItemsSelectionRequest request, Long userId) {
+    public void deleteItems(CartItemsDeleteRequest request, Long userId) {
 
-        if (request.productIds().isEmpty()) return;
-
-        List<CartItem> cartItems = cartItemRepository.findAllByUserIdAndProductIdIn(userId, request.productIds());
-
-        cartItems.forEach(cartItem -> cartItem.updateIsSelected(request.isSelected()));
+        cartItemRepository.deleteSelectedItems(userId, request.productIds());
     }
 }
