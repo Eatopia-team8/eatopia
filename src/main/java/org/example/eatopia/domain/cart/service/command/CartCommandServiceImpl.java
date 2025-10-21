@@ -69,8 +69,6 @@ public class CartCommandServiceImpl implements CartCommandService {
     @Override
     public void updateItemSelection(Long productId, CartSelectionRequest request, Long userId) {
 
-        Product product = productQueryService.getProductOrElseThrow(productId);
-
         CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
                 .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
 
