@@ -28,7 +28,7 @@ public class CouponQueryServiceImpl implements CouponQueryService {
     // 쿠폰 단건 조회
     public CouponResponse getCoupon(Long couponId) {
 
-        Coupon coupon = couponRepository.findByIdWithUser(couponId)
+        Coupon coupon = couponRepository.findCouponById(couponId)
                 .orElseThrow(() -> new CouponException(CouponErrorCode.INVALID_COUPON));
 
         CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
