@@ -37,6 +37,9 @@ public class Order extends BaseEntity {
     private OrderStatus status;
 
     @Column(nullable = false)
+    private Long quantity;
+
+    @Column(nullable = false)
     private BigDecimal totalProductPrice;
 
     @Column(nullable = false)
@@ -52,12 +55,22 @@ public class Order extends BaseEntity {
     private BigDecimal finalPrice;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Order(Long userId, Long productId, Long sellerId, String code, BigDecimal totalProductPrice, BigDecimal discountProductPrice, BigDecimal totalDeliveryPrice, BigDecimal discountDeliveryPrice, BigDecimal finalPrice) {
+    private Order(Long userId,
+                  Long productId,
+                  Long sellerId,
+                  String code,
+                  Long quantity,
+                  BigDecimal totalProductPrice,
+                  BigDecimal discountProductPrice,
+                  BigDecimal totalDeliveryPrice,
+                  BigDecimal discountDeliveryPrice,
+                  BigDecimal finalPrice) {
         this.userId = userId;
         this.productId = productId;
         this.sellerId = sellerId;
         this.code = code;
         this.status = OrderStatus.PENDING;
+        this.quantity = quantity;
         this.totalProductPrice = totalProductPrice;
         this.discountProductPrice = discountProductPrice;
         this.totalDeliveryPrice = totalDeliveryPrice;
@@ -65,12 +78,22 @@ public class Order extends BaseEntity {
         this.finalPrice = finalPrice;
     }
 
-    public static Order create(Long userId, Long productId, Long sellerId, String code, BigDecimal totalProductPrice, BigDecimal discountProductPrice, BigDecimal totalDeliveryPrice, BigDecimal discountDeliveryPrice, BigDecimal finalPrice) {
+    public static Order create(Long userId,
+                               Long productId,
+                               Long sellerId,
+                               String code,
+                               Long quantity,
+                               BigDecimal totalProductPrice,
+                               BigDecimal discountProductPrice,
+                               BigDecimal totalDeliveryPrice,
+                               BigDecimal discountDeliveryPrice,
+                               BigDecimal finalPrice) {
         return Order.builder()
                 .userId(userId)
                 .productId(productId)
                 .sellerId(sellerId)
                 .code(code)
+                .quantity(quantity)
                 .totalProductPrice(totalProductPrice)
                 .discountProductPrice(discountProductPrice)
                 .totalDeliveryPrice(totalDeliveryPrice)
