@@ -7,6 +7,7 @@ import org.example.eatopia.domain.payment.dto.response.PaymentResponse;
 import org.example.eatopia.domain.payment.service.command.PaymentCommandService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ public class PaymentController {
 
     private final PaymentCommandService paymentCommandService;
 
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @PostMapping
     public ResponseEntity<PaymentResponse> createPayment(
             @AuthenticationPrincipal UserPrincipal authUser,

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class OrderController {
     /**
      * SecurityContext에서 사용자 정보 추출
      */
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @PostMapping
     public ResponseEntity<OrderDetailResponse> createOrder(
             @AuthenticationPrincipal UserPrincipal authUser,
@@ -37,6 +39,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrder(
             @AuthenticationPrincipal UserPrincipal authUser,
@@ -47,6 +50,7 @@ public class OrderController {
         return ResponseEntity.ok(orderDetail);
     }
 
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @GetMapping
     public ResponseEntity<Page<OrderResponse>> getOrders(
             @AuthenticationPrincipal UserPrincipal authUser,
@@ -57,6 +61,7 @@ public class OrderController {
         return ResponseEntity.ok(ordersPage);
     }
 
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @PatchMapping("{orderId}/cancel")
     public ResponseEntity<OrderDetailResponse> cancelOrder(
             @AuthenticationPrincipal UserPrincipal authUser,
