@@ -105,8 +105,7 @@ public class ProductCommandServiceImpl implements ProductCommandService {
     // 재고 감소
     @Override
     public void decreaseStock(Long productId, Long quantity) {
-        Product product = productRepository.findByIdWithPessimisticLock(productId)
-                .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_NOT_FOUND));
+        Product product = findProductWithLock(productId);
 
         product.decreaseStock(quantity);
     }
@@ -114,9 +113,13 @@ public class ProductCommandServiceImpl implements ProductCommandService {
     // 결제 취소시 재고 롤백
     @Override
     public void increaseStock(Long productId, Long quantity) {
-        Product product = productRepository.findByIdWithPessimisticLock(productId)
-                .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_NOT_FOUND));
+        Product product = findProductWithLock(productId);
 
         product.increaseStock(quantity);
+    }
+
+    private Product findProductWithLock(Long productId) {
+        return productRepository.findByIdWithPessimisticLock(productId)
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_NOT_FOUND));
     }
 }

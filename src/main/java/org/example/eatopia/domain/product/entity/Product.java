@@ -86,10 +86,7 @@ public class Product extends BaseEntity {
     }
 
     public void decreaseStock(Long quantity) {
-        // 수량 체크
-        if (quantity == null || quantity <= 0) {
-            throw new ProductException(ProductErrorCode.PRD_INVALID_ORDER_QUANTITY);
-        }
+        validateQuantity(quantity);
 
         // 재고 체크
         if (this.stock < quantity) {
@@ -100,10 +97,15 @@ public class Product extends BaseEntity {
     }
 
     public void increaseStock(Long quantity) {
+        validateQuantity(quantity);
+
+        this.stock += quantity;
+    }
+
+    private void validateQuantity(Long quantity) {
+        // 수량 체크
         if (quantity == null || quantity <= 0) {
             throw new ProductException(ProductErrorCode.PRD_INVALID_ORDER_QUANTITY);
         }
-
-        this.stock += quantity;
     }
 }
