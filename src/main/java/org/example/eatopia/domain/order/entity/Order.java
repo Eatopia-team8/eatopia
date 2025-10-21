@@ -55,7 +55,16 @@ public class Order extends BaseEntity {
     private BigDecimal finalPrice;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Order(Long userId, Long productId, Long sellerId, String code, Long quantity, BigDecimal totalProductPrice, BigDecimal discountProductPrice, BigDecimal totalDeliveryPrice, BigDecimal discountDeliveryPrice, BigDecimal finalPrice) {
+    private Order(Long userId,
+                  Long productId,
+                  Long sellerId,
+                  String code,
+                  Long quantity,
+                  BigDecimal totalProductPrice,
+                  BigDecimal discountProductPrice,
+                  BigDecimal totalDeliveryPrice,
+                  BigDecimal discountDeliveryPrice,
+                  BigDecimal finalPrice) {
         this.userId = userId;
         this.productId = productId;
         this.sellerId = sellerId;
@@ -69,7 +78,16 @@ public class Order extends BaseEntity {
         this.finalPrice = finalPrice;
     }
 
-    public static Order create(Long userId, Long productId, Long sellerId, String code, Long quantity, BigDecimal totalProductPrice, BigDecimal discountProductPrice, BigDecimal totalDeliveryPrice, BigDecimal discountDeliveryPrice, BigDecimal finalPrice) {
+    public static Order create(Long userId,
+                               Long productId,
+                               Long sellerId,
+                               String code,
+                               Long quantity,
+                               BigDecimal totalProductPrice,
+                               BigDecimal discountProductPrice,
+                               BigDecimal totalDeliveryPrice,
+                               BigDecimal discountDeliveryPrice,
+                               BigDecimal finalPrice) {
         return Order.builder()
                 .userId(userId)
                 .productId(productId)

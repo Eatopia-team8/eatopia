@@ -2,7 +2,6 @@ package org.example.eatopia.domain.order.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
-import org.example.eatopia.domain.cart.exception.CartErrorCode;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderStatus;
@@ -47,7 +46,7 @@ public class OrderValidator {
 
     public void validateStock(Product product, Long quantity) {
         if (product.getStock() < quantity) {
-            throw new GlobalException(CartErrorCode.OUT_OF_STOCK);
+            throw new GlobalException(OrderErrorCode.OUT_OF_STOCK);
         }
     }
 }

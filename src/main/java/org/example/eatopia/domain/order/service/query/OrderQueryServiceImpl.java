@@ -41,7 +41,10 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     /**
-     * 첫 주문이 맞으면 true / 아니면 false 반환
+     * 사용자의 첫 주문 여부를 확인합니다.
+     *
+     * @param userId 확인할 사용자의 ID
+     * @return 첫 주문일 경우 true, 아닐 경우 false
      */
     @Override
     public boolean isFirstOrder(Long userId) {
