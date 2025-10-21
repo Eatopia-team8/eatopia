@@ -15,4 +15,6 @@ public interface CartCommandService {
     void updateItemSelection(Long productId, CartItemSelectionRequest request, Long userId);
 
     void updateItemSelections(CartItemsSelectionRequest request, Long userId);
+
+    void deleteItem(Long productId, Long userId);
 }

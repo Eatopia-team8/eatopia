@@ -87,4 +87,15 @@ public class CartCommandServiceImpl implements CartCommandService {
 
         cartItems.forEach(cartItem -> cartItem.updateIsSelected(request.isSelected()));
     }
+
+    @Override
+    public void deleteItem(Long productId, Long userId) {
+
+        CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
+                .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
+
+        if (cartItem.isSelected()) {
+            cartItemRepository.delete(cartItem);
+        }
+    }
 }
