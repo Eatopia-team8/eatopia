@@ -2,7 +2,10 @@ package org.example.eatopia.domain.cart.service.command;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
-import org.example.eatopia.domain.cart.dto.request.*;
+import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemsDeleteRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionRequest;
+import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.entity.Cart;
@@ -15,8 +18,6 @@ import org.example.eatopia.domain.product.enums.ProductStatus;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -67,22 +68,9 @@ public class CartCommandServiceImpl implements CartCommandService {
     }
 
     @Override
-    public void updateItemSelection(Long productId, CartItemSelectionRequest request, Long userId) {
-
-        CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
-                .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
-
-        cartItem.updateIsSelected(request.isSelected());
-    }
-
-    @Override
     public void updateItemSelections(CartItemsSelectionRequest request, Long userId) {
 
-        if (request.productIds().isEmpty()) return;
-
-        List<CartItem> cartItems = cartItemRepository.findAllByUserIdAndProductIdIn(userId, request.productIds());
-
-        cartItems.forEach(cartItem -> cartItem.updateIsSelected(request.isSelected()));
+        cartItemRepository.updateSelectionItems(userId, request.productIds(), request.isSelected());
     }
 
     @Override

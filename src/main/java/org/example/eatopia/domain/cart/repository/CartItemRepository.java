@@ -20,9 +20,14 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     CartItem findByCartIdAndProductId(Long cartId, Long productId);
 
-    @Query("SELECT ci FROM CartItem ci JOIN ci.cart c WHERE c.userId = :userId AND ci.product.id IN :productIds")
-    List<CartItem> findAllByUserIdAndProductIdIn(@Param("userId") Long userId,
-                                                 @Param("productIds") List<Long> productIds);
+    @Modifying
+    @Query("UPDATE CartItem ci " +
+            "SET ci.isSelected = :isSelected " +
+            "WHERE ci.cart.userId = :userId " +
+            "AND ci.product.id IN :productIds")
+    void updateSelectionItems(@Param("userId") Long userId,
+                              @Param("productIds") List<Long> productIds,
+                              @Param("isSelected") Boolean isSelected);
 
     @Modifying
     @Query("DELETE FROM CartItem ci " +
@@ -30,5 +35,5 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             "AND ci.product.id IN :productIds " +
             "AND ci.isSelected = true")
     void deleteSelectedItems(@Param("userId") Long userId,
-                             @Param("productIds") List<Long> longs);
+                             @Param("productIds") List<Long> productIds);
 }
