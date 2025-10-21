@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.coupon.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
@@ -10,86 +11,95 @@ import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.coupon.validator.CouponValidator;
+import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.example.eatopia.common.core.consts.Const.RANDOM;
+
+/**
+ * 쿠폰 생성/다운로드(발급) 명령을 처리하는 서비스 구현.
+ * <p>
+ * - 생성 시 비즈니스 검증 후 고유 코드 생성 및 저장.<br>
+ * - 다운로드(발급) 시 잠금 기반 단건 조회로 동시성 제어, 중복 발급 방지, 사전 검증 수행.<br>
+ * - 트랜잭션 경계 내에서 쿠폰 상태 변경 및 발급 이력 저장을 원자적으로 보장합니다.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CouponCommandServiceImpl implements CouponCommandService {
-
-    // 상수
-    private static final String CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private static final int CODE_LENGTH = 8;
-    private static final java.security.SecureRandom RANDOM = new java.security.SecureRandom();
-
 
     private final UserQueryService userQueryService;
     private final CouponRepository couponRepository;
     private final CouponIssueRepository couponIssueRepository;
     private final CouponValidator couponValidator;
 
-    public CouponResponse createCoupon(CouponCreateRequest request) {
+    // 쿠폰 생성 처리
+    public CouponResponse createCoupon(CouponCreateRequest request, UserPrincipal userAuth) {
 
+        // 쿠폰 생성에 관한 검증
         couponValidator.couponCreateValidate(request);
 
+        // 쿠폰 코드 생성
         String code = generateUniqueCode();
-
-        // TODO: 유저의 role 확인 후 구매자일 때 예외처리
-
-        Coupon coupon = Coupon.of(request, code);
+        User user = userQueryService.getUserEntityById(userAuth.getId());
+        Coupon coupon = Coupon.of(request, user, code);
 
         couponRepository.save(coupon);
 
-        return CouponResponse.from(coupon);
+        // 쿠폰 생성자에 관한 응답 dto 생성
+        CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(user.getId(), user.getName(), user.getCompany(), user.getUserRole());
+
+        return CouponResponse.of(coupon, creator);
     }
 
+    // 쿠폰 다운로드(발급) 처리
     public void downloadCoupon(UserPrincipal authUser, Long couponId) {
 
-        // 1. 쿠폰 다운로드한 사용자 조회
+        // 1. 쿠폰 다운로드한 사용자, 다운로드 대상 쿠폰 조회
         User user = userQueryService.getUserEntityById(authUser.getId());
-
-        // 2. 다운로드 대상 쿠폰 조회
-        Coupon coupon = couponRepository.findById(couponId)
+        Coupon coupon = couponRepository.findWithLockById(couponId)
                 .orElseThrow(() -> new CouponException(CouponErrorCode.INVALID_COUPON));
 
-        // 3. 중복발급 검증
+        // 2. 중복발급 검증
         boolean alreadyIssued = couponIssueRepository.existsByUserIdAndCouponId(authUser.getId(), couponId);
         if (alreadyIssued) {
             throw new CouponException(CouponErrorCode.DUPLICATE_COUPON_ISSUE);
         }
 
-        // 4. 사전 검증
+        // 3. 사전 검증
         couponValidator.validateDownloadable(coupon);
 
-        // 5. 쿠폰 발급
+        // 4. 쿠폰 발급
         coupon.issue();
 
-        // 6. 쿠폰 발급 내역 생성
+        // 5. 쿠폰 발급 내역 생성
         CouponIssue newIssue = CouponIssue.of(user, coupon);
+
         couponIssueRepository.save(newIssue);
     }
 
     // 헬퍼메서드
+    // 고유한 쿠폰 코드 생성(중복 체크하며 재시도)
     private String generateUniqueCode() {
 
-        String code;
+        String couponCode;
 
         do {
-            StringBuilder sb = new StringBuilder(CODE_LENGTH);
+            StringBuilder sb = new StringBuilder(Const.CODE_LENGTH);
 
-            for (int i = 0; i < CODE_LENGTH; i++) {
-                sb.append(CODE_CHARS.charAt(RANDOM.nextInt(CODE_CHARS.length())));
+            for (int i = 0; i < Const.CODE_LENGTH; i++) {
+                sb.append(Const.CODE_CHARS.charAt(RANDOM.nextInt(Const.CODE_CHARS.length())));
             }
-            code = sb.toString();
+            couponCode = sb.toString();
 
         } while (// 중복 시 재시도
-                couponRepository.existsByCode(code)
+                couponRepository.existsByCode(couponCode)
         );
 
-        return code;
+        return couponCode;
     }
 }
