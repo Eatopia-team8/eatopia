@@ -3,10 +3,7 @@ package org.example.eatopia.domain.cart.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
-import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemSelectionRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionRequest;
-import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
+import org.example.eatopia.domain.cart.dto.request.*;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.dto.response.CartResponse;
@@ -70,11 +67,11 @@ public class CartController {
         return ResponseEntity.ok(Response.success());
     }
 
-    @DeleteMapping("/v1/carts/items/{productId}")
-    public ResponseEntity<Response<Void>> deleteItem(@PathVariable Long productId,
+    @DeleteMapping("/v1/carts/items")
+    public ResponseEntity<Response<Void>> deleteItem(@Valid @RequestBody CartItemsDeleteRequest request,
                                                      @AuthenticationPrincipal UserPrincipal authUser) {
 
-        cartCommandService.deleteItem(productId, authUser.getId());
+        cartCommandService.deleteItems(request, authUser.getId());
 
         return ResponseEntity.ok(Response.success());
     }

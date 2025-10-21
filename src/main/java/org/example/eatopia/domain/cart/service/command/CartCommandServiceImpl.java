@@ -2,10 +2,7 @@ package org.example.eatopia.domain.cart.service.command;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
-import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemSelectionRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionRequest;
-import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
+import org.example.eatopia.domain.cart.dto.request.*;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.entity.Cart;
@@ -89,13 +86,8 @@ public class CartCommandServiceImpl implements CartCommandService {
     }
 
     @Override
-    public void deleteItem(Long productId, Long userId) {
+    public void deleteItems(CartItemsDeleteRequest request, Long userId) {
 
-        CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
-                .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
-
-        if (cartItem.isSelected()) {
-            cartItemRepository.delete(cartItem);
-        }
+        cartItemRepository.deleteSelectedItems(userId, request.productIds());
     }
 }
