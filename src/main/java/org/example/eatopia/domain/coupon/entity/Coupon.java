@@ -10,6 +10,7 @@ import org.example.eatopia.common.core.entity.SoftDeleteEntity;
 import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
+import org.example.eatopia.domain.user.entity.User;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
@@ -21,15 +22,16 @@ import java.time.LocalDateTime;
 @SQLRestriction("deleted_at IS NULL")
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "coupons")
 public class Coupon extends SoftDeleteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "user_id", nullable = false)
-    //private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @NotBlank
     @Size(max = 30)
@@ -46,15 +48,11 @@ public class Coupon extends SoftDeleteEntity {
     @Column(name = "description", nullable = false, length = 255)
     private String description;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    @Column(name = "start_at", nullable = false)
+    private LocalDateTime startAt;
 
-    @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate;
-
-
-    @Column(name = "is_active", nullable = false, columnDefinition = "boolean default false")
-    private Boolean isActive;
+    @Column(name = "end_at", nullable = false)
+    private LocalDateTime endAt;
 
     @Column(name = "is_new_user_only", nullable = false, columnDefinition = "boolean default false")
     private Boolean isNewUserOnly;
@@ -84,7 +82,7 @@ public class Coupon extends SoftDeleteEntity {
     @Column(name = "is_percent", nullable = false, columnDefinition = "boolean default true")
     private Boolean percent = true;
 
-    // percent면 0~100, fixed면 통화단위 금액
+    // percent면 0~100, fixed면 원화 단위 금액
     @NotNull
     @Column(name = "discount_value", nullable = false, precision = 19)
     private BigDecimal discountValue;
@@ -97,15 +95,15 @@ public class Coupon extends SoftDeleteEntity {
     @Column(name = "min_order_amount", precision = 19)
     private BigDecimal minOrderAmount;
 
-    public static Coupon of(CouponCreateRequest request, String code) {
+    public static Coupon of(CouponCreateRequest request, User user, String code) {
 
         return Coupon.builder()
+                .user(user)
                 .code(code)
                 .name(request.name())
                 .description(request.description())
-                .startDate(request.startDate())
-                .endDate(request.endDate())
-                .isActive(request.isActive())
+                .startAt(request.startAt())
+                .endAt(request.endAt())
                 .isFirstOrderOnly(request.isFirstOrderOnly())
                 .isNewUserOnly(request.isNewUserOnly())
                 .usageLimit(request.usageLimit())

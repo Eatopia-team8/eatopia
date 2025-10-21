@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
+import org.example.eatopia.domain.user.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,21 +20,22 @@ public class Cart extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Cart(Long userId) {
-        this.userId = userId;
+    private Cart(User user) {
+        this.user = user;
     }
 
-    public static Cart create(Long userId) {
+    public static Cart create(User user) {
 
         return Cart.builder()
-                .userId(userId)
+                .user(user)
                 .build();
     }
 }

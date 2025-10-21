@@ -16,12 +16,10 @@ public record CouponCreateRequest(
         String description,
 
         @NotNull(message = "시작일은 필수입니다.")
-        LocalDateTime startDate,
+        LocalDateTime startAt,
 
         @NotNull(message = "종료일은 필수입니다.")
-        LocalDateTime endDate,
-
-        Boolean isActive,
+        LocalDateTime endAt,
 
         Boolean isNewUserOnly,
 
@@ -50,11 +48,6 @@ public record CouponCreateRequest(
     public CouponCreateRequest {
 
         // 기본값 설정
-        // 시작일이 현재 이후면 아직 비활성화
-        if (isActive == null) {
-            isActive = !startDate.isAfter(LocalDateTime.now());
-        }
-
         // 신규회원/첫주문 여부
         if (isNewUserOnly == null) {
             isNewUserOnly = false;

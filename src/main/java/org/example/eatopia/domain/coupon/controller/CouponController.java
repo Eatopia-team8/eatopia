@@ -14,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,17 +23,18 @@ public class CouponController {
     private final CouponQueryService couponQueryService;
     private final CouponCommandService couponCommandService;
 
-    @PostMapping("/v1/coupons")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
+    @PostMapping("/v1/manager/coupons")
     public Response<CouponResponse> createCoupon(@RequestBody @Valid CouponCreateRequest request,
-                                                 @AuthenticationPrincipal UserDetails userAuth) {
+                                                 @AuthenticationPrincipal UserPrincipal userAuth) {
 
-        CouponResponse response = couponCommandService.createCoupon(request);
+        CouponResponse response = couponCommandService.createCoupon(request, userAuth);
 
         return Response.success(response);
     }
 
     @PreAuthorize("hasAuthority('ROLE_BUYER')")
-    @PostMapping("/v1/coupons/{couponId}/download")
+    @PostMapping("/v1/buyer/coupons/{couponId}/download")
     public Response<Void> downloadCoupon(@AuthenticationPrincipal UserPrincipal authUser,
                                          @PathVariable Long couponId) {
 
@@ -51,10 +51,21 @@ public class CouponController {
         return Response.success(response);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/v1/admin/coupons")
     public Response<Page<CouponResponse>> getCreatedCoupons(@PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<CouponResponse> responses = couponQueryService.getCreatedCoupons(pageable);
+
+        return Response.success(responses);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
+    @GetMapping("/v1/manager/coupons/created")
+    public Response<Page<CouponResponse>> getCreatedCouponsByMe(@AuthenticationPrincipal UserPrincipal userAuth,
+                                                                @PageableDefault(size = 30, sort = "startAt", direction = Sort.Direction.ASC) Pageable pageable) {
+
+        Page<CouponResponse> responses = couponQueryService.getCreatedCouponsByMe(userAuth, pageable);
 
         return Response.success(responses);
     }

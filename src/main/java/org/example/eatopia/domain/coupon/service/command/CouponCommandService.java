@@ -6,7 +6,7 @@ import org.example.eatopia.domain.user.dto.UserPrincipal;
 
 public interface CouponCommandService {
 
-    CouponResponse createCoupon(CouponCreateRequest request);
+    CouponResponse createCoupon(CouponCreateRequest request, UserPrincipal userAuth);
 
     void downloadCoupon(UserPrincipal authUser, Long couponId);
 }
