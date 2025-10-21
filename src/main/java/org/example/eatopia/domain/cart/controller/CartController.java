@@ -1,5 +1,6 @@
 package org.example.eatopia.domain.cart.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
@@ -24,7 +25,7 @@ public class CartController {
     private final CartQueryService cartQueryService;
 
     @PostMapping("/v1/carts/items")
-    public ResponseEntity<Response<CartCreateResponse>> createCartItem(@RequestBody CartCreateRequest request,
+    public ResponseEntity<Response<CartCreateResponse>> createCartItem(@Valid @RequestBody CartCreateRequest request,
                                                                        @AuthenticationPrincipal UserPrincipal authUser) {
 
         CartCreateResponse createCartItem = cartCommandService.createCartItem(authUser.getId(), request);
@@ -42,7 +43,7 @@ public class CartController {
 
     @PatchMapping("/v1/carts/items/{productId}")
     public ResponseEntity<Response<CartItemResponse>> updateQuantity(@PathVariable Long productId,
-                                                                     @RequestBody CartUpdateQuantityRequest request,
+                                                                     @Valid @RequestBody CartUpdateQuantityRequest request,
                                                                      @AuthenticationPrincipal UserPrincipal authUser) {
 
         CartItemResponse cartItemResponse = cartCommandService.updateQuantity(productId, request, authUser.getId());
@@ -52,7 +53,7 @@ public class CartController {
 
     @PatchMapping("/v1/carts/items/{productId}/select")
     public ResponseEntity<Response<Void>> updateItemSelection(@PathVariable Long productId,
-                                                              @RequestBody CartSelectionRequest request,
+                                                              @Valid @RequestBody CartSelectionRequest request,
                                                               @AuthenticationPrincipal UserPrincipal authUser) {
 
         cartCommandService.updateItemSelection(productId, request, authUser.getId());
@@ -61,7 +62,7 @@ public class CartController {
     }
 
     @PatchMapping("/v1/carts/items/select")
-    public ResponseEntity<Response<Void>> updateItemSelections(@RequestBody CartItemsSelectionUpdateRequest request,
+    public ResponseEntity<Response<Void>> updateItemSelections(@Valid @RequestBody CartItemsSelectionUpdateRequest request,
                                                                @AuthenticationPrincipal UserPrincipal authUser) {
 
         cartCommandService.updateItemSelections(request, authUser.getId());
