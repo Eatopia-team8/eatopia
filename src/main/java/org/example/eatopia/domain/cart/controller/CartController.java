@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemSelectionRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemsDeleteRequest;
 import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionRequest;
 import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
@@ -51,21 +51,21 @@ public class CartController {
         return ResponseEntity.ok(Response.success(cartItemResponse));
     }
 
-    @PatchMapping("/v1/carts/items/{productId}/select")
-    public ResponseEntity<Response<Void>> updateItemSelection(@PathVariable Long productId,
-                                                              @Valid @RequestBody CartItemSelectionRequest request,
-                                                              @AuthenticationPrincipal UserPrincipal authUser) {
-
-        cartCommandService.updateItemSelection(productId, request, authUser.getId());
-
-        return ResponseEntity.ok(Response.success());
-    }
 
     @PatchMapping("/v1/carts/items/select")
     public ResponseEntity<Response<Void>> updateItemSelections(@Valid @RequestBody CartItemsSelectionRequest request,
                                                                @AuthenticationPrincipal UserPrincipal authUser) {
 
         cartCommandService.updateItemSelections(request, authUser.getId());
+
+        return ResponseEntity.ok(Response.success());
+    }
+
+    @DeleteMapping("/v1/carts/items")
+    public ResponseEntity<Response<Void>> deleteItem(@Valid @RequestBody CartItemsDeleteRequest request,
+                                                     @AuthenticationPrincipal UserPrincipal authUser) {
+
+        cartCommandService.deleteItems(request, authUser.getId());
 
         return ResponseEntity.ok(Response.success());
     }
