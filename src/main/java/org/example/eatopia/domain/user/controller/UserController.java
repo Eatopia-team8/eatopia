@@ -52,13 +52,12 @@ public class UserController {
         return ResponseEntity.ok(Response.success(response));
     }
 
-    //이메일로 비밀번호 재설정토큰 발급
     @PostMapping("/newpassword-foremail")
-    public ResponseEntity<Response<String>> newPasswordForEmail(@Valid @RequestBody UserMailRequest request) {
+    public ResponseEntity<Response<Void>> newPasswordForEmail(@Valid @RequestBody UserMailRequest request) {
 
-        String token = userCommandService.newPasswordForEmail(request);
+        userCommandService.newPasswordForEmail(request);
 
-        return ResponseEntity.ok(Response.success(token));
+        return ResponseEntity.ok(Response.success());
     }
 
     //비밀번호 변경 (Token값 체크하여 ID 기반으로 변경)

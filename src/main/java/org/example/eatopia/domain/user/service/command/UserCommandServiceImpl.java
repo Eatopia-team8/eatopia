@@ -57,43 +57,37 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public String newPasswordForEmail(UserMailRequest request) {
+    public void newPasswordForEmail(UserMailRequest request) {
 
-        // 1. 활성 사용자 조회 및 탈퇴자 검사 (QueryService 위임)
+        // 1. 활성 사용자 조회 및 탈퇴자 검사
         User user = userQueryService.getActiveUserByEmail(request.email());
 
         // 2. 기존 토큰 확인 및 쿨다운 검사
         Optional<PasswordResetToken> existingTokenOpt = passwordResetTokenRepository.findByUserId(user.getId());
-
         if (existingTokenOpt.isPresent()) {
             PasswordResetToken existingToken = existingTokenOpt.get();
-            // BaseEntity를 상속받아 getCreatedAt()이 있다고 가정합니다.
             LocalDateTime coolDownTime = existingToken.getCreatedAt().plusMinutes(RE_ISSUE_COOL_DOWN_MINUTES);
 
             if (LocalDateTime.now().isBefore(coolDownTime)) {
-                // 5분 쿨다운이 지나지 않았다면 예외 발생
                 throw new GlobalException(AuthErrorCode.TOKEN_ALREADY_ISSUED);
             } else {
-                // 5분이 지났다면 기존 토큰 삭제
                 passwordResetTokenRepository.delete(existingToken);
                 passwordResetTokenRepository.flush();
             }
         }
 
+        // 3. 새 토큰 생성 및 저장
         String token = UUID.randomUUID().toString();
         LocalDateTime expiryDate = LocalDateTime.now().plusSeconds(EXPIRATION_SECONDS);
-
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .userId(user.getId())
                 .token(token)
                 .expiryDate(expiryDate)
                 .build();
-
         passwordResetTokenRepository.save(resetToken);
 
-        // 3. MailService 호출
+        // 4. MailService 호출
         mailService.sendPasswordResetMail(user.getEmail(), token);
-        return token;
     }
 
     //이메일과 재설정 토큰을 사용하여 비밀번호를 재설정

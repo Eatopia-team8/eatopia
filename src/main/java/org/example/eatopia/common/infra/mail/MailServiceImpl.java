@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class MailServiceImpl implements MailService {
             log.info("[메일 발송 완료] 수신자: {}", toEmail);
         } catch (MessagingException e) {
             log.error("메일 발송 중 오류 발생: 수신자={}", toEmail, e);
-            throw new RuntimeException("비밀번호 재설정 메일 발송에 실패했습니다.", e);
+            throw new MailSendException("비밀번호 재설정 메일 발송에 실패했습니다.", e);
         }
     }
 }

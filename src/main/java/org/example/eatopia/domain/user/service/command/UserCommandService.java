@@ -17,5 +17,5 @@ public interface UserCommandService {
     void updateProfile(Long id, UserUpdateProfileRequest request);
 
     //이메일로 비밀번호 재설정 토큰보내기
-    String newPasswordForEmail(UserMailRequest request);
+    void newPasswordForEmail(UserMailRequest request);
 }
