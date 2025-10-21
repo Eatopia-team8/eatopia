@@ -84,4 +84,28 @@ public class Product extends BaseEntity {
             throw new ProductException(ProductErrorCode.PRD_NO_PERMISSION);
         }
     }
+
+    public void decreaseStock(Long quantity) {
+        validateQuantity(quantity);
+
+        // 재고 체크
+        if (this.stock < quantity) {
+            throw new ProductException(ProductErrorCode.PRD_OUT_OF_STOCK);
+        }
+
+        this.stock -= quantity;
+    }
+
+    public void increaseStock(Long quantity) {
+        validateQuantity(quantity);
+
+        this.stock += quantity;
+    }
+
+    private void validateQuantity(Long quantity) {
+        // 수량 체크
+        if (quantity == null || quantity <= 0) {
+            throw new ProductException(ProductErrorCode.PRD_INVALID_ORDER_QUANTITY);
+        }
+    }
 }
