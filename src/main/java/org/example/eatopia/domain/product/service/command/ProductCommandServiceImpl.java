@@ -96,8 +96,9 @@ public class ProductCommandServiceImpl implements ProductCommandService {
     public void deleteProduct(Long productId, Long userId) {
 
         Product product = productQueryService.getProductOrElseThrow(productId);
+        User user = userQueryService.getUserEntityById(userId);
 
-        product.verifySeller(userId);
+        product.verifySellerOrAdmin(userId, user.isAdmin());
 
         productRepository.delete(product);
     }

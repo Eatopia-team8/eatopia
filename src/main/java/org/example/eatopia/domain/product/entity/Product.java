@@ -85,6 +85,12 @@ public class Product extends BaseEntity {
         }
     }
 
+    public void verifySellerOrAdmin(Long userId, boolean isAdmin) {
+        if (!isAdmin && !this.seller.getId().equals(userId)) {
+            throw new ProductException(ProductErrorCode.PRD_NO_PERMISSION);
+        }
+    }
+
     public void decreaseStock(Long quantity) {
         validateQuantity(quantity);
 
