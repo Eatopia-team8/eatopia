@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ROLE_BUYER')")
+@PreAuthorize("hasRole('BUYER')")
 public class CartController {
 
     private final CartCommandService cartCommandService;
