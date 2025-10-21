@@ -16,7 +16,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     Page<Coupon> findAll(Pageable pageable);
 
     @EntityGraph(attributePaths = {"user"})
-    Optional<Coupon> findByIdWithUser(Long couponId);
+    Optional<Coupon> findCouponById(Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Coupon> findWithLockById(Long couponId);
