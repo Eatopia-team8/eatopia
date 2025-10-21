@@ -1,11 +1,13 @@
 package org.example.eatopia.domain.order.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderStatus;
+import org.example.eatopia.domain.order.exception.OrderErrorCode;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
 import org.example.eatopia.domain.product.entity.Product;
@@ -16,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +73,15 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
     @Override
     public OrderDetailResponse successOrder(Long userId, Long orderId) {
-        return updateOrderStatus(userId, orderId, OrderStatus.SUCCESS, orderValidator::orderSuccessValidate);
+        Order order = orderRepository.findByUserIdAndId(userId, orderId)
+                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+
+        orderValidator.orderSuccessValidate(order);
+
+        //주문 성공하면 재고 차감하는 로직 추가
+
+        order.updateStatus(OrderStatus.SUCCESS);
+        return OrderDetailResponse.from(order);
     }
 
     /**
@@ -80,18 +89,13 @@ public class OrderCommandServiceImpl implements OrderCommandService {
      */
     @Override
     public OrderDetailResponse cancelOrder(Long userId, Long orderId) {
-        Order order = orderValidator.findByUserIdAndIdOrThrow(userId, orderId);
+        Order order = orderRepository.findByUserIdAndId(userId, orderId)
+                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+
         orderValidator.orderCancelValidate(order);
         order.updateStatus(OrderStatus.CANCELED);
         eventPublisher.publishEvent(new OrderCancelledEvent(order));
 
-        return OrderDetailResponse.from(order);
-    }
-
-    private OrderDetailResponse updateOrderStatus(Long userId, Long orderId, OrderStatus status, Consumer<Order> validator) {
-        Order order = orderValidator.findByUserIdAndIdOrThrow(userId, orderId);
-        validator.accept(order);
-        order.updateStatus(status);
         return OrderDetailResponse.from(order);
     }
 }
