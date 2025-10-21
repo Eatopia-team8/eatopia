@@ -11,4 +11,8 @@ public interface ProductCommandService {
     ProductResponse updateProduct(Long productId, ProductUpdateRequest request, Long userId);
 
     void deleteProduct(Long productId, Long userId);
+
+    void decreaseStock(Long productId, Long quantity);
+
+    void increaseStock(Long productId, Long quantity);
 }

@@ -101,4 +101,22 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
         productRepository.delete(product);
     }
+
+    // 재고 감소
+    @Override
+    public void decreaseStock(Long productId, Long quantity) {
+        Product product = productRepository.findByIdWithPessimisticLock(productId)
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_NOT_FOUND));
+
+        product.decreaseStock(quantity);
+    }
+
+    // 결제 취소시 재고 롤백
+    @Override
+    public void increaseStock(Long productId, Long quantity) {
+        Product product = productRepository.findByIdWithPessimisticLock(productId)
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_NOT_FOUND));
+
+        product.increaseStock(quantity);
+    }
 }
