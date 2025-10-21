@@ -3,8 +3,8 @@ package org.example.eatopia.domain.cart.service.command;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionUpdateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartSelectionRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemSelectionRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionRequest;
 import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
@@ -70,7 +70,7 @@ public class CartCommandServiceImpl implements CartCommandService {
     }
 
     @Override
-    public void updateItemSelection(Long productId, CartSelectionRequest request, Long userId) {
+    public void updateItemSelection(Long productId, CartItemSelectionRequest request, Long userId) {
 
         CartItem cartItem = cartItemRepository.findItemForUser(productId, userId)
                 .orElseThrow(() -> new GlobalException(CartErrorCode.USER_CART_ITEM_NOT_FOUND));
@@ -79,7 +79,7 @@ public class CartCommandServiceImpl implements CartCommandService {
     }
 
     @Override
-    public void updateItemSelections(CartItemsSelectionUpdateRequest request, Long userId) {
+    public void updateItemSelections(CartItemsSelectionRequest request, Long userId) {
 
         if (request.productIds().isEmpty()) return;
 

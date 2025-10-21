@@ -1,6 +1,6 @@
 package org.example.eatopia.domain.cart.dto.request;
 
-public record CartSelectionRequest(
+public record CartItemSelectionRequest(
 
         boolean isSelected
 ) {

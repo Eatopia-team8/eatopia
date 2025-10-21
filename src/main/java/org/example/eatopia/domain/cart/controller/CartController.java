@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.cart.dto.request.CartCreateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionUpdateRequest;
-import org.example.eatopia.domain.cart.dto.request.CartSelectionRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemSelectionRequest;
+import org.example.eatopia.domain.cart.dto.request.CartItemsSelectionRequest;
 import org.example.eatopia.domain.cart.dto.request.CartUpdateQuantityRequest;
 import org.example.eatopia.domain.cart.dto.response.CartCreateResponse;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
@@ -53,7 +53,7 @@ public class CartController {
 
     @PatchMapping("/v1/carts/items/{productId}/select")
     public ResponseEntity<Response<Void>> updateItemSelection(@PathVariable Long productId,
-                                                              @Valid @RequestBody CartSelectionRequest request,
+                                                              @Valid @RequestBody CartItemSelectionRequest request,
                                                               @AuthenticationPrincipal UserPrincipal authUser) {
 
         cartCommandService.updateItemSelection(productId, request, authUser.getId());
@@ -62,7 +62,7 @@ public class CartController {
     }
 
     @PatchMapping("/v1/carts/items/select")
-    public ResponseEntity<Response<Void>> updateItemSelections(@Valid @RequestBody CartItemsSelectionUpdateRequest request,
+    public ResponseEntity<Response<Void>> updateItemSelections(@Valid @RequestBody CartItemsSelectionRequest request,
                                                                @AuthenticationPrincipal UserPrincipal authUser) {
 
         cartCommandService.updateItemSelections(request, authUser.getId());

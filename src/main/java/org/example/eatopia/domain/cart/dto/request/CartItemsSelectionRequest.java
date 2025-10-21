@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record CartItemsSelectionUpdateRequest(
+public record CartItemsSelectionRequest(
 
         @NotNull
         List<Long> productIds,
