@@ -11,6 +11,7 @@ import org.example.eatopia.domain.order.exception.OrderErrorCode;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
 import org.example.eatopia.domain.product.entity.Product;
+import org.example.eatopia.domain.product.service.command.ProductCommandService;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000");
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
     private final ProductQueryService productQueryService;
+    private final ProductCommandService productCommandService;
     private final OrderRepository orderRepository;
     private final OrderValidator orderValidator;
     private final ApplicationEventPublisher eventPublisher;
@@ -78,7 +80,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
         orderValidator.orderSuccessValidate(order);
 
-        //주문 성공하면 재고 차감하는 로직 추가
+        //주문 성공하면 재고 차감
+        productCommandService.decreaseStock(order.getProductId(), order.getQuantity());
 
         order.updateStatus(OrderStatus.SUCCESS);
         return OrderDetailResponse.from(order);
@@ -95,7 +98,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         orderValidator.orderCancelValidate(order);
         order.updateStatus(OrderStatus.CANCELED);
         eventPublisher.publishEvent(new OrderCancelledEvent(order));
-
+        productCommandService.increaseStock(order.getProductId(), order.getQuantity());
         return OrderDetailResponse.from(order);
     }
 }
