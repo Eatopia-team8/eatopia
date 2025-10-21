@@ -129,7 +129,6 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
         String refreshTokenValue = UUID.randomUUID().toString();
         RefreshToken refreshToken = RefreshToken.create(user.getId(), refreshTokenValue);
-
         authRepository.save(refreshToken);
 
         // 6. 응답 DTO로 변환

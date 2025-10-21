@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.user.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.common.infra.mail.MailService;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
@@ -27,13 +28,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class UserCommandServiceImpl implements UserCommandService {
-
-    //테스트를위한 토큰만료시간
-    private static final int EXPIRATION_SECONDS = 300;
-
-    //코드 재발급 쿨다운시간(5분)
-    private static final int RE_ISSUE_COOL_DOWN_MINUTES = 5;
-
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -64,9 +58,10 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 2. 기존 토큰 확인 및 쿨다운 검사
         Optional<PasswordResetToken> existingTokenOpt = passwordResetTokenRepository.findByUserId(user.getId());
+
         if (existingTokenOpt.isPresent()) {
             PasswordResetToken existingToken = existingTokenOpt.get();
-            LocalDateTime coolDownTime = existingToken.getCreatedAt().plusMinutes(RE_ISSUE_COOL_DOWN_MINUTES);
+            LocalDateTime coolDownTime = existingToken.getCreatedAt().plusMinutes(Const.RE_ISSUE_COOL_DOWN_MINUTES);
 
             if (LocalDateTime.now().isBefore(coolDownTime)) {
                 throw new GlobalException(AuthErrorCode.TOKEN_ALREADY_ISSUED);
@@ -78,7 +73,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 3. 새 토큰 생성 및 저장
         String token = UUID.randomUUID().toString();
-        LocalDateTime expiryDate = LocalDateTime.now().plusSeconds(EXPIRATION_SECONDS);
+        LocalDateTime expiryDate = LocalDateTime.now().plusSeconds(Const.RESET_TOKEN_EXPIRATION_SECONDS);
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .userId(user.getId())
                 .token(token)
