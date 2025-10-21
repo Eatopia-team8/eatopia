@@ -23,7 +23,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
      */
     @Override
     public OrderDetailResponse getOrder(Long userId, Long orderId) {
-        Order order = orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
+        Order order = orderValidator.findByUserIdAndIdOrThrow(userId, orderId);
 
         return OrderDetailResponse.from(order);
     }
@@ -37,6 +37,14 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     @Override
     public Order findOrderByIdAndUser(Long userId, Long orderId) {
-        return orderValidator.findByIdAndUserIdOrThrow(userId, orderId);
+        return orderValidator.findByUserIdAndIdOrThrow(userId, orderId);
+    }
+
+    /**
+     * 첫 주문이 맞으면 true / 아니면 false 반환
+     */
+    @Override
+    public boolean isFirstOrder(Long userId) {
+        return !orderRepository.existsByUserId(userId);
     }
 }
