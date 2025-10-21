@@ -8,6 +8,8 @@ public record CartItemsSelectionRequest(
 
         @NotNull
         List<Long> productIds,
-        boolean isSelected
+
+        @NotNull
+        Boolean isSelected
 ) {
 }
