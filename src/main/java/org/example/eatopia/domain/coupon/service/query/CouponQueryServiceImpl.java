@@ -7,6 +7,7 @@ import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,26 @@ public class CouponQueryServiceImpl implements CouponQueryService {
     public Page<CouponResponse> getCreatedCoupons(Pageable pageable) {
 
         Page<Coupon> coupons = couponRepository.findAll(pageable);
+
+        Page<CouponResponse> response = coupons.map(coupon -> {
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
+    }
+
+    // 자신이 생성한 모든 쿠폰 목록 페이징 조회
+    public Page<CouponResponse> getCreatedCouponsByMe(UserPrincipal userAuth,
+                                                      Pageable pageable) {
+
+        Page<Coupon> coupons = couponRepository.findAllByUserId(userAuth.getId(), pageable);
 
         Page<CouponResponse> response = coupons.map(coupon -> {
             CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(

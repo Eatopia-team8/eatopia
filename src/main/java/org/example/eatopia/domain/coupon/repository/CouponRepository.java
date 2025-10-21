@@ -22,4 +22,6 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     Optional<Coupon> findWithLockById(Long couponId);
 
     boolean existsByCode(String code);
+
+    Page<Coupon> findAllByUserId(Long userId, Pageable pageable);
 }
