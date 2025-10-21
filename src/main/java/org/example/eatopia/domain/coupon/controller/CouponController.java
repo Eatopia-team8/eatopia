@@ -59,4 +59,14 @@ public class CouponController {
 
         return Response.success(responses);
     }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
+    @GetMapping("/v1/manager/coupons/created")
+    public Response<Page<CouponResponse>> getCreatedCouponsByMe(@AuthenticationPrincipal UserPrincipal userAuth,
+                                                                @PageableDefault(size = 30, sort = "startAt", direction = Sort.Direction.ASC) Pageable pageable) {
+
+        Page<CouponResponse> responses = couponQueryService.getCreatedCouponsByMe(userAuth, pageable);
+
+        return Response.success(responses);
+    }
 }
