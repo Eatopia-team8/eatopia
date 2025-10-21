@@ -1,18 +1,19 @@
 package org.example.eatopia.domain.coupon.dto.response;
 
 import org.example.eatopia.domain.coupon.entity.Coupon;
+import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record CouponResponse(
         Long id,
+        CouponCreatorInfoResponse creator,
         String code,
         String name,
         String description,
-        LocalDateTime startDate,
-        LocalDateTime endDate,
-        Boolean isActive,
+        LocalDateTime startAt,
+        LocalDateTime endAt,
         Boolean isNewUserOnly,
         Boolean isFirstOrderOnly,
         Integer usageLimit,
@@ -27,16 +28,16 @@ public record CouponResponse(
         LocalDateTime updatedAt
 ) {
 
-    public static CouponResponse from(Coupon coupon) {
+    public static CouponResponse of(Coupon coupon, CouponCreatorInfoResponse creator) {
 
         return new CouponResponse(
                 coupon.getId(),
+                creator,
                 coupon.getCode(),
                 coupon.getName(),
                 coupon.getDescription(),
-                coupon.getStartDate(),
-                coupon.getEndDate(),
-                coupon.getIsActive(),
+                coupon.getStartAt(),
+                coupon.getEndAt(),
                 coupon.getIsNewUserOnly(),
                 coupon.getIsFirstOrderOnly(),
                 coupon.getUsageLimit(),
