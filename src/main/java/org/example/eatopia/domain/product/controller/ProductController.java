@@ -48,13 +48,13 @@ public class ProductController {
         return ResponseEntity.ok(Response.success(response));
     }
 
-    // 상품 삭제 (판매자)
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    // 상품 삭제 (판매자, 어드민)
+    @PreAuthorize("hasAnyRole('ROLE_SELLER', 'ROLE_ADMIN')")
     @DeleteMapping("/v1/products/{productId}")
     public ResponseEntity<Response<Void>> deleteProduct(@PathVariable Long productId,
                                                         @AuthenticationPrincipal UserPrincipal authUser) {
 
-        productCommandService.deleteProduct(productId, authUser.getId());
+        productCommandService.deleteProduct(productId, authUser.getId(), authUser.getUserRole());
 
         return ResponseEntity.ok(Response.success());
     }
