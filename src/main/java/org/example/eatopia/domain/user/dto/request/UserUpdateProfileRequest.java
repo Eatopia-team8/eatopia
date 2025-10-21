@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.user.dto;
+package org.example.eatopia.domain.user.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

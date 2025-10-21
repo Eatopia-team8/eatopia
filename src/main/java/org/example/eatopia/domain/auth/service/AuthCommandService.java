@@ -1,9 +1,9 @@
 package org.example.eatopia.domain.auth.service;
 
-import org.example.eatopia.domain.auth.dto.login.AuthLoginRequest;
-import org.example.eatopia.domain.auth.dto.login.AuthLoginResponse;
-import org.example.eatopia.domain.auth.dto.signup.AuthSignUpRequest;
-import org.example.eatopia.domain.auth.dto.signup.AuthSignUpResponse;
+import org.example.eatopia.domain.auth.dto.request.AuthLoginRequest;
+import org.example.eatopia.domain.auth.dto.request.AuthSignUpRequest;
+import org.example.eatopia.domain.auth.dto.response.AuthLoginResponse;
+import org.example.eatopia.domain.auth.dto.response.AuthSignUpResponse;
 
 public interface AuthCommandService {
     // 로그인 메소드

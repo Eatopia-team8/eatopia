@@ -1,6 +1,6 @@
 package org.example.eatopia.domain.user.service.query;
 
-import org.example.eatopia.domain.user.dto.UserDetailResponse;
+import org.example.eatopia.domain.user.dto.response.UserDetailResponse;
 import org.example.eatopia.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

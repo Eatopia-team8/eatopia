@@ -14,7 +14,8 @@ public enum AuthErrorCode implements ErrorCode {
     EXPIRED_RESET_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-006", "재설정 토큰이 만료되었습니다."),
     USER_IS_DELETED(HttpStatus.UNAUTHORIZED, "AUTH-007", "삭제된 사용자입니다."),
     USER_ALREADY_WITHDRAWN(HttpStatus.BAD_REQUEST, "AUTH-008", "이미 탈퇴 처리된 사용자입니다."),
-    USER_ALREADY_LOGGED_OUT(HttpStatus.BAD_REQUEST, "AUTH-009", "이미 로그아웃된 상태입니다.");
+    USER_ALREADY_LOGGED_OUT(HttpStatus.BAD_REQUEST, "AUTH-009", "이미 로그아웃된 상태입니다."),
+    TOKEN_ALREADY_ISSUED(HttpStatus.TOO_MANY_REQUESTS, "AUTH-010", "이미 토큰이 발급되었습니다. 5분 뒤에 다시 시도해주세요.");
 
     private final HttpStatus httpStatus;
     private final String code;

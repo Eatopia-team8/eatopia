@@ -1,4 +1,6 @@
-package org.example.eatopia.domain.auth.dto;
+package org.example.eatopia.domain.auth.dto.response;
+
+import org.example.eatopia.domain.auth.dto.AuthUser;
 
 /**
  * JWT에서 추출한 현재 로그인 사용자의 핵심 정보를 담는 DTO (record 사용)

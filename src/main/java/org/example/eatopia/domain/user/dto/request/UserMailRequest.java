@@ -1,13 +1,12 @@
-package org.example.eatopia.domain.user.dto;
+package org.example.eatopia.domain.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 /**
- * 비밀번호 재설정 토큰 발급 요청 DTO
+ * 이메일만 요청하는 DTO
  */
-public record UserEmailForPasswordReset(
-
+public record UserMailRequest(
         @NotBlank(message = "이메일은 필수입니다.")
         @Email(message = "유효한 이메일 형식이 아닙니다.")
         String email
