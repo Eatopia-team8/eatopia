@@ -14,7 +14,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @Query("SELECT ci FROM CartItem ci JOIN FETCH ci.product p WHERE ci.cart.id = :cartId")
     List<CartItem> findAllByCartWithProduct(@Param("cartId") Long cartId);
 
-    @Query("SELECT ci FROM CartItem ci JOIN ci.cart c WHERE ci.product.id = :productId AND c.userId = :userId")
+    @Query("SELECT ci FROM CartItem ci JOIN ci.cart c WHERE ci.product.id = :productId AND c.user.id = :userId")
     Optional<CartItem> findItemForUser(@Param("productId") Long productId,
                                        @Param("userId") Long userId);
 
@@ -23,7 +23,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @Modifying
     @Query("UPDATE CartItem ci " +
             "SET ci.isSelected = :isSelected " +
-            "WHERE ci.cart.userId = :userId " +
+            "WHERE ci.cart.user.id = :userId " +
             "AND ci.product.id IN :productIds")
     void updateSelectionItems(@Param("userId") Long userId,
                               @Param("productIds") List<Long> productIds,
@@ -31,7 +31,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     @Modifying
     @Query("DELETE FROM CartItem ci " +
-            "WHERE ci.cart.userId = :userId " +
+            "WHERE ci.cart.user.id = :userId " +
             "AND ci.product.id IN :productIds " +
             "AND ci.isSelected = true")
     void deleteSelectedItems(@Param("userId") Long userId,

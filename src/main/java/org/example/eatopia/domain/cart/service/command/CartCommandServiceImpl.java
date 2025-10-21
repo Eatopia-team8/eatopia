@@ -16,6 +16,8 @@ import org.example.eatopia.domain.cart.repository.CartRepository;
 import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.product.enums.ProductStatus;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
+import org.example.eatopia.domain.user.entity.User;
+import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class CartCommandServiceImpl implements CartCommandService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductQueryService productQueryService;
+    private final UserQueryService userQueryService;
 
     @Override
     public CartCreateResponse createCartItem(Long userId, CartCreateRequest request) {
@@ -38,9 +41,10 @@ public class CartCommandServiceImpl implements CartCommandService {
             throw new GlobalException(CartErrorCode.PRODUCT_NOT_FOR_SALE);
         }
 
+        User user = userQueryService.getUserEntityById(userId);
         // Cart 조회 + 없으면 생성
         Cart cart = cartRepository.findByUserId(userId)
-                .orElseGet(() -> cartRepository.save(Cart.create(userId)));
+                .orElseGet(() -> cartRepository.save(Cart.create(user)));
 
         // CartItem 조회 후 존재하면 수량 증가, 없으면 새로 생성
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
