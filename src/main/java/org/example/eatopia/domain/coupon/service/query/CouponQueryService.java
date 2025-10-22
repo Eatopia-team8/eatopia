@@ -12,4 +12,6 @@ public interface CouponQueryService {
     Page<CouponResponse> getCreatedCoupons(Pageable pageable);
 
     Page<CouponResponse> getCreatedCouponsByMe(UserPrincipal userAuth, Pageable pageable);
+
+    Page<CouponResponse> getBuyerOwnedCoupons(UserPrincipal userAuth, Pageable pageable);
 }

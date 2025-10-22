@@ -69,4 +69,14 @@ public class CouponController {
 
         return Response.success(responses);
     }
+
+    @PreAuthorize("hasAuthority('ROLE_BUYER')")
+    @GetMapping("/v1/buyer/coupons")
+    public Response<Page<CouponResponse>> getBuyerOwnedCoupons(@AuthenticationPrincipal UserPrincipal userAuth,
+                                                               @PageableDefault(size = 30, sort = "issuedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<CouponResponse> responses = couponQueryService.getBuyerOwnedCoupons(userAuth, pageable);
+
+        return Response.success(responses);
+    }
 }
