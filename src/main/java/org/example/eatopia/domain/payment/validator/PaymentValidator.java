@@ -17,7 +17,7 @@ public class PaymentValidator {
     private final PaymentRepository paymentRepository;
 
     public Order paymentCreateValidate(Long userId, Long orderId) {
-        Order order = orderQueryService.findOrderByIdAndUser(userId, orderId);
+        Order order = orderQueryService.findOrderByUserAndId(userId, orderId);
 
         paymentRepository.findByOrder(order).ifPresent(payment -> {
             throw new GlobalException(PaymentErrorCode.ALREADY_PAID_ORDER);
@@ -37,5 +37,16 @@ public class PaymentValidator {
         if (payment.getStatus() == PaymentStatus.PENDING) {
             throw new GlobalException(PaymentErrorCode.CANNOT_CANCEL_PAYMENT);
         }
+    }
+
+    public Payment paymentUpdateValidate(Long userId, Long paymentId) {
+        Payment payment = paymentRepository.findByOrderUserIdAndId(userId, paymentId)
+                .orElseThrow(() -> new GlobalException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new GlobalException(PaymentErrorCode.CANNOT_UPDATE_METHOD);
+        }
+
+        return payment;
     }
 }

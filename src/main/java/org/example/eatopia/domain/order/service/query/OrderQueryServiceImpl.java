@@ -37,7 +37,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public Order findOrderByIdAndUser(Long userId, Long orderId) {
+    public Order findOrderByUserAndId(Long userId, Long orderId) {
 
         return orderRepository.findByUserIdAndId(userId, orderId)
                 .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));

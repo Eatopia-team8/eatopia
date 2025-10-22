@@ -11,7 +11,7 @@ public interface OrderQueryService {
 
     Page<OrderResponse> getOrders(Long userId, Pageable pageable);
 
-    Order findOrderByIdAndUser(Long userId, Long orderId);
+    Order findOrderByUserAndId(Long userId, Long orderId);
 
     boolean isFirstOrder(Long userId);
 }
