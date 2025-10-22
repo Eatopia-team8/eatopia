@@ -5,6 +5,7 @@ import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
 import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -102,7 +103,12 @@ public class CouponValidator {
         //}
     }
 
-    public void isOwned(Long loginUserId, Long couponCreatorId) {
+    // 현재 로그인한 사용자와 쿠폰 생성자가 일치하는지 검증
+    public void isOwned(UserPrincipal user, Coupon coupon) {
+        
+        Long loginUserId = user.getId();
+        Long couponCreatorId = coupon.getUser().getId();
+
         if (!loginUserId.equals(couponCreatorId)) {
             throw new CouponException(CouponErrorCode.NOT_SAME_USER);
         }

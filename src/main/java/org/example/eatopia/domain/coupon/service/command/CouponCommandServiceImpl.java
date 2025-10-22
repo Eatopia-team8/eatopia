@@ -83,16 +83,16 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         couponIssueRepository.save(newIssue);
     }
 
+    //쿠폰 삭제 처리
     public void deleteCoupon(UserPrincipal userAuth, Long couponId) {
 
         Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(() -> new CouponException(CouponErrorCode.INVALID_COUPON));
 
+        // 현재 API 호출자가 ADMIN이 아닐 경우 검증 단계 진입
         if (!userAuth.hasRole(UserRole.ADMIN)) {
-            Long loginUserId = userAuth.getId();
-            Long couponCreatorId = coupon.getUser().getId();
-
-            couponValidator.isOwned(loginUserId, couponCreatorId);
+            // 로그인 유저와 쿠폰 생성한 유저가 동일한지 검증
+            couponValidator.isOwned(userAuth, coupon);
         }
 
         coupon.softDelete();

@@ -71,7 +71,7 @@ public class CouponController {
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
-    @DeleteMapping("/v1/manager/coupons/{couponId}/delete")
+    @DeleteMapping("/v1/manager/coupons/{couponId}")
     public Response<Void> deleteCoupon(@AuthenticationPrincipal UserPrincipal userAuth,
                                        @PathVariable Long couponId) {
 
