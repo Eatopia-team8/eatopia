@@ -40,7 +40,7 @@ public class PaymentValidator {
     }
 
     public Payment paymentUpdateValidate(Long userId, Long paymentId) {
-        Payment payment = paymentRepository.findByUserIdAndId(userId, paymentId)
+        Payment payment = paymentRepository.findByOrderUserIdAndId(userId, paymentId)
                 .orElseThrow(() -> new GlobalException(PaymentErrorCode.PAYMENT_NOT_FOUND));
 
         if (payment.getStatus() != PaymentStatus.PENDING) {
