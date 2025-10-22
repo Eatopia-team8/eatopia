@@ -11,6 +11,7 @@ import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.coupon.validator.CouponValidator;
+import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
@@ -80,6 +81,21 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         CouponIssue newIssue = CouponIssue.of(user, coupon);
 
         couponIssueRepository.save(newIssue);
+    }
+
+    //쿠폰 삭제 처리
+    public void deleteCoupon(UserPrincipal userAuth, Long couponId) {
+
+        Coupon coupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new CouponException(CouponErrorCode.INVALID_COUPON));
+
+        // 현재 API 호출자가 ADMIN이 아닐 경우 검증 단계 진입
+        if (!userAuth.hasRole(UserRole.ADMIN)) {
+            // 로그인 유저와 쿠폰 생성한 유저가 동일한지 검증
+            couponValidator.isOwned(userAuth, coupon);
+        }
+
+        coupon.softDelete();
     }
 
     // 헬퍼메서드

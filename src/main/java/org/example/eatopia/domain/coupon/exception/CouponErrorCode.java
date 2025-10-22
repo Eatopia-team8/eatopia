@@ -33,7 +33,8 @@ public enum CouponErrorCode implements ErrorCode {
 
     // ===== [ELIGIBILITY] 자격/권한 부족 =====
     ONLY_FOR_NEW_USER(HttpStatus.FORBIDDEN, "CPN-015", "신규가입 유저를 위한 쿠폰입니다."),
-    ONLY_FOR_FIRST_ORDER(HttpStatus.FORBIDDEN, "CPN-016", "첫 주문 전용 쿠폰입니다.");
+    ONLY_FOR_FIRST_ORDER(HttpStatus.FORBIDDEN, "CPN-016", "첫 주문 전용 쿠폰입니다."),
+    NOT_SAME_USER(HttpStatus.FORBIDDEN, "CPN-017", "쿠폰에 대한 권한이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

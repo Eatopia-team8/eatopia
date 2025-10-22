@@ -22,4 +22,9 @@ public class UserPrincipal {
         this.name = name;
         this.userRole = role;
     }
+
+    // 현재 사용자가 특정 역할을 가지고 있는지 확인하는 메서드
+    public boolean hasRole(UserRole role) {
+        return this.userRole.equals(role);
+    }
 }

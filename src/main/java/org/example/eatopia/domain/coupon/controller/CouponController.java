@@ -70,13 +70,13 @@ public class CouponController {
         return Response.success(responses);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_BUYER')")
-    @GetMapping("/v1/buyer/coupons")
-    public Response<Page<CouponResponse>> getBuyerOwnedCoupons(@AuthenticationPrincipal UserPrincipal userAuth,
-                                                               @PageableDefault(size = 30, sort = "issuedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
+    @DeleteMapping("/v1/manager/coupons/{couponId}")
+    public Response<Void> deleteCoupon(@AuthenticationPrincipal UserPrincipal userAuth,
+                                       @PathVariable Long couponId) {
 
-        Page<CouponResponse> responses = couponQueryService.getBuyerOwnedCoupons(userAuth, pageable);
+        couponCommandService.deleteCoupon(userAuth, couponId);
 
-        return Response.success(responses);
+        return Response.success();
     }
 }

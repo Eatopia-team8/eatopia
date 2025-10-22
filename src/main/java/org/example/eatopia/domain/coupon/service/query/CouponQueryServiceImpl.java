@@ -3,14 +3,11 @@ package org.example.eatopia.domain.coupon.service.query;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
-import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
-import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
-import org.example.eatopia.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponQueryServiceImpl implements CouponQueryService {
 
     private final CouponRepository couponRepository;
-    private final CouponIssueRepository couponIssueRepository;
 
     // 쿠폰 단건 조회
     public CouponResponse getCoupon(Long couponId) {
@@ -83,31 +79,5 @@ public class CouponQueryServiceImpl implements CouponQueryService {
         });
 
         return response;
-    }
-
-    // 구매자가 발급 받은 쿠폰 목록 페이징 조회
-    public Page<CouponResponse> getBuyerOwnedCoupons(UserPrincipal userAuth, Pageable pageable) {
-
-        Page<CouponIssue> couponIssues = couponIssueRepository.findAllByUserId(userAuth.getId(), pageable);
-
-        Page<CouponResponse> responses = couponIssues.map(this::toCouponResponse);
-
-        return responses;
-    }
-
-    // 헬퍼 메서드
-
-    private CouponResponse toCouponResponse(CouponIssue couponIssue) {
-
-        Coupon coupon = couponIssue.getCoupon();
-        User creator = coupon.getUser();
-        CouponCreatorInfoResponse creatorInfo = CouponCreatorInfoResponse.of(
-                creator.getId(),
-                creator.getName(),
-                creator.getCompany(),
-                creator.getUserRole()
-        );
-
-        return CouponResponse.of(coupon, creatorInfo);
     }
 }
