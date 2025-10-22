@@ -17,7 +17,7 @@ public class PaymentValidator {
     private final PaymentRepository paymentRepository;
 
     public Order paymentCreateValidate(Long userId, Long orderId) {
-        Order order = orderQueryService.findOrderByIdAndUser(userId, orderId);
+        Order order = orderQueryService.findOrderByUserAndId(userId, orderId);
 
         paymentRepository.findByOrder(order).ifPresent(payment -> {
             throw new GlobalException(PaymentErrorCode.ALREADY_PAID_ORDER);
