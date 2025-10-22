@@ -70,6 +70,17 @@ public class CouponController {
         return Response.success(responses);
     }
 
+    // TODO: 현재 ADMIN의 생성된 모든 쿠폰 조회와 로직이 동일합니다. 추후 특정 유저가 어떤 쿠폰을 선별 조회 가능할지에 대한 정책적인 논의를 적용하여 로직을 수정해야할 것 같습니다.
+    @PreAuthorize("hasAuthority('ROLE_BUYER')")
+    @GetMapping("/v1/buyer/coupons/downloadable")
+    public Response<Page<CouponResponse>> getDownloadableCoupons(@AuthenticationPrincipal UserPrincipal userAuth,
+                                                                 @PageableDefault(size = 30, sort = "startAt", direction = Sort.Direction.ASC) Pageable pageable) {
+
+        Page<CouponResponse> responses = couponQueryService.getDownloadableCoupons(userAuth, pageable);
+
+        return Response.success(responses);
+    }
+
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
     @DeleteMapping("/v1/manager/coupons/{couponId}")
     public Response<Void> deleteCoupon(@AuthenticationPrincipal UserPrincipal userAuth,
