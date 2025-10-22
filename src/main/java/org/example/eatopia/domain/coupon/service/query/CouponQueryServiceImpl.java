@@ -80,4 +80,23 @@ public class CouponQueryServiceImpl implements CouponQueryService {
 
         return response;
     }
+
+    public Page<CouponResponse> getDownloadableCoupons(UserPrincipal userAuth, Pageable pageable) {
+
+        Page<Coupon> coupons = couponRepository.findAll(pageable);
+
+        Page<CouponResponse> response = coupons.map(coupon -> {
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
+
+    }
 }
