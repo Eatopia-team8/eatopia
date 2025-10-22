@@ -11,6 +11,7 @@ import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.coupon.validator.CouponValidator;
+import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
@@ -80,6 +81,21 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         CouponIssue newIssue = CouponIssue.of(user, coupon);
 
         couponIssueRepository.save(newIssue);
+    }
+
+    public void deleteCoupon(UserPrincipal userAuth, Long couponId) {
+
+        Coupon coupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new CouponException(CouponErrorCode.INVALID_COUPON));
+
+        if (!userAuth.hasRole(UserRole.ADMIN)) {
+            Long loginUserId = userAuth.getId();
+            Long couponCreatorId = coupon.getUser().getId();
+
+            couponValidator.isOwned(loginUserId, couponCreatorId);
+        }
+
+        coupon.softDelete();
     }
 
     // 헬퍼메서드

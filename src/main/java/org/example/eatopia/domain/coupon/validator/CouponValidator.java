@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class CouponValidator {
-    
+
     // 쿠폰 생성 요청값 유효성 검증
     public void couponCreateValidate(CouponCreateRequest request) {
 
@@ -100,5 +100,11 @@ public class CouponValidator {
         //if (Boolean.TRUE.equals(coupon.getIsFirstOrderOnly()) && !isFirstOrder) {
         //    throw new CouponException(CouponErrorCode.ONLY_FOR_FIRST_ORDER);
         //}
+    }
+
+    public void isOwned(Long loginUserId, Long couponCreatorId) {
+        if (!loginUserId.equals(couponCreatorId)) {
+            throw new CouponException(CouponErrorCode.NOT_SAME_USER);
+        }
     }
 }

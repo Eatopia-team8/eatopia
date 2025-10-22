@@ -9,4 +9,6 @@ public interface CouponCommandService {
     CouponResponse createCoupon(CouponCreateRequest request, UserPrincipal userAuth);
 
     void downloadCoupon(UserPrincipal authUser, Long couponId);
+
+    void deleteCoupon(UserPrincipal userAuth, Long couponId);
 }

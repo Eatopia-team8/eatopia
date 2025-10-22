@@ -69,4 +69,14 @@ public class CouponController {
 
         return Response.success(responses);
     }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
+    @DeleteMapping("/v1/manager/coupons/{couponId}/delete")
+    public Response<Void> deleteCoupon(@AuthenticationPrincipal UserPrincipal userAuth,
+                                       @PathVariable Long couponId) {
+
+        couponCommandService.deleteCoupon(userAuth, couponId);
+
+        return Response.success();
+    }
 }
