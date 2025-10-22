@@ -1,5 +1,6 @@
 package org.example.eatopia.domain.order.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
@@ -31,7 +32,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderDetailResponse> createOrder(
             @AuthenticationPrincipal UserPrincipal authUser,
-            @RequestBody OrderCreateRequest request
+            @Valid @RequestBody OrderCreateRequest request
     ) {
         Long userId = authUser.getId();
 

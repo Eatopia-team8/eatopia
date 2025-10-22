@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.payment.dto.event.PaymentCompletedEvent;
 import org.example.eatopia.domain.payment.dto.request.PaymentCreateRequest;
+import org.example.eatopia.domain.payment.dto.request.PaymentUpdateRequest;
 import org.example.eatopia.domain.payment.dto.response.PaymentResponse;
 import org.example.eatopia.domain.payment.entity.Payment;
 import org.example.eatopia.domain.payment.entity.PaymentStatus;
@@ -42,5 +43,14 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
             paymentValidator.paymentCancelValidate(payment);
             payment.updateStatus(PaymentStatus.CANCELED);
         });
+    }
+
+    @Override
+    public PaymentResponse updatePaymentMethod(Long userId, Long paymentId, PaymentUpdateRequest request) {
+        Payment payment = paymentValidator.paymentUpdateValidate(userId, paymentId);
+
+        payment.updateMethod(request.paymentMethod());
+
+        return PaymentResponse.from(payment);
     }
 }

@@ -38,4 +38,15 @@ public class PaymentValidator {
             throw new GlobalException(PaymentErrorCode.CANNOT_CANCEL_PAYMENT);
         }
     }
+
+    public Payment paymentUpdateValidate(Long userId, Long paymentId) {
+        Payment payment = paymentRepository.findByUserIdAndId(userId, paymentId)
+                .orElseThrow(() -> new GlobalException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new GlobalException(PaymentErrorCode.CANNOT_UPDATE_METHOD);
+        }
+
+        return payment;
+    }
 }

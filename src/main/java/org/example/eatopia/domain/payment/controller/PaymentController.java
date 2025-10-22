@@ -3,16 +3,14 @@ package org.example.eatopia.domain.payment.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.payment.dto.request.PaymentCreateRequest;
+import org.example.eatopia.domain.payment.dto.request.PaymentUpdateRequest;
 import org.example.eatopia.domain.payment.dto.response.PaymentResponse;
 import org.example.eatopia.domain.payment.service.command.PaymentCommandService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/payments")
@@ -31,5 +29,16 @@ public class PaymentController {
 
         PaymentResponse createdPayment = paymentCommandService.createPayment(userId, request);
         return ResponseEntity.ok(createdPayment);
+    }
+
+    @PreAuthorize("hasRole('ROLE_BUYER')")
+    @PatchMapping("/{paymentId}/method")
+    public ResponseEntity<PaymentResponse> updatePaymentMethod(
+            @AuthenticationPrincipal UserPrincipal authUser,
+            @PathVariable Long paymentId,
+            @RequestBody @Valid PaymentUpdateRequest request
+    ) {
+        PaymentResponse updatedPayment = paymentCommandService.updatePaymentMethod(authUser.getId(), paymentId, request);
+        return ResponseEntity.ok(updatedPayment);
     }
 }
