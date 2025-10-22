@@ -10,6 +10,7 @@ import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
+import org.example.eatopia.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -89,20 +90,24 @@ public class CouponQueryServiceImpl implements CouponQueryService {
 
         Page<CouponIssue> couponIssues = couponIssueRepository.findAllByUserId(userAuth.getId(), pageable);
 
-        Page<CouponResponse> responses = couponIssues.map(ci -> {
-
-            Coupon coupon = ci.getCoupon();
-            
-            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
-                    coupon.getUser().getId(),
-                    coupon.getUser().getName(),
-                    coupon.getUser().getCompany(),
-                    coupon.getUser().getUserRole()
-            );
-
-            return CouponResponse.of(coupon, creator);
-        });
+        Page<CouponResponse> responses = couponIssues.map(this::toCouponResponse);
 
         return responses;
+    }
+
+    // 헬퍼 메서드
+
+    private CouponResponse toCouponResponse(CouponIssue couponIssue) {
+
+        Coupon coupon = couponIssue.getCoupon();
+        User creator = coupon.getUser();
+        CouponCreatorInfoResponse creatorInfo = CouponCreatorInfoResponse.of(
+                creator.getId(),
+                creator.getName(),
+                creator.getCompany(),
+                creator.getUserRole()
+        );
+
+        return CouponResponse.of(coupon, creatorInfo);
     }
 }
