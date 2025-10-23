@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -52,23 +53,24 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, AnonymousAuthenticationFilter.class)
 
                 .authorizeHttpRequests(authorize -> authorize
+                        // 1. 회원가입, 로그인, 비밀번호 재설정 관련 경로는 모두 허용
                         .requestMatchers(
                                 "/v1/auth/signup",
                                 "/v1/auth/login",
                                 "/v1/users/newpassword-foremail",
-                                "/v1/users/password-reset",
-                                "/v1/products",
-                                "/v1/categories"
+                                "/v1/users/password-reset"
                         ).permitAll()
 
-                        // Swagger 및 정적 리소스 경로 허용
+                        // 2. 상품(products)과 카테고리(categories)는 GET (조회) 요청만 허용
+                        .requestMatchers(HttpMethod.GET, "/v1/products/**", "/v1/categories/**").permitAll()
+
+                        // 3. Swagger 및 정적 리소스 경로 허용
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
-                        // 인증 필요 API
                         .requestMatchers("/v1/users/userInfo").authenticated()
 
-                        // 그 외 모든 요청은 인증 필요
+                        // 5. 그 외 모든 요청(POST /v1/products 등)은 인증 필요
                         .anyRequest().authenticated()
                 );
         return http.build();
