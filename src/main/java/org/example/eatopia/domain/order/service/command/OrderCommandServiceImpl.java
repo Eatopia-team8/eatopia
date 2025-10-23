@@ -3,7 +3,8 @@ package org.example.eatopia.domain.order.service.command;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.entity.CartItem;
-import org.example.eatopia.domain.cart.repository.CartItemRepository;
+import org.example.eatopia.domain.cart.service.command.CartCommandService;
+import org.example.eatopia.domain.cart.service.query.CartQueryService;
 import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
@@ -37,14 +38,15 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
 
     private final UserQueryService userQueryService;
+    private final CartQueryService cartQueryService;
     //private final CouponQueryService couponQueryService;
 
     private final ProductCommandService productCommandService;
+    private final CartCommandService cartCommandService;
     //private final CouponCommandService couponCommandService;
 
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
-    private final CartItemRepository cartItemRepository;
 
     private final OrderValidator orderValidator;
     private final ApplicationEventPublisher eventPublisher;
@@ -52,8 +54,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Override
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
         User user = userQueryService.getUserEntityById(userId);
-        List<CartItem> cartItems = cartItemRepository.findSelectedItemsForOrder(userId);
+        //findSelectedItemsForOrder 호출
+        List<CartItem> cartItems = cartQueryService.getSelectedCartItems(userId);
+        //널 확인 validator
 
+        //금액 계산
         BigDecimal totalProductPrice = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems) {
             Product product = cartItem.getProduct();
@@ -65,6 +70,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             );
         }
 
+        //쿠폰 사용
         CouponIssue couponIssue = null;
         BigDecimal discountProductPrice = DEFAULT_DISCOUNT_PRICE;
         BigDecimal discountDeliveryPrice = DEFAULT_DISCOUNT_PRICE;
@@ -114,7 +120,12 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
         orderDetailRepository.saveAll(orderDetail);
 
-        cartItemRepository.deleteAll(cartItems);
+        List<Long> productDelete = cartItems.stream()
+                .map(cartItem -> cartItem.getProduct().getId())
+                .toList();
+
+        //userid, productid cartItem 삭제 기능
+        cartCommandService.deleteOrderedItems(userId, productDelete);
 
         return OrderDetailResponse.from(savedOrder);
     }

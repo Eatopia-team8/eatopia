@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "orderDetail")
+@Table(name = "order_details")
 public class OrderDetail extends BaseEntity {
 
     @Id
