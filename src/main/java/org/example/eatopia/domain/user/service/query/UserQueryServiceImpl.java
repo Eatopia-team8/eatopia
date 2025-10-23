@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.user.service.query;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.example.eatopia.domain.user.dto.response.UserDetailResponse;
@@ -56,9 +57,15 @@ public class UserQueryServiceImpl implements UserQueryService {
             throw new GlobalException(UserErrorCode.ACCESS_DENIED);
         }
 
-        //3. 권한통과 후 이메일/이름 통합검색
-        return userRepository.searchByEmailOrNameAndNotDeleted(keyword, pageable)
+        // 3. 검색어(keyword) 공백 제거
+        String trimmedKeyword = StringUtils.trimToEmpty(keyword);
+
+        // 4. 권한 검사 통과 후, 이메일/이름 통합 검색
+        Page<UserDetailResponse> usersPage = userRepository.searchByEmailOrNameAndNotDeleted(trimmedKeyword, pageable)
                 .map(UserDetailResponse::of);
+
+        // 5. 중간 변수를 사용하여 반환
+        return usersPage;
     }
 
     @Override

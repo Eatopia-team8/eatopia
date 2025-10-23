@@ -33,7 +33,7 @@ public class UserController {
     //JWT토큰을 기반으로 현재 로그인된 사용자의 ID와 이름을 반환
     @Operation(summary = "현재 로그인된 사용자의 ID와 이름을 반환", description = "JWT토큰을 기반으로 현재 로그인된 사용자의 ID와 이름을 반환",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "성공"),
+                    @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @GetMapping("/userInfo")
@@ -46,7 +46,7 @@ public class UserController {
     //관리자만 사용가능한 유저목록보기
     @Operation(summary = "유저목록보기 기능", description = "관리자일때 사용가능한 유저목록보기 기능",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "목록 생성 성공"),
+                    @ApiResponse(responseCode = "200", description = "목록 조회 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @GetMapping("/admin-use-userList")
@@ -59,9 +59,9 @@ public class UserController {
     }
 
     //관리자일때 사용할 수 있는 유저검색(이메일, 이름으로 검색가능)
-    @Operation(summary = "유저목록보기 기능", description = "관리자일때 사용가능한 이메일이나 이름으로검색하는 기능",
+    @Operation(summary = "유저 검색 기능", description = "관리자일때 사용가능한 이메일이나 이름으로검색하는 기능",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "검색성공"),
+                    @ApiResponse(responseCode = "200", description = "검색성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @GetMapping("/search")
@@ -77,7 +77,7 @@ public class UserController {
     //특정 ID를 가진 사용자 상세정보 조회
     @Operation(summary = "상세정보 조회", description = "Id로 찾은 특정유저 상세정보",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "조회 성공"),
+                    @ApiResponse(responseCode = "200", description = "조회 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @GetMapping("/user-detail/{userId}")
@@ -90,7 +90,7 @@ public class UserController {
     //이메일로 비번초기화 토큰보내기
     @Operation(summary = "이메일로 비번초기화 토큰보내기", description = "이메일로 비번초기화 토큰보내기",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "생성 성공"),
+                    @ApiResponse(responseCode = "200", description = "생성 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @PostMapping("/newpassword-foremail")
@@ -104,7 +104,7 @@ public class UserController {
     //비밀번호 변경 (Token값 체크하여 ID 기반으로 변경)
     @Operation(summary = "비밀번호 변경", description = "토큰값 이용해서 비밀번호 변경",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "변경 성공"),
+                    @ApiResponse(responseCode = "200", description = "변경 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @PatchMapping("/change-password")
@@ -122,7 +122,7 @@ public class UserController {
     //이메일과 재설정 토큰을 사용하여 비밀번호를 재설정
     @Operation(summary = "이메일과 토큰사용해서 비밀번호 재설정", description = "이메일과 재설정 토큰을 사용하여 비밀번호를 재설정",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "변경 성공"),
+                    @ApiResponse(responseCode = "200", description = "변경 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @PostMapping("/password-reset")
@@ -134,7 +134,7 @@ public class UserController {
     //사용자의 프로필정보(주소, 회사명)을 업데이트
     @Operation(summary = "사용자 프로필정보 수정", description = "주소, 회사명(판매자거나 관리자일때만) 변경",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "생성 성공"),
+                    @ApiResponse(responseCode = "200", description = "생성 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @PatchMapping("/update-profile")

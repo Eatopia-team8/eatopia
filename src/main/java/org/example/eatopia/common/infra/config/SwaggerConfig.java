@@ -9,6 +9,10 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Swagger (OpenAPI) 설정을 위한 클래스입니다.
+ * API 문서의 기본 정보, 인증 방식 등을 구성합니다.
+ */
 @Configuration
 public class SwaggerConfig {
 

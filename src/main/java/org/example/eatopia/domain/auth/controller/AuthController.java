@@ -28,7 +28,7 @@ public class AuthController {
     //회원가입
     @Operation(summary = "회원 가입", description = "새로운 회원을 등록합니다.",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "생성 성공"),
+                    @ApiResponse(responseCode = "200", description = "생성 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             })
     @PostMapping("/signup")
@@ -71,9 +71,9 @@ public class AuthController {
 
     //회원탈퇴
     @Operation(summary = "회원 삭제", description = "특정 회원을 삭제합니다.",
-            security = {@SecurityRequirement(name = "sessionAuth")},
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
-                    @ApiResponse(responseCode = "204", description = "삭제 성공"),
+                    @ApiResponse(responseCode = "200", description = "삭제 성공"),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
                     @ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음")
             })
