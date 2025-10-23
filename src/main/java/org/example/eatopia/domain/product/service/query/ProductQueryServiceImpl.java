@@ -38,7 +38,7 @@ public class ProductQueryServiceImpl implements ProductQueryService {
     @Override
     @Cacheable(
             value = "productList",
-            key = "#condition.hashCode() + '_' + #pageable.pageNumber + '_' + #pageable.pageSize",
+            key = "T(String).valueOf(#condition) + '_' + #pageable.pageNumber + '_' + #pageable.pageSize",
             unless = "#result == null || #result.content().isEmpty()"
     )
     public ProductListResponse searchProducts(ProductSearchCondition condition, Pageable pageable) {

@@ -33,9 +33,19 @@ public class RedisCacheConfig {
     }
 
     @Bean
-    public RedisCacheManager redisCacheManager(
-            RedisConnectionFactory cf,
-            ObjectMapper objectMapper) {
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory cf) {
+
+        // Redis 전용 ObjectMapper 생성 및 설정
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        // 다형성 지원을 위한 기본 타이핑 활성화 (보안을 위해 LaissezFaireSubTypeValidator 대신 사용)
+        objectMapper.activateDefaultTyping(
+                objectMapper.getPolymorphicTypeValidator(),
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+        );
 
         var valueSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 

@@ -118,7 +118,10 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 재고 감소
     @Override
-    @CacheEvict(value = "product", key = "#productId")
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
     public void decreaseStock(Long productId, Long quantity) {
         Product product = findProductWithLock(productId);
 
@@ -127,7 +130,10 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 결제 취소시 재고 롤백
     @Override
-    @CacheEvict(value = "product", key = "#productId")
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
     public void increaseStock(Long productId, Long quantity) {
         Product product = findProductWithLock(productId);
 
