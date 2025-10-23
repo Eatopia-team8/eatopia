@@ -10,7 +10,6 @@ public interface UserQueryService {
     //ID로 사용자 상세 정보를 조회
     UserDetailResponse getUserById(Long userId);
 
-
     //ID로 사용자 엔티티를 조회하여 반환
     User getUserEntityById(Long userId);
 
@@ -22,4 +21,8 @@ public interface UserQueryService {
 
     //Email로 활성사용자를 조회하고 탈퇴여부를 검사
     User getActiveUserByEmail(String email);
+
+    //이메일 또는 이름으로 사용자 검색
+    Page<UserDetailResponse> searchUsers(Long requestingUserId, String keyword, Pageable pageable);
+
 }
