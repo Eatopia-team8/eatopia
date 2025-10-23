@@ -6,11 +6,11 @@ import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.product.dto.request.ProductCreateRequest;
 import org.example.eatopia.domain.product.dto.request.ProductSearchCondition;
 import org.example.eatopia.domain.product.dto.request.ProductUpdateRequest;
+import org.example.eatopia.domain.product.dto.response.ProductListResponse;
 import org.example.eatopia.domain.product.dto.response.ProductResponse;
 import org.example.eatopia.domain.product.service.command.ProductCommandService;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -68,10 +68,10 @@ public class ProductController {
 
     // 상품 목록 조회 (공통)
     @GetMapping("/v1/products")
-    public ResponseEntity<Response<Page<ProductResponse>>> searchProducts(@ModelAttribute ProductSearchCondition condition,
-                                                                          @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<Response<ProductListResponse>> searchProducts(@ModelAttribute ProductSearchCondition condition,
+                                                                        @PageableDefault(size = 10) Pageable pageable) {
 
-        Page<ProductResponse> response = productQueryService.searchProducts(condition, pageable);
+        ProductListResponse response = productQueryService.searchProducts(condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
     }
