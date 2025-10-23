@@ -2,11 +2,13 @@ package org.example.eatopia.domain.product.service.query;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.product.dto.request.ProductSearchCondition;
+import org.example.eatopia.domain.product.dto.response.ProductListResponse;
 import org.example.eatopia.domain.product.dto.response.ProductResponse;
 import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.product.exception.ProductErrorCode;
 import org.example.eatopia.domain.product.exception.ProductException;
 import org.example.eatopia.domain.product.repository.ProductRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class ProductQueryServiceImpl implements ProductQueryService {
 
     // 상품 단건 조회
     @Override
+    @Cacheable(value = "product", key = "#productId", unless = "#result == null")
     public ProductResponse getProduct(Long productId) {
         Product product = getProductOrElseThrow(productId);
         return ProductResponse.from(product);
@@ -28,13 +31,22 @@ public class ProductQueryServiceImpl implements ProductQueryService {
 
     @Override
     public Product getProductOrElseThrow(Long productId) {
-        return productRepository.findById(productId)
+        return productRepository.findWithCategoryAndSellerById(productId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_ID_NOT_FOUND));
     }
 
     @Override
-    public Page<ProductResponse> searchProducts(ProductSearchCondition condition, Pageable pageable) {
+    @Cacheable(
+            value = "productList",
+            key = "T(String).valueOf(#condition) + '_' + #pageable.pageNumber + '_' + #pageable.pageSize",
+            unless = "#result == null || #result.content().isEmpty()"
+    )
+    public ProductListResponse searchProducts(ProductSearchCondition condition, Pageable pageable) {
+
         Page<Product> products = productRepository.searchProducts(condition, pageable);
-        return products.map(ProductResponse::from);
+
+        Page<ProductResponse> productResponsePage = products.map(ProductResponse::from);
+
+        return ProductListResponse.from(productResponsePage);
     }
 }

@@ -15,6 +15,8 @@ import org.example.eatopia.domain.product.validator.ProductValidator;
 import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 상품 등록
     @Override
+    @CacheEvict(value = "productList", allEntries = true)
     public ProductResponse createProduct(ProductCreateRequest request, Long userId) {
 
         productValidator.validateCreateRequest(request);
@@ -59,6 +62,10 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 상품 수정
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
     public ProductResponse updateProduct(Long productId, ProductUpdateRequest request, Long userId) {
 
         // 수정할 항목이 하나라도 있는지 확인
@@ -94,10 +101,15 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 상품 삭제
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
     public void deleteProduct(Long productId, Long userId, UserRole userRole) {
 
+        userQueryService.getUserEntityById(userId);
+
         Product product = productQueryService.getProductOrElseThrow(productId);
-        User user = userQueryService.getUserEntityById(userId);
 
         product.verifySellerOrAdmin(userId, userRole == UserRole.ADMIN);
 
@@ -106,6 +118,10 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 재고 감소
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
     public void decreaseStock(Long productId, Long quantity) {
         Product product = findProductWithLock(productId);
 
@@ -114,6 +130,10 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     // 결제 취소시 재고 롤백
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
     public void increaseStock(Long productId, Long quantity) {
         Product product = findProductWithLock(productId);
 
