@@ -32,7 +32,7 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
         //PG사 연동전까지 SUCCESS로 구현
         payment.updateStatus(PaymentStatus.SUCCESS);
         Payment savedPayment = paymentRepository.save(payment);
-        eventPublisher.publishEvent(new PaymentCompletedEvent(order.getId(), order.getUserId()));
+        eventPublisher.publishEvent(new PaymentCompletedEvent(order.getId(), order.getUser().getId()));
 
         return PaymentResponse.from(savedPayment);
     }
