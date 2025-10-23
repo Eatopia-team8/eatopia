@@ -45,6 +45,23 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
+    public Page<UserDetailResponse> searchUsers(Long requestingUserId, String keyword, Pageable pageable) {
+
+        //1.Admin인지 확인
+        User requester = userRepository.findById(requestingUserId)
+                .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, requestingUserId));
+
+        //2. Admin역할이 아니면 ACCESS_DENIED오류 발생
+        if (!requester.isAdmin()) {
+            throw new GlobalException(UserErrorCode.ACCESS_DENIED);
+        }
+
+        //3. 권한통과 후 이메일/이름 통합검색
+        return userRepository.searchByEmailOrNameAndNotDeleted(keyword, pageable)
+                .map(UserDetailResponse::of);
+    }
+
+    @Override
     public UserDetailResponse getUserById(Long userId) {
 
         User user = userRepository.findById(userId)

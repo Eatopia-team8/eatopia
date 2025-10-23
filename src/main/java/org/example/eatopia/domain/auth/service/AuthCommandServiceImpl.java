@@ -126,6 +126,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         // 5. Refresh Token 생성 및 저장 로직 추가
         authRepository.findByUserId(user.getId())
                 .ifPresent(authRepository::delete);
+        authRepository.flush();
 
         String refreshTokenValue = UUID.randomUUID().toString();
         RefreshToken refreshToken = RefreshToken.create(user.getId(), refreshTokenValue);
