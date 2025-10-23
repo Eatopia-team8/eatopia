@@ -36,4 +36,10 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             "AND ci.isSelected = true")
     void deleteSelectedItems(@Param("userId") Long userId,
                              @Param("productIds") List<Long> productIds);
+
+    @Query("SELECT ci FROM CartItem ci " +
+            "JOIN FETCH ci.product p " +
+            "JOIN ci.cart c " +
+            "WHERE c.user.id = :userId AND ci.isSelected = true")
+    List<CartItem> findSelectedItemsForOrder(@Param("userId") Long userId);
 }
