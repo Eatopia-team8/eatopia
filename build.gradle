@@ -53,10 +53,13 @@ dependencies {
     // Cache
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
-    
+
     //Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
     implementation 'org.apache.commons:commons-lang3:3.18.0'
+
+    // AOP
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 // QueryDSL 설정
