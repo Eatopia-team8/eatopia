@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
-import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
@@ -50,12 +49,11 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal finalPrice;
 
+    @Column(name = "couponIssueId")
+    private Long couponIssueId;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "couponIssueId")
-    private CouponIssue couponIssue;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Order(User user,
@@ -65,7 +63,7 @@ public class Order extends BaseEntity {
                   BigDecimal totalDeliveryPrice,
                   BigDecimal discountDeliveryPrice,
                   BigDecimal finalPrice,
-                  CouponIssue couponIssue) {
+                  Long couponIssueId) {
         this.user = user;
         this.code = code;
         this.status = OrderStatus.PENDING;
@@ -74,7 +72,7 @@ public class Order extends BaseEntity {
         this.totalDeliveryPrice = totalDeliveryPrice;
         this.discountDeliveryPrice = discountDeliveryPrice;
         this.finalPrice = finalPrice;
-        this.couponIssue = couponIssue;
+        this.couponIssueId = couponIssueId;
     }
 
     public static Order create(User user,
@@ -84,7 +82,7 @@ public class Order extends BaseEntity {
                                BigDecimal totalDeliveryPrice,
                                BigDecimal discountDeliveryPrice,
                                BigDecimal finalPrice,
-                               CouponIssue couponIssue) {
+                               Long couponIssueId) {
         return Order.builder()
                 .user(user)
                 .code(code)
@@ -93,7 +91,7 @@ public class Order extends BaseEntity {
                 .totalDeliveryPrice(totalDeliveryPrice)
                 .discountDeliveryPrice(discountDeliveryPrice)
                 .finalPrice(finalPrice)
-                .couponIssue(couponIssue)
+                .couponIssueId(couponIssueId)
                 .build();
     }
 

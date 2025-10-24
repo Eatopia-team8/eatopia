@@ -72,11 +72,18 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
         //총 금액 검증 필요
 
-        // 쿠폰 선택 및 할인 계산
+        // 쿠폰 선택
         CouponIssue couponIssue = couponQueryService.getUsableIssuedCoupons(userId);
-        BigDecimal discountAmount = couponCommandService.calculateDiscountValue(totalProductPrice);
-        BigDecimal discountProductPrice = discountAmount;
-        BigDecimal discountDeliveryPrice = DEFAULT_DISCOUNT_PRICE;
+
+        Long couponIssueId = null;
+        BigDecimal discountProductPrice = BigDecimal.ZERO;
+        BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
+
+        if (couponIssue != null) {
+            BigDecimal discountAmount = couponCommandService.calculateDiscountValue(totalProductPrice, couponIssue);
+            //쿠폰 등록 , 환불 로직에 필요
+            couponIssueId = couponIssue.getId();
+        }
 
         //최종 금액 계산
         BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
@@ -94,7 +101,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 totalDeliveryPrice,
                 discountDeliveryPrice,
                 finalPrice,
-                couponIssue
+                couponIssueId
         );
         Order savedOrder = orderRepository.save(order);
 
@@ -139,7 +146,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         //주문 성공하면 쿠폰 사용
-        couponCommandService.useCoupon(order.getCouponIssue().getId());
+        Long issueId = order.getCouponIssueId();
+        if (issueId != null) {
+            couponCommandService.useCoupon(issueId);
+        }
 
         order.updateStatus(OrderStatus.SUCCESS);
         return OrderDetailResponse.from(order);
@@ -163,7 +173,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         //주문 취소시 쿠폰 롤백
-        couponCommandService.rollbackCoupon(order.getCouponIssue().getId());
+        Long issueId = order.getCouponIssueId();
+        if (issueId != null) {
+            couponCommandService.rollbackCoupon(issueId);
+        }
 
         return OrderDetailResponse.from(order);
     }
