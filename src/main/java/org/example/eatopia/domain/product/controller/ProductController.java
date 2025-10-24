@@ -2,6 +2,7 @@ package org.example.eatopia.domain.product.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.annotation.LogExecutionTime;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.product.dto.request.ProductCreateRequest;
 import org.example.eatopia.domain.product.dto.request.ProductSearchCondition;
@@ -60,6 +61,7 @@ public class ProductController {
     }
 
     // 상품 단건 조회 (공통)
+    @LogExecutionTime("V1 - No Cache - 상품 단건 조회")
     @GetMapping("/v1/products/{productId}")
     public ResponseEntity<Response<ProductResponse>> getProduct(@PathVariable Long productId) {
         ProductResponse response = productQueryService.getProduct(productId);
@@ -67,11 +69,31 @@ public class ProductController {
     }
 
     // 상품 목록 조회 (공통)
+    @LogExecutionTime("V1 - No Cache - 상품 목록 조회")
     @GetMapping("/v1/products")
     public ResponseEntity<Response<ProductListResponse>> searchProducts(@ModelAttribute ProductSearchCondition condition,
                                                                         @PageableDefault(size = 10) Pageable pageable) {
 
         ProductListResponse response = productQueryService.searchProducts(condition, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    // 상품 단건 조회 (공통) - with Cache
+    @LogExecutionTime("V2 - With Cache - 상품 단건 조회")
+    @GetMapping("/v2/products/{productId}")
+    public ResponseEntity<Response<ProductResponse>> getProductWithCache(@PathVariable Long productId) {
+        ProductResponse response = productQueryService.getProductWithCache(productId);
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    // 상품 목록 조회 (공통) - with Cache
+    @LogExecutionTime("V2 - With Cache - 상품 목록 조회")
+    @GetMapping("/v2/products")
+    public ResponseEntity<Response<ProductListResponse>> searchProductsWithCache(@ModelAttribute ProductSearchCondition condition,
+                                                                                 @PageableDefault(size = 10) Pageable pageable) {
+
+        ProductListResponse response = productQueryService.searchProductsWithCache(condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
     }
