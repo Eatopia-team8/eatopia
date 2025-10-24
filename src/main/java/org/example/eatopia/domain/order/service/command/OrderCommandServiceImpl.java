@@ -62,7 +62,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         BigDecimal totalProductPrice = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems) {
             Product product = cartItem.getProduct();
-            long quantity = cartItem.getQuantity();
+            Integer quantity = cartItem.getQuantity();
             orderValidator.validateStock(product, quantity);
 
             totalProductPrice = totalProductPrice.add(
@@ -110,7 +110,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                     OrderDetail detail = OrderDetail.create(
                             savedOrder,
                             product,
-                            (long) cartItem.getQuantity(), //cartItem quantity long으로 변경하는게 좋을까? product stock은 long 임
+                            cartItem.getQuantity(),
                             product.getPrice()
                     );
                     savedOrder.addOrderDetail(detail);

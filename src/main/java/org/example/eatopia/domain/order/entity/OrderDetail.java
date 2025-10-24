@@ -33,14 +33,14 @@ public class OrderDetail extends BaseEntity {
     private Long sellerId;
 
     @Column(nullable = false)
-    private Long quantity;
+    private Integer quantity;
 
     //주문 당시의 가격 저장
     @Column(nullable = false)
     private BigDecimal price;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private OrderDetail(Order order, Product product, Long quantity, BigDecimal price) {
+    private OrderDetail(Order order, Product product, Integer quantity, BigDecimal price) {
         this.order = order;
         this.product = product;
         this.sellerId = product.getSeller().getId();
@@ -48,7 +48,7 @@ public class OrderDetail extends BaseEntity {
         this.price = price;
     }
 
-    public static OrderDetail create(Order order, Product product, Long quantity, BigDecimal price) {
+    public static OrderDetail create(Order order, Product product, Integer quantity, BigDecimal price) {
         return OrderDetail.builder()
                 .order(order)
                 .product(product)
