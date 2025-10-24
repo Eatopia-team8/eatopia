@@ -62,7 +62,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 2. 상품(products)과 카테고리(categories)는 GET (조회) 요청만 허용
-                        .requestMatchers(HttpMethod.GET, "/v1/products/**", "/v1/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v*/products/**", "/v*/categories/**").permitAll()
 
                         // 3. Swagger 및 정적 리소스 경로 허용
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()

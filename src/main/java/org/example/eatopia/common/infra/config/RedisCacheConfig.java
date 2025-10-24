@@ -57,7 +57,7 @@ public class RedisCacheConfig {
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair
                                 .fromSerializer(valueSerializer))
-                .prefixCacheNameWith("v1:"); // 버저닝
+                .prefixCacheNameWith("v2:"); // 버저닝
 
         Map<String, RedisCacheConfiguration> perCache = new HashMap<>();
 
