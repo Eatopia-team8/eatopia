@@ -10,7 +10,7 @@ public record OrderDetailProductResponse(
         Long productId,
         String productName,
         Long sellerId,
-        Long quantity,
+        Integer quantity,
         BigDecimal price
 ) {
     public static OrderDetailProductResponse from(final OrderDetail orderDetail) {

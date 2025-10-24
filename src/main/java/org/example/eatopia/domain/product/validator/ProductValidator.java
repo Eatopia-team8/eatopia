@@ -31,7 +31,7 @@ public class ProductValidator {
         }
     }
 
-    private void validateStock(Long stock) {
+    private void validateStock(Integer stock) {
         if (stock == null || stock < 0) {
             throw new ProductException(ProductErrorCode.PRD_INVALID_STOCK);
         }

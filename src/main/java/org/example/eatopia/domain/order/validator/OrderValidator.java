@@ -24,7 +24,7 @@ public class OrderValidator {
         }
     }
 
-    public void validateStock(Product product, Long quantity) {
+    public void validateStock(Product product, Integer quantity) {
         if (product.getStock() < quantity) {
             throw new GlobalException(OrderErrorCode.OUT_OF_STOCK);
         }

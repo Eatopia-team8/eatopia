@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,9 +56,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
         User user = userQueryService.getUserEntityById(userId);
         //findSelectedItemsForOrder 호출
-        List<CartItem> cartItems = cartQueryService.getSelectedCartItems(userId);
+        //List<CartItem> cartItems = cartQueryService.getSelectedCartItems(userId);
         //널 확인 validator
-
+        //잠시 임시값 적용
+        List<CartItem> cartItems = new ArrayList<>();
         //금액 계산
         BigDecimal totalProductPrice = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems) {
@@ -125,7 +127,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 .toList();
 
         //userid, productid cartItem 삭제 기능
-        cartCommandService.deleteOrderedItems(userId, productDelete);
+        //cartCommandService.deleteOrderedItems(userId, productDelete);
 
         return OrderDetailResponse.from(savedOrder);
     }

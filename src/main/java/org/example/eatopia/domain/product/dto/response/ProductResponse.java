@@ -13,7 +13,7 @@ public record ProductResponse(
         String description,
         String thumbnailUrl,
         BigDecimal price,
-        Long stock,
+        Integer stock,
         ProductStatus status,
         Long categoryId,
         SellerInfo seller,
@@ -46,7 +46,7 @@ public record ProductResponse(
     ) {
 
         public static SellerInfo from(User user) {
-            
+
             return new SellerInfo(
                     user.getId(),
                     user.getName(),
