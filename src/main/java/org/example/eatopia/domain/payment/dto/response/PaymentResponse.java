@@ -14,7 +14,7 @@ public record PaymentResponse(
         PaymentMethod paymentMethod,
         PaymentStatus paymentStatus,
         String impUid,
-        String merchantId,
+        String merchantUid,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

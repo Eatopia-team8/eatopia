@@ -110,7 +110,7 @@ public class PaymentValidator {
         BigDecimal portoneAmount = portonePayment.getAmount(); // PortOne에 실제 결제된 금액
 
         if (dbAmount.compareTo(portoneAmount) != 0) {
-            //금액 불일치시 환불
+            //금액 불일치시 환불 추가
             throw new GlobalException(PaymentErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
 
