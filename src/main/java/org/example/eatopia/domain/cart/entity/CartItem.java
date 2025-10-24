@@ -29,20 +29,20 @@ public class CartItem extends BaseEntity {
     private Product product;
 
     @Column(name = "quantity", nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "is_selected", nullable = false)
     private boolean isSelected;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CartItem(Cart cart, Product product, int quantity, boolean isSelected) {
+    private CartItem(Cart cart, Product product, Integer quantity, boolean isSelected) {
         this.cart = cart;
         this.product = product;
         this.quantity = quantity;
         this.isSelected = isSelected;
     }
 
-    public static CartItem create(Cart cart, Product product, int quantity) {
+    public static CartItem create(Cart cart, Product product, Integer quantity) {
 
         return CartItem.builder()
                 .cart(cart)
@@ -52,7 +52,7 @@ public class CartItem extends BaseEntity {
                 .build();
     }
 
-    public void addQuantity(int quantity) {
+    public void addQuantity(Integer quantity) {
         this.quantity += quantity;
     }
 

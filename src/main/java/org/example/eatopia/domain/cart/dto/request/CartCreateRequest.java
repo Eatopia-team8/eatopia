@@ -8,7 +8,8 @@ public record CartCreateRequest(
         @NotNull
         Long productId,
 
+        @NotNull
         @Min(value = 1)
-        int quantity
+        Integer quantity
 ) {
 }

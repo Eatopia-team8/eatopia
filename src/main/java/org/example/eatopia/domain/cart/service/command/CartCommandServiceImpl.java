@@ -21,6 +21,8 @@ import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -81,5 +83,11 @@ public class CartCommandServiceImpl implements CartCommandService {
     public void deleteItems(CartItemsDeleteRequest request, Long userId) {
 
         cartItemRepository.deleteSelectedItems(userId, request.productIds());
+    }
+
+    @Override
+    public void deleteOrderedItems(Long userId, List<Long> orderedProductIds) {
+
+        cartItemRepository.deleteSelectedItems(userId, orderedProductIds);
     }
 }

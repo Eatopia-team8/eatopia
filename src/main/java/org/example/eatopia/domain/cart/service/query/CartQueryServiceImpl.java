@@ -52,4 +52,10 @@ public class CartQueryServiceImpl implements CartQueryService {
 
         return cartRepository.findByUserIdOrThrow(userId);
     }
+
+    @Override
+    public List<CartItem> getSelectedCartItems(Long userId) {
+
+        return cartItemRepository.findSelectedItemsForOrder(userId);
+    }
 }
