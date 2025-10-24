@@ -122,7 +122,7 @@ public class ProductCommandServiceImpl implements ProductCommandService {
             @CacheEvict(value = "product", key = "#productId"),
             @CacheEvict(value = "productList", allEntries = true)
     })
-    public void decreaseStock(Long productId, Long quantity) {
+    public void decreaseStock(Long productId, Integer quantity) {
         Product product = findProductWithLock(productId);
 
         product.decreaseStock(quantity);
@@ -134,7 +134,7 @@ public class ProductCommandServiceImpl implements ProductCommandService {
             @CacheEvict(value = "product", key = "#productId"),
             @CacheEvict(value = "productList", allEntries = true)
     })
-    public void increaseStock(Long productId, Long quantity) {
+    public void increaseStock(Long productId, Integer quantity) {
         Product product = findProductWithLock(productId);
 
         product.increaseStock(quantity);

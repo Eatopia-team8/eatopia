@@ -9,7 +9,7 @@ public record ProductUpdateRequest(
         String description,
         String thumbnailUrl,
         BigDecimal price,
-        Long stock,
+        Integer stock,
         ProductStatus status,
         Long categoryId
 ) {

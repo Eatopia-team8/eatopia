@@ -5,6 +5,8 @@ import org.example.eatopia.domain.order.entity.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 주문 단건 상세 조회를 위한 DTO
@@ -12,35 +14,35 @@ import java.time.LocalDateTime;
 public record OrderDetailResponse(
         Long orderId,
         Long userId,
-        Long productId,
-        Long sellerId,
         String orderCode,
         OrderStatus orderStatus,
-        Long quantity,
         BigDecimal totalProductPrice,
         BigDecimal discountProductPrice,
         BigDecimal totalDeliveryPrice,
         BigDecimal discountDeliveryPrice,
         BigDecimal finalPrice,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        List<OrderDetailProductResponse> orderProduct
 ) {
     public static OrderDetailResponse from(final Order order) {
+        List<OrderDetailProductResponse> itemResponses = order.getOrderDetails().stream()
+                .map(OrderDetailProductResponse::from)
+                .collect(Collectors.toList());
+
         return new OrderDetailResponse(
                 order.getId(),
-                order.getUserId(),
-                order.getProductId(),
-                order.getSellerId(),
+                order.getUser().getId(),
                 order.getCode(),
                 order.getStatus(),
-                order.getQuantity(),
                 order.getTotalProductPrice(),
                 order.getDiscountProductPrice(),
                 order.getTotalDeliveryPrice(),
                 order.getDiscountDeliveryPrice(),
                 order.getFinalPrice(),
                 order.getCreatedAt(),
-                order.getUpdatedAt()
+                order.getUpdatedAt(),
+                itemResponses
         );
     }
 }

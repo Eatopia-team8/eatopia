@@ -6,8 +6,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
+import org.example.eatopia.domain.coupon.entity.CouponIssue;
+import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,17 +21,12 @@ public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_id")
+    @Column(name = "orderId")
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
-
-    @Column(nullable = false)
-    private Long productId;
-
-    @Column(nullable = false)
-    private Long sellerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 
     @Column(nullable = false, unique = true)
     private String code;
@@ -35,9 +34,6 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
-
-    @Column(nullable = false)
-    private Long quantity;
 
     @Column(nullable = false)
     private BigDecimal totalProductPrice;
@@ -54,55 +50,58 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal finalPrice;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "couponIssueId")
+    private CouponIssue couponIssue;
+
     @Builder(access = AccessLevel.PRIVATE)
-    private Order(Long userId,
-                  Long productId,
-                  Long sellerId,
+    private Order(User user,
                   String code,
-                  Long quantity,
                   BigDecimal totalProductPrice,
                   BigDecimal discountProductPrice,
                   BigDecimal totalDeliveryPrice,
                   BigDecimal discountDeliveryPrice,
-                  BigDecimal finalPrice) {
-        this.userId = userId;
-        this.productId = productId;
-        this.sellerId = sellerId;
+                  BigDecimal finalPrice,
+                  CouponIssue couponIssue) {
+        this.user = user;
         this.code = code;
         this.status = OrderStatus.PENDING;
-        this.quantity = quantity;
         this.totalProductPrice = totalProductPrice;
         this.discountProductPrice = discountProductPrice;
         this.totalDeliveryPrice = totalDeliveryPrice;
         this.discountDeliveryPrice = discountDeliveryPrice;
         this.finalPrice = finalPrice;
+        this.couponIssue = couponIssue;
     }
 
-    public static Order create(Long userId,
-                               Long productId,
-                               Long sellerId,
+    public static Order create(User user,
                                String code,
-                               Long quantity,
                                BigDecimal totalProductPrice,
                                BigDecimal discountProductPrice,
                                BigDecimal totalDeliveryPrice,
                                BigDecimal discountDeliveryPrice,
-                               BigDecimal finalPrice) {
+                               BigDecimal finalPrice,
+                               CouponIssue couponIssue) {
         return Order.builder()
-                .userId(userId)
-                .productId(productId)
-                .sellerId(sellerId)
+                .user(user)
                 .code(code)
-                .quantity(quantity)
                 .totalProductPrice(totalProductPrice)
                 .discountProductPrice(discountProductPrice)
                 .totalDeliveryPrice(totalDeliveryPrice)
                 .discountDeliveryPrice(discountDeliveryPrice)
                 .finalPrice(finalPrice)
+                .couponIssue(couponIssue)
                 .build();
     }
 
     public void updateStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public void addOrderDetail(OrderDetail orderDetail) {
+        this.orderDetails.add(orderDetail);
     }
 }
