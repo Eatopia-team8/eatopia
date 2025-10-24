@@ -9,7 +9,7 @@ public record CartItemResponse(
         Long productId,
         String name,
         BigDecimal price,
-        int quantity,
+        Integer quantity,
         BigDecimal totalPrice,
         boolean isSelected,
         LocalDateTime createdAt
