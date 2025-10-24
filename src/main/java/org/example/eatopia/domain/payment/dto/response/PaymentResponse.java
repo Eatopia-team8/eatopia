@@ -13,6 +13,8 @@ public record PaymentResponse(
         BigDecimal price,
         PaymentMethod paymentMethod,
         PaymentStatus paymentStatus,
+        String impUid,
+        String merchantId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -23,6 +25,8 @@ public record PaymentResponse(
                 payment.getPrice(),
                 payment.getMethod(),
                 payment.getStatus(),
+                payment.getImpUid(),
+                payment.getMerchantUid(),
                 payment.getCreatedAt(),
                 payment.getUpdatedAt()
         );
