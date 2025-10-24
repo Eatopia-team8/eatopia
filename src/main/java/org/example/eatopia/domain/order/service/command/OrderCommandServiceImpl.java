@@ -80,7 +80,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
 
         if (couponIssue != null) {
-            BigDecimal discountAmount = couponCommandService.calculateDiscountValue(totalProductPrice, couponIssue);
+            discountProductPrice = couponCommandService.calculateDiscountValue(totalProductPrice, couponIssue);
             //쿠폰 등록 , 환불 로직에 필요
             couponIssueId = couponIssue.getId();
         }
