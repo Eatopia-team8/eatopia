@@ -19,6 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.function.Supplier;
+
 @RestController
 @RequiredArgsConstructor
 public class ProductController {
@@ -96,5 +98,9 @@ public class ProductController {
         ProductListResponse response = productQueryService.searchProductsWithCache(condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
+    }
+
+    private <T> ResponseEntity<Response<T>> respond(Supplier<T> serviceCall) {
+        return ResponseEntity.ok(Response.success(serviceCall.get()));
     }
 }

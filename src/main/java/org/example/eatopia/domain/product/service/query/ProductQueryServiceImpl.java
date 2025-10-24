@@ -45,9 +45,7 @@ public class ProductQueryServiceImpl implements ProductQueryService {
     @Cacheable(value = "product", key = "#productId", unless = "#result == null")
     public ProductResponse getProductWithCache(Long productId) {
 
-        Product product = getProductOrElseThrow(productId);
-
-        return ProductResponse.from(product);
+        return getProduct(productId);
     }
 
     @Override
@@ -58,11 +56,7 @@ public class ProductQueryServiceImpl implements ProductQueryService {
     )
     public ProductListResponse searchProductsWithCache(ProductSearchCondition condition, Pageable pageable) {
 
-        Page<Product> products = productRepository.searchProducts(condition, pageable);
-
-        Page<ProductResponse> productResponsePage = products.map(ProductResponse::from);
-
-        return ProductListResponse.from(productResponsePage);
+        return searchProducts(condition, pageable);
     }
 
     @Override
