@@ -60,7 +60,7 @@ public class Review extends SoftDeleteEntity {
         this.reportCount = reportCount;
     }
 
-    public static Review create(User user, Product product, String content, Integer rating, ReviewStatus status) {
+    public static Review create(User user, Product product, String content, Integer rating) {
         return Review.builder()
                 .user(user)
                 .product(product)
