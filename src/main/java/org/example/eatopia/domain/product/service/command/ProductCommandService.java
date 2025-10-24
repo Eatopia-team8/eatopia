@@ -13,7 +13,7 @@ public interface ProductCommandService {
 
     void deleteProduct(Long productId, Long userId, UserRole userRole);
 
-    void decreaseStock(Long productId, Long quantity);
+    void decreaseStock(Long productId, Integer quantity);
 
-    void increaseStock(Long productId, Long quantity);
+    void increaseStock(Long productId, Integer quantity);
 }

@@ -36,7 +36,7 @@ public class Product extends BaseEntity {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private Long stock;
+    private Integer stock;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20, scale = 0)
@@ -51,7 +51,7 @@ public class Product extends BaseEntity {
     private User seller;
 
     public static Product create(String name, String description, String thumbnailUrl,
-                                 BigDecimal price, Long stock, ProductStatus status,
+                                 BigDecimal price, Integer stock, ProductStatus status,
                                  Category category, User seller) {
 
         return Product.builder()
@@ -67,7 +67,7 @@ public class Product extends BaseEntity {
     }
 
     public void update(String name, String description, String thumbnailUrl,
-                       BigDecimal price, Long stock, ProductStatus status,
+                       BigDecimal price, Integer stock, ProductStatus status,
                        Category category) {
 
         Optional.ofNullable(name).ifPresent(value -> this.name = value);
@@ -91,7 +91,7 @@ public class Product extends BaseEntity {
         }
     }
 
-    public void decreaseStock(Long quantity) {
+    public void decreaseStock(Integer quantity) {
         validateQuantity(quantity);
 
         // 재고 체크
@@ -102,13 +102,13 @@ public class Product extends BaseEntity {
         this.stock -= quantity;
     }
 
-    public void increaseStock(Long quantity) {
+    public void increaseStock(Integer quantity) {
         validateQuantity(quantity);
 
         this.stock += quantity;
     }
 
-    private void validateQuantity(Long quantity) {
+    private void validateQuantity(Integer quantity) {
         // 수량 체크
         if (quantity == null || quantity <= 0) {
             throw new ProductException(ProductErrorCode.PRD_INVALID_ORDER_QUANTITY);
