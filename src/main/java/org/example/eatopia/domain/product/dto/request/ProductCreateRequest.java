@@ -18,7 +18,7 @@ public record ProductCreateRequest(
         BigDecimal price,
 
         @NotNull(message = "재고는 필수입니다.")
-        Long stock,
+        Integer stock,
 
         @NotNull(message = "상태는 필수입니다.")
         ProductStatus status,
