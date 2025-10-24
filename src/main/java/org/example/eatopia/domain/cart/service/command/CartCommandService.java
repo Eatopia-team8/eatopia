@@ -26,8 +26,8 @@ public interface CartCommandService {
      * 지정된 사용자 ID와 상품 ID 목록에 해당하는 장바구니 항목을 삭제합니다.
      * 주문 완료 시 장바구니 정리 용도로 사용됩니다.
      *
-     * @param userId        장바구니를 소유한 사용자 ID
-     * @param productDelete 삭제할 상품의 ID 목록
+     * @param userId            장바구니를 소유한 사용자 ID
+     * @param orderedProductIds 삭제할 상품의 ID 목록
      */
-    void deleteOrderedItems(Long userId, List<Long> productDelete);
+    void deleteOrderedItems(Long userId, List<Long> orderedProductIds);
 }

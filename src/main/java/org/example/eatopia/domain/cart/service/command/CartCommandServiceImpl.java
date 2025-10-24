@@ -86,8 +86,8 @@ public class CartCommandServiceImpl implements CartCommandService {
     }
 
     @Override
-    public void deleteOrderedItems(Long userId, List<Long> productDelete) {
+    public void deleteOrderedItems(Long userId, List<Long> orderedProductIds) {
 
-        cartItemRepository.deleteSelectedItems(userId, productDelete);
+        cartItemRepository.deleteSelectedItems(userId, orderedProductIds);
     }
 }
