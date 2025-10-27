@@ -67,7 +67,7 @@ public class SecurityConfig {
                         // 3. Swagger 및 정적 리소스 경로 허용
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
+                        .requestMatchers("/v1/s3/presigned-url").permitAll() // 이미지 업로드 테스트 허용
                         .requestMatchers("/v1/users/userInfo").authenticated()
 
                         // 5. 그 외 모든 요청(POST /v1/products 등)은 인증 필요
