@@ -9,6 +9,7 @@ import org.example.eatopia.domain.review.service.command.ReviewCommandService;
 import org.example.eatopia.domain.review.service.query.ReviewQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ public class ReviewController {
     private final ReviewCommandService reviewCommandService;
     private final ReviewQueryService reviewQueryService;
 
+    @PreAuthorize("hasRole('BUYER')")
     @PostMapping("/v1/orders/{orderDetailId}/review")
     public ResponseEntity<Response<ReviewResponse>> createReview(@PathVariable Long orderDetailId,
                                                                  @Valid @RequestBody ReviewRequest request,
