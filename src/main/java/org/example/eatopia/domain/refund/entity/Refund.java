@@ -58,7 +58,7 @@ public class Refund extends BaseEntity {
         this.status = RefundStatus.PENDING;
     }
 
-    public static Refund create(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason) {
+    public static Refund of(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason) {
         return Refund.builder()
                 .user(user)
                 .payment(payment)
