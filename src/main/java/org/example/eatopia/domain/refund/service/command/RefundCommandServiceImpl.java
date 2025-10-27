@@ -63,7 +63,6 @@ public class RefundCommandServiceImpl implements RefundCommandService {
 
         refundValidator.validateRefundStatusPending(refund);
 
-        Payment payment = refund.getPayment();
         OrderDetail orderDetail = refund.getOrderDetail();
 
         productCommandService.increaseStock(
@@ -74,6 +73,7 @@ public class RefundCommandServiceImpl implements RefundCommandService {
         refund.updateStatus(RefundStatus.SUCCESS);
 
         eventPublisher.publishEvent(new RefundSuccessEvent(refund));
+        //outbox 패턴 추가
 
         return RefundResponse.from(refund);
     }
