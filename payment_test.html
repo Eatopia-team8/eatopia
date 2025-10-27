@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Portone 결제 테스트</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
+    <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js" type="text/javascript"></script>
+</head>
+<body>
+
+<h2>Portone 결제 테스트</h2>
+
+<p>
+    <label for="merchantUid">주문 번호 (merchant_uid):</label>
+    <input id="merchantUid" type="text" value="merchantUid"></p>
+<p>
+    <label for="amount">결제 금액 (amount):</label>
+    <input id="amount" type="number" value="10"></p>
+<p>
+    <label for="productName">상품명 (name):</label>
+    <input id="productName" type="text" value="테스트">
+</p>
+<p>
+    <label for="buyerEmail">구매자 이메일 (buyer_email):</label>
+    <input id="buyerEmail" type="email" value="qwerty@naver.com">
+</p>
+<p>
+    <label for="buyerName">구매자 이름 (buyer_name):</label>
+    <input id="buyerName" type="text" value="구매자">
+</p>
+<p>
+    <label for="jwtToken">JWT 토큰:</label>
+    <input id="jwtToken" placeholder="로그인 후 발급받은 토큰을 여기에 붙여넣으세요" type="text" value="">
+</p>
+
+<button onclick="requestPay()">카카오페이로 결제하기</button>
+
+<script>
+    var IMP = window.IMP;
+    IMP.init("imp72716260"); // *******IMP Code 를 넣어야 됨*******
+
+    function requestPay() {
+        var merchantUid = document.getElementById('merchantUid').value;
+        var amount = parseInt(document.getElementById('amount').value);
+        var productName = document.getElementById('productName').value;
+        var buyerEmail = document.getElementById('buyerEmail').value;
+        var buyerName = document.getElementById('buyerName').value;
+        var jwtToken = document.getElementById('jwtToken').value; // 토큰 값 읽기
+
+        if (!jwtToken) {
+            alert("JWT 토큰을 입력해주세요.");
+            return;
+        }
+
+        console.log("결제 요청 정보:", {
+            merchant_uid: merchantUid,
+            amount: amount,
+            name: productName,
+            buyer_email: buyerEmail,
+            buyer_name: buyerName
+        });
+
+        IMP.request_pay({
+            pg: 'kakaopay',
+            pay_method: 'card',
+            merchant_uid: merchantUid,
+            name: productName,
+            amount: amount,
+            buyer_email: buyerEmail,
+            buyer_name: buyerName,
+        }, function (rsp) {
+            console.log("Portone 응답 전문:", rsp); // 기존 로그 (rsp 전체 확인)
+
+            if (rsp.success) {
+                console.log("결제 성공! 서버 검증을 시작합니다.");
+                console.log(" - imp_uid:", rsp.imp_uid);
+                console.log(" - merchant_uid:", rsp.merchant_uid);
+
+                // --- 서버 검증 요청 시작 ---
+                console.log("fetch 요청 시작: http://localhost:8080/api/eatopia/v1/payments/verify"); // [추가] fetch 호출 직전 로그
+                fetch('http://localhost:8080/api/eatopia/v1/payments/verify', { // API 경로 확인 필요
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + jwtToken
+                    },
+                    body: JSON.stringify({
+                        impUid: rsp.imp_uid,
+                        merchantUid: rsp.merchant_uid
+                    })
+                }).then(response => {
+                    console.log("fetch 응답 수신:", response); // [추가] response 객체 자체 로그 (상태 코드 등 확인용)
+                    if (response.ok) {
+                        // 성공 시 JSON 파싱 시도
+                        return response.json();
+                    } else {
+                        // 실패 시 먼저 텍스트로 읽어보고, JSON 파싱 시도
+                        return response.text().then(text => { // [수정] text()로 먼저 읽기
+                            console.error("서버 응답 실패 (Raw Text):", text); // [추가] HTML 등 비-JSON 응답 확인용 로그
+                            try {
+                                // 텍스트를 JSON으로 파싱 시도
+                                const errorData = JSON.parse(text);
+                                return Promise.reject(errorData); // JSON 파싱 성공 시 reject
+                            } catch (e) {
+                                // JSON 파싱 실패 시 (HTML 등), 상태 코드와 텍스트 메시지로 reject
+                                return Promise.reject({status: response.status, message: text});
+                            }
+                        });
+                    }
+                }).then(data => {
+                    console.log("서버 검증 성공 (JSON 데이터):", data); // 기존 로그 (이름 명확화)
+                    alert('서버 검증 성공!');
+                }).catch(errorData => {
+                    // 실패 JSON 데이터 또는 네트워크/파싱 오류 처리
+                    console.error("서버 검증 실패 또는 통신/파싱 오류:", errorData); // 기존 로그 (이름 명확화)
+                    // errorData 객체 구조 확인 후 메시지 추출
+                    let errorMessage = '알 수 없는 오류';
+                    if (errorData) {
+                        if (errorData.message) { // 서버가 보낸 에러 메시지 (ErrorResponseDto 등)
+                            errorMessage = errorData.message;
+                        } else if (typeof errorData === 'string') { // response.text()로 받은 HTML 등
+                            errorMessage = errorData.substring(0, 100) + "..."; // 너무 길면 일부만 표시
+                        } else if (errorData.status) { // response.ok가 false이고 JSON 파싱도 실패한 경우
+                            errorMessage = `HTTP Status ${errorData.status}`;
+                        }
+                    }
+                    alert('서버 검증 실패: ' + errorMessage);
+                });
+                // --- 서버 검증 요청 끝 ---
+
+            } else {
+                console.error("Portone 결제 실패:", rsp.error_msg); // 기존 로그 (이름 명확화)
+                alert("결제 실패: " + rsp.error_msg);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

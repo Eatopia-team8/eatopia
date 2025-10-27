@@ -21,26 +21,16 @@ public class ProductQueryServiceImpl implements ProductQueryService {
 
     private final ProductRepository productRepository;
 
-    // 상품 단건 조회
+    // ----- 캐시 없음 -----
     @Override
-    @Cacheable(value = "product", key = "#productId", unless = "#result == null")
     public ProductResponse getProduct(Long productId) {
+
         Product product = getProductOrElseThrow(productId);
+
         return ProductResponse.from(product);
     }
 
     @Override
-    public Product getProductOrElseThrow(Long productId) {
-        return productRepository.findWithCategoryAndSellerById(productId)
-                .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_ID_NOT_FOUND));
-    }
-
-    @Override
-    @Cacheable(
-            value = "productList",
-            key = "T(String).valueOf(#condition) + '_' + #pageable.pageNumber + '_' + #pageable.pageSize",
-            unless = "#result == null || #result.content().isEmpty()"
-    )
     public ProductListResponse searchProducts(ProductSearchCondition condition, Pageable pageable) {
 
         Page<Product> products = productRepository.searchProducts(condition, pageable);
@@ -49,4 +39,31 @@ public class ProductQueryServiceImpl implements ProductQueryService {
 
         return ProductListResponse.from(productResponsePage);
     }
+
+    // ----- 캐시 있음 -----
+    @Override
+    @Cacheable(value = "product", key = "#productId", unless = "#result == null")
+    public ProductResponse getProductWithCache(Long productId) {
+
+        return getProduct(productId);
+    }
+
+    @Override
+    @Cacheable(
+            value = "productList",
+            key = "T(String).valueOf(#condition) + '_' + #pageable.pageNumber + '_' + #pageable.pageSize",
+            unless = "#result == null || #result.content().isEmpty()"
+    )
+    public ProductListResponse searchProductsWithCache(ProductSearchCondition condition, Pageable pageable) {
+
+        return searchProducts(condition, pageable);
+    }
+
+    @Override
+    public Product getProductOrElseThrow(Long productId) {
+
+        return productRepository.findWithCategoryAndSellerById(productId)
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_ID_NOT_FOUND));
+    }
+
 }

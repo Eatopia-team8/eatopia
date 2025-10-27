@@ -21,4 +21,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByUserIdAndId(Long userId, Long orderId);
 
     boolean existsByUserId(Long userId);
+
+    Optional<Order> findByCode(String code);
 }

@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class OrderCommandServiceImpl implements OrderCommandService {
 
-    private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000");
+    private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("10");
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
 
     private final UserQueryService userQueryService;
