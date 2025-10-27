@@ -5,7 +5,8 @@ import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.entity.CartItem;
 import org.example.eatopia.domain.cart.service.command.CartCommandService;
 import org.example.eatopia.domain.cart.service.query.CartQueryService;
-import org.example.eatopia.domain.coupon.entity.CouponIssue;
+import org.example.eatopia.domain.coupon.service.command.CouponCommandService;
+import org.example.eatopia.domain.coupon.service.query.CouponQueryService;
 import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,16 +35,16 @@ import java.util.stream.Collectors;
 @Transactional
 public class OrderCommandServiceImpl implements OrderCommandService {
 
-    private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("10");
+    private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000");
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
 
     private final UserQueryService userQueryService;
     private final CartQueryService cartQueryService;
-    //private final CouponQueryService couponQueryService;
+    private final CouponQueryService couponQueryService;
 
     private final ProductCommandService productCommandService;
     private final CartCommandService cartCommandService;
-    //private final CouponCommandService couponCommandService;
+    private final CouponCommandService couponCommandService;
 
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -55,11 +55,9 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Override
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
         User user = userQueryService.getUserEntityById(userId);
-        //findSelectedItemsForOrder 호출
-        //List<CartItem> cartItems = cartQueryService.getSelectedCartItems(userId);
+        List<CartItem> cartItems = cartQueryService.getSelectedCartItems(userId);
         //널 확인 validator
-        //잠시 임시값 적용
-        List<CartItem> cartItems = new ArrayList<>();
+
         //금액 계산
         BigDecimal totalProductPrice = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems) {
@@ -71,19 +69,23 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                     product.getPrice().multiply(BigDecimal.valueOf(quantity))
             );
         }
+        //총 금액 검증 필요
 
-        //쿠폰 사용
-        CouponIssue couponIssue = null;
-        BigDecimal discountProductPrice = DEFAULT_DISCOUNT_PRICE;
-        BigDecimal discountDeliveryPrice = DEFAULT_DISCOUNT_PRICE;
+        // 쿠폰 선택
         /*
-        if (request.couponIssueId() != null) {
-            //사용할수있는 쿠폰
-            //couponIssue = couponQueryService.getUsableCouponIssue(request.couponIssueId(), userId);
-            //할인액 계산
-            //discountProductPrice = couponCommandService.calculateDiscountCoupon(request.couponIssueId(), totalProductPrice);
+        CouponIssue couponIssue = couponQueryService.getUsableIssuedCoupons(userId);
+         */
+        Long couponIssueId = null;
+        BigDecimal discountProductPrice = BigDecimal.ZERO;
+        BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
+
+        /*
+        if (couponIssue != null) {
+            discountProductPrice = couponCommandService.calculateDiscountValue(totalProductPrice, couponIssue);
+            //쿠폰 등록 , 환불 로직에 필요
+            couponIssueId = couponIssue.getId();
         }
-        */
+         */
 
         //최종 금액 계산
         BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
@@ -101,7 +103,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 totalDeliveryPrice,
                 discountDeliveryPrice,
                 finalPrice,
-                couponIssue
+                couponIssueId
         );
         Order savedOrder = orderRepository.save(order);
 
@@ -126,8 +128,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 .map(cartItem -> cartItem.getProduct().getId())
                 .toList();
 
-        //userid, productid cartItem 삭제 기능
-        //cartCommandService.deleteOrderedItems(userId, productDelete);
+        cartCommandService.deleteOrderedItems(userId, productDelete);
 
         return OrderDetailResponse.from(savedOrder);
     }
@@ -146,10 +147,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             productCommandService.decreaseStock(detail.getProduct().getId(), detail.getQuantity());
         }
 
+        //주문 성공하면 쿠폰 사용
         /*
-        if (order.getCouponIssue() != null) {
-            //쿠폰 사용
-            couponCommandService.useCoupon(order.getCouponIssue().getId(), order.getId());
+        Long issueId = order.getCouponIssueId();
+        if (issueId != null) {
+            couponCommandService.useCoupon(issueId);
         }
         */
         order.updateStatus(OrderStatus.SUCCESS);
@@ -173,10 +175,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             productCommandService.increaseStock(detail.getProduct().getId(), detail.getQuantity());
         }
 
+        //주문 취소시 쿠폰 롤백
         /*
-        // 주문에 사용된 쿠폰을 사용했고 그 쿠폰이 사용됨인 경우
-        if (order.getCouponIssue() != null && order.getCouponIssue().isUsed()) {
-            couponCommandService.rollbackUseCoupon(order.getCouponIssue().getId());
+        Long issueId = order.getCouponIssueId();
+        if (issueId != null) {
+            couponCommandService.rollbackCoupon(issueId);
         }
         */
 
