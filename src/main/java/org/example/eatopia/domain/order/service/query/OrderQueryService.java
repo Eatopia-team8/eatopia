@@ -14,4 +14,6 @@ public interface OrderQueryService {
     Order findOrderByUserAndId(Long userId, Long orderId);
 
     boolean isFirstOrder(Long userId);
+
+    Order findOrderByCode(String code);
 }
