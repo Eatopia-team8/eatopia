@@ -49,7 +49,7 @@ public class RefundCommandServiceImpl implements RefundCommandService {
 
         BigDecimal refundAmount = orderDetail.getPrice();
 
-        Refund refund = Refund.create(user, payment, orderDetail, refundAmount, request.reason());
+        Refund refund = Refund.of(user, payment, orderDetail, refundAmount, request.reason());
         refund.updateStatus(RefundStatus.PENDING);
         Refund savedRefund = refundRepository.save(refund);
 
