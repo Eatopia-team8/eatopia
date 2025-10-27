@@ -53,4 +53,10 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     public boolean isFirstOrder(Long userId) {
         return !orderRepository.existsByUserId(userId);
     }
+
+    @Override
+    public Order findOrderByCode(String code) {
+        return orderRepository.findByCode(code)
+                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+    }
 }
