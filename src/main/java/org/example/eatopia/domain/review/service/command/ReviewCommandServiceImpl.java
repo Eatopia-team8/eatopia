@@ -36,7 +36,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         }
 
         // 주문 내역 있는지 확인
-        OrderDetail orderDetail = orderQueryService.getOrderDetailbByUserId(orderDetailId, userId);
+        OrderDetail orderDetail = orderQueryService.getOrderDetailByUserId(orderDetailId, userId);
 
         Review review = Review.create(
                 orderDetail.getOrder().getUser(),
