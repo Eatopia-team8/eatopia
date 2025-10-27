@@ -46,11 +46,8 @@ public class RefundCommandServiceImpl implements RefundCommandService {
         Payment payment = paymentQueryService.getPaymentEntityByOrder(orderDetail.getOrder());
 
         refundValidator.validateRefundRequest(user, orderDetail);
-
         BigDecimal refundAmount = orderDetail.getPrice();
-
         Refund refund = Refund.of(user, payment, orderDetail, refundAmount, request.reason());
-        refund.updateStatus(RefundStatus.PENDING);
         Refund savedRefund = refundRepository.save(refund);
 
         return RefundResponse.from(savedRefund);
@@ -62,7 +59,6 @@ public class RefundCommandServiceImpl implements RefundCommandService {
                 .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_NOT_FOUND));
 
         refundValidator.validateRefundStatusPending(refund);
-
         OrderDetail orderDetail = refund.getOrderDetail();
 
         productCommandService.increaseStock(
@@ -71,7 +67,6 @@ public class RefundCommandServiceImpl implements RefundCommandService {
         );
 
         refund.updateStatus(RefundStatus.SUCCESS);
-
         eventPublisher.publishEvent(new RefundSuccessEvent(refund));
         //outbox 패턴 추가
 
@@ -84,7 +79,6 @@ public class RefundCommandServiceImpl implements RefundCommandService {
                 .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_NOT_FOUND));
 
         refundValidator.validateRefundStatusPending(refund);
-
         refund.updateStatus(RefundStatus.CANCELED);
 
         return RefundResponse.from(refund);
