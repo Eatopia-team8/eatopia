@@ -4,17 +4,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.review.dto.request.ReviewRequest;
+import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
 import org.example.eatopia.domain.review.dto.response.ReviewResponse;
+import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
 import org.example.eatopia.domain.review.service.command.ReviewCommandService;
 import org.example.eatopia.domain.review.service.query.ReviewQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +33,16 @@ public class ReviewController {
                                                                  @AuthenticationPrincipal UserPrincipal authUser) {
 
         ReviewResponse response = reviewCommandService.createReview(orderDetailId, authUser.getId(), request);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    @GetMapping("/v1/products/{productId}/reviews")
+    public ResponseEntity<Response<Page<ReviewSearchResponse>>> searchReviews(@PathVariable Long productId,
+                                                                              @ModelAttribute ReviewSearchCondition condition,
+                                                                              @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<ReviewSearchResponse> response = reviewQueryService.searchReviews(productId, condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
     }
