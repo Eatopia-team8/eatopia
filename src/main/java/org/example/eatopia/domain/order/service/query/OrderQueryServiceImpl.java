@@ -5,7 +5,9 @@ import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.dto.response.OrderResponse;
 import org.example.eatopia.domain.order.entity.Order;
+import org.example.eatopia.domain.order.entity.OrderDetail;
 import org.example.eatopia.domain.order.exception.OrderErrorCode;
+import org.example.eatopia.domain.order.repository.OrderDetailRepository;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class OrderQueryServiceImpl implements OrderQueryService {
     private final OrderRepository orderRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     /**
      * Validator에서 orderId, userId 다르면 오류 출력
@@ -57,6 +60,12 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     @Override
     public Order findOrderByCode(String code) {
         return orderRepository.findByCode(code)
+                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+    }
+
+    @Override
+    public OrderDetail getOrderDetailByUserId(Long orderDetailId, Long userId) {
+        return orderDetailRepository.findByIdAndOrderUserId(orderDetailId, userId)
                 .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
     }
 }
