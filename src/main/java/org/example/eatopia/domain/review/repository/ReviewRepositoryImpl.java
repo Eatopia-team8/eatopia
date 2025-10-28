@@ -83,16 +83,15 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     private OrderSpecifier<?> getOrderSpecifier(Sort sort) {
 
-        if (!sort.isEmpty()) {
-            Sort.Order order = sort.iterator().next();
-            String property = order.getProperty();
+        Sort.Order order = sort.iterator().next();
+        String property = order.getProperty();
+        Order direction = order.isAscending() ? Order.ASC : Order.DESC;
 
-            if (property.equals("rating")) {
-                return new OrderSpecifier<>(Order.DESC, review.rating);
-            }
-        }
-
-        return new OrderSpecifier<>(Order.DESC, review.createdAt);
+        return switch (property) {
+            case "rating" -> new OrderSpecifier<>(direction, review.rating);
+            case "createdAt" -> new OrderSpecifier<>(direction, review.createdAt);
+            default -> new OrderSpecifier<>(Order.DESC, review.createdAt);
+        };
     }
 
 }
