@@ -51,13 +51,13 @@ public class ReviewController {
 
     @PreAuthorize("hasRole('SELLER')")
     @GetMapping("/v1/seller/reviews")
-    public ResponseEntity<Response<Page<ReviewSellerResponse>>> getReviewsBySeller(@RequestParam(required = false) Long productId,
-                                                                                   @ModelAttribute ReviewSearchCondition condition,
-                                                                                   @AuthenticationPrincipal UserPrincipal authUser,
-                                                                                   @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Response<Page<ReviewSellerResponse>>> getReviewsForSeller(@RequestParam(required = false) Long productId,
+                                                                                    @ModelAttribute ReviewSearchCondition condition,
+                                                                                    @AuthenticationPrincipal UserPrincipal authUser,
+                                                                                    @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 
-        Page<ReviewSellerResponse> response = reviewQueryService.getReviewsBySeller(productId, authUser.getId(), condition, pageable);
+        Page<ReviewSellerResponse> response = reviewQueryService.getReviewsForSeller(productId, authUser.getId(), condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
     }

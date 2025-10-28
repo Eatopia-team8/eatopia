@@ -29,7 +29,7 @@ public class ReviewQueryServiceImpl implements ReviewQueryService {
     }
 
     @Override
-    public Page<ReviewSellerResponse> getReviewsBySeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable) {
+    public Page<ReviewSellerResponse> getReviewsForSeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable) {
 
         if (condition.status() == ReviewStatus.HIDDEN) {
             throw new GlobalException(ReviewErrorCode.REVIEW_HIDDEN);
