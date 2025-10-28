@@ -32,7 +32,6 @@ public class StatisticController {
     /**
      * 판매자 매출 조회 (ADMIN: 전체 및 선택 조회, SELLER: 자신만 조회)
      */
-    // [수정] 메소드 레벨 권한 (ADMIN 또는 SELLER)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SELLER')")
     @GetMapping("/seller")
     public ResponseEntity<Response<Page<SaleResponse>>> getSellerSales(
@@ -51,7 +50,7 @@ public class StatisticController {
         }
 
         SaleSearchRequest request = new SaleSearchRequest(querySellerId, period, startDate, endDate);
-        Page<SaleResponse> resultPage = statisticQueryService.getSellerSale(request, pageable);
+        Page<SaleResponse> resultPage = statisticQueryService.getSellerSales(request, pageable);
         return ResponseEntity.ok(Response.success(resultPage));
     }
 

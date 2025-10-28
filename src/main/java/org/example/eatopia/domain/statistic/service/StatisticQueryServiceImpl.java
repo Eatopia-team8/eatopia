@@ -24,7 +24,7 @@ public class StatisticQueryServiceImpl implements StatisticQueryService {
     private final StatisticValidator statisticValidator;
 
     @Override
-    public Page<SaleResponse> getSellerSale(SaleSearchRequest request, Pageable pageable) {
+    public Page<SaleResponse> getSellerSales(SaleSearchRequest request, Pageable pageable) {
         statisticValidator.validateSearchRequestDates(request);
 
         return statisticRepository.findSellerSaleByPeriod(request, pageable);

@@ -21,6 +21,8 @@ public class StatisticValidator {
             if (startDate.isAfter(endDate)) {
                 throw new StatisticException(StatisticErrorCode.INVALID_DATE_RANGE);
             }
+        } else if (startDate != null || endDate != null) {
+            throw new StatisticException(StatisticErrorCode.MISSING_DATE_PARAMETER);
         }
     }
 }

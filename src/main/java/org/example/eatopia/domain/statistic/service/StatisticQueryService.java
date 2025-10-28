@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface StatisticQueryService {
 
-    Page<SaleResponse> getSellerSale(SaleSearchRequest request, Pageable pageable);
+    Page<SaleResponse> getSellerSales(SaleSearchRequest request, Pageable pageable);
 
     TotalSaleSummaryResponse getTotalSales(SaleSearchRequest request);
 }
