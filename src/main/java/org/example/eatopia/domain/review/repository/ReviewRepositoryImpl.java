@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
+import org.example.eatopia.domain.review.dto.response.ReviewAdminResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
 import org.example.eatopia.domain.review.enums.ReviewStatus;
@@ -97,6 +98,11 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .where(filter);
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable) {
+        return null;
     }
 
     private BooleanBuilder buildFilter(Long productId, ReviewSearchCondition condition) {

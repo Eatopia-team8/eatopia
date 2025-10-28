@@ -69,6 +69,8 @@ public class ReviewController {
                                                                                   @ModelAttribute ReviewSearchCondition condition,
                                                                                   @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(Response.success(null));
+        Page<ReviewAdminResponse> response = reviewQueryService.getReviewsForAdmin(productId, userId, condition, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
     }
 }
