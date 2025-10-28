@@ -8,4 +8,9 @@ public record ReviewSearchCondition(
         ReviewStatus status,
         Boolean includeDeleted
 ) {
+    public ReviewSearchCondition {
+        if (includeDeleted == null) {
+            includeDeleted = true;
+        }
+    }
 }
