@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.statistics.repository;
+package org.example.eatopia.domain.statistic.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -8,10 +8,10 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.order.entity.OrderStatus;
-import org.example.eatopia.domain.statistics.dto.request.SaleSearchRequest;
-import org.example.eatopia.domain.statistics.dto.response.PeriodSaleResponse;
-import org.example.eatopia.domain.statistics.dto.response.SellerSaleRankingResponse;
-import org.example.eatopia.domain.statistics.dto.response.SellerSaleResponse;
+import org.example.eatopia.domain.statistic.dto.request.SaleSearchRequest;
+import org.example.eatopia.domain.statistic.dto.response.PeriodSaleResponse;
+import org.example.eatopia.domain.statistic.dto.response.SellerSaleRankingResponse;
+import org.example.eatopia.domain.statistic.dto.response.SellerSaleResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;

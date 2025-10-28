@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.statistics.dto.response;
+package org.example.eatopia.domain.statistic.dto.response;
 
 import java.util.List;
 

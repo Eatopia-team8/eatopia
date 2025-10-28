@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.statistics.dto.request;
+package org.example.eatopia.domain.statistic.dto.request;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
