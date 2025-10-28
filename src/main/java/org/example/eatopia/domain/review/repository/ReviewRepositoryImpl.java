@@ -102,6 +102,11 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     @Override
     public Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable) {
+
+        BooleanBuilder filter = buildFilterSeller(productId, userId, condition);
+
+        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
+
         return null;
     }
 
@@ -123,6 +128,18 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(ratingFilter(condition.rating()))
                 .and(statusFilter(condition.status()))
                 .and(includeDeletedFilter(condition.includeDeleted()));
+    }
+
+    private BooleanBuilder builderFilterAdmin(Long productId, Long userId, ReviewSearchCondition condition) {
+
+        return new BooleanBuilder()
+                .and(productFilter(productId))
+                .and(keywordFilter(condition.keyword()))
+                .and(ratingFilter(condition.rating()))
+                .and(statusFilter(condition.status()))
+                .and(includeDeletedFilter(condition.includeDeleted()))
+                .and(onlyDeletedFilter(condition.onlyReported()))
+                .and(userFilter(userId));
     }
 
     // 상품 필터
@@ -148,6 +165,16 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     // 삭제 포함 필터
     private BooleanExpression includeDeletedFilter(Boolean includeDeleted) {
         return Boolean.FALSE.equals(includeDeleted) ? review.deletedAt.isNull() : null;
+    }
+
+    // 신고 리뷰만 필터
+    private BooleanExpression onlyDeletedFilter(Boolean onlyDeleted) {
+        return Boolean.TRUE.equals(onlyDeleted) ? review.reportedAt.isNotNull() : null;
+    }
+
+    // 회원 필터
+    private BooleanExpression userFilter(Long userId) {
+        return userId != null ? review.user.id.eq(userId) : null;
     }
 
     private OrderSpecifier<?> getOrderSpecifier(Sort sort) {
