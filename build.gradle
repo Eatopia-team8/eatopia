@@ -25,6 +25,14 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+dependencyManagement {
+    imports {
+        // Spring Cloud AWS의 버전을 관리해주는 BOM
+        // Spring Boot 3.5.x 와 호환
+        mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:3.4.0"
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -65,6 +73,8 @@ dependencies {
     // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+    //AWS Cloud
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
     // AWS S3
     implementation 'software.amazon.awssdk:s3:2.25.36'
     implementation 'software.amazon.awssdk:sts:2.25.36'
