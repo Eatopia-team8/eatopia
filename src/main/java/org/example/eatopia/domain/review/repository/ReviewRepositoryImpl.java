@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -125,7 +126,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     // 키워드 필터
     private BooleanExpression keywordFilter(String keyword) {
-        return (keyword != null && !keyword.isEmpty()) ? review.content.contains(keyword) : null;
+        return StringUtils.hasText(keyword) ? review.content.contains(keyword) : null;
     }
 
     // 별점 필터
