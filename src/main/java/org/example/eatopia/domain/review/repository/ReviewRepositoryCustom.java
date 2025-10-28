@@ -1,11 +1,11 @@
-package org.example.eatopia.domain.review.service.query;
+package org.example.eatopia.domain.review.repository;
 
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface ReviewQueryService {
+public interface ReviewRepositoryCustom {
 
-    Page<ReviewSearchResponse> searchReviews(Long productId, ReviewSearchCondition condition, Pageable pageable);
+    Page<ReviewSearchResponse> searchReviewsByProduct(Long productId, ReviewSearchCondition condition, Pageable pageable);
 }
