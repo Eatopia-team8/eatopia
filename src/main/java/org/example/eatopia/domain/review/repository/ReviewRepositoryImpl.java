@@ -103,11 +103,43 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     @Override
     public Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable) {
 
-        BooleanBuilder filter = buildFilterSeller(productId, userId, condition);
+        BooleanBuilder filter = builderFilterAdmin(productId, userId, condition);
 
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
 
-        return null;
+        List<ReviewAdminResponse> content = queryFactory
+                .select(
+                        Projections.constructor(
+                                ReviewAdminResponse.class,
+                                review.id,
+                                review.user.id,
+                                review.user.name,
+                                review.product.id,
+                                review.product.name,
+                                review.content,
+                                review.rating,
+                                review.status,
+                                review.reportedAt,
+                                review.reportCount,
+                                review.handledById,
+                                review.createdAt,
+                                review.updatedAt,
+                                review.deletedAt
+                        )
+                )
+                .from(review)
+                .where(filter)
+                .orderBy(orderSpecifier)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(review.count())
+                .from(review)
+                .where(filter);
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
     private BooleanBuilder buildFilter(Long productId, ReviewSearchCondition condition) {
