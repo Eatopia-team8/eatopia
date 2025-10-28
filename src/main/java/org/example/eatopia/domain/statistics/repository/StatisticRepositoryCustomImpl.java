@@ -1,0 +1,149 @@
+package org.example.eatopia.domain.statistics.repository;
+
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.example.eatopia.domain.order.entity.OrderStatus;
+import org.example.eatopia.domain.statistics.dto.request.SaleSearchRequest;
+import org.example.eatopia.domain.statistics.dto.response.PeriodSaleResponse;
+import org.example.eatopia.domain.statistics.dto.response.SellerSaleRankingResponse;
+import org.example.eatopia.domain.statistics.dto.response.SellerSaleResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.example.eatopia.domain.order.entity.QOrder.order;
+import static org.example.eatopia.domain.order.entity.QOrderDetail.orderDetail;
+import static org.example.eatopia.domain.product.entity.QProduct.product;
+import static org.example.eatopia.domain.user.entity.QUser.user;
+
+@Repository
+@RequiredArgsConstructor
+public class StatisticRepositoryCustomImpl implements StatisticRepository {
+
+    private final JPAQueryFactory queryFactory;
+
+    @Override
+    public Page<SellerSaleResponse> findSellerSaleByPeriod(SaleSearchRequest condition, Pageable pageable) {
+        StringTemplate periodFormat = getPeriodFormat(condition.period());
+        LocalDateTime start = condition.getStartDateTime();
+        LocalDateTime end = condition.getEndDateTime();
+
+        List<SellerSaleResponse> content = queryFactory
+                .select(Projections.constructor(SellerSaleResponse.class,
+                        periodFormat.as("period"),
+                        orderDetail.sellerId,
+                        user.name.as("sellerName"),
+                        orderDetail.price.multiply(orderDetail.quantity).sum().coalesce(BigDecimal.ZERO).as("totalSaleAmount")
+                ))
+                .from(orderDetail)
+                .join(orderDetail.order, order)
+                .join(orderDetail.product, product)
+                .join(product.seller, user)
+                .where(
+                        order.status.eq(OrderStatus.SUCCESS),
+                        createdAtBetween(start, end),
+                        sellerIdEq(condition.sellerId())
+                )
+                .groupBy(periodFormat, orderDetail.sellerId, user.name)
+                .orderBy(periodFormat.desc(), orderDetail.sellerId.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 전체 카운트 조회 쿼리
+        JPAQuery<Long> countQuery = queryFactory
+                .select(orderDetail.sellerId.countDistinct())
+                .from(orderDetail)
+                .join(orderDetail.order, order)
+                .join(orderDetail.product, product)
+                .join(product.seller, user)
+                .where(
+                        order.status.eq(OrderStatus.SUCCESS),
+                        createdAtBetween(start, end),
+                        sellerIdEq(condition.sellerId())
+                )
+                .groupBy(periodFormat, orderDetail.sellerId);
+
+        // PageableExecutionUtils.getPage 사용해 count 쿼리 최적화
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne); // fetchOne()으로 단일 count 결과 가져오기
+    }
+
+    @Override
+    public List<PeriodSaleResponse> findTotalSaleByPeriod(SaleSearchRequest condition) {
+        StringTemplate periodFormat = getPeriodFormat(condition.period());
+        LocalDateTime start = condition.getStartDateTime();
+        LocalDateTime end = condition.getEndDateTime();
+
+        return queryFactory
+                .select(Projections.constructor(PeriodSaleResponse.class,
+                        periodFormat.as("period"),
+                        orderDetail.price.multiply(orderDetail.quantity).sum().coalesce(BigDecimal.ZERO).as("totalAmount")
+                ))
+                .from(orderDetail)
+                .join(orderDetail.order, order)
+                .where(
+                        order.status.eq(OrderStatus.SUCCESS),
+                        createdAtBetween(start, end)
+                )
+                .groupBy(periodFormat)
+                .orderBy(periodFormat.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<SellerSaleRankingResponse> findTopSellingSeller(SaleSearchRequest condition, int limit) {
+        LocalDateTime start = condition.getStartDateTime();
+        LocalDateTime end = condition.getEndDateTime();
+
+        return queryFactory
+                .select(Projections.constructor(SellerSaleRankingResponse.class,
+                        orderDetail.sellerId,
+                        user.name.as("sellerName"),
+                        orderDetail.price.multiply(orderDetail.quantity).sum().coalesce(BigDecimal.ZERO).as("totalAmount")
+                ))
+                .from(orderDetail)
+                .join(orderDetail.order, order)
+                .join(orderDetail.product, product)
+                .join(product.seller, user)
+                .where(
+                        order.status.eq(OrderStatus.SUCCESS),
+                        createdAtBetween(start, end)
+                )
+                .groupBy(orderDetail.sellerId, user.name)
+                .orderBy(Expressions.numberPath(BigDecimal.class, "totalAmount").desc())
+                .limit(limit)
+                .fetch();
+    }
+
+    private StringTemplate getPeriodFormat(String periodType) {
+        if ("monthly".equalsIgnoreCase(periodType)) {
+            return Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", order.createdAt);
+        }
+        return Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m-%d')", order.createdAt);
+    }
+
+    private BooleanExpression createdAtBetween(LocalDateTime start, LocalDateTime end) {
+        if (start != null && end != null) {
+            return order.createdAt.between(start, end);
+        } else if (start != null) {
+            return order.createdAt.goe(start);
+        } else if (end != null) {
+            return order.createdAt.loe(end);
+        }
+        return null;
+    }
+
+    private BooleanExpression sellerIdEq(Long sellerId) {
+        return sellerId != null ? orderDetail.sellerId.eq(sellerId) : null;
+    }
+}

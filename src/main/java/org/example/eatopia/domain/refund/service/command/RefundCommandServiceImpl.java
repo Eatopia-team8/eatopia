@@ -46,7 +46,7 @@ public class RefundCommandServiceImpl implements RefundCommandService {
         Payment payment = paymentQueryService.getPaymentEntityByOrder(orderDetail.getOrder());
 
         refundValidator.validateRefundRequest(user, orderDetail);
-        BigDecimal refundAmount = orderDetail.getPrice();
+        BigDecimal refundAmount = orderDetail.getPrice().multiply(BigDecimal.valueOf(orderDetail.getQuantity()));
         Refund refund = Refund.of(user, payment, orderDetail, refundAmount, request.reason());
         Refund savedRefund = refundRepository.save(refund);
 
