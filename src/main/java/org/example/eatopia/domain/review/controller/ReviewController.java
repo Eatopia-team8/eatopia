@@ -58,6 +58,6 @@ public class ReviewController {
 
         Page<ReviewSellerResponse> response = reviewQueryService.getReviewsBySeller(productId, authUser.getId(), condition, pageable);
 
-        return ResponseEntity.ok(Response.success(null));
+        return ResponseEntity.ok(Response.success(response));
     }
 }
