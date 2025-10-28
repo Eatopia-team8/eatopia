@@ -3,13 +3,12 @@ package org.example.eatopia.domain.statistic.dto.response;
 import java.math.BigDecimal;
 
 /**
- * 판매자별 매출 조회
+ * 판매자 랭킹
  */
-public record SellerSaleResponse(
-        String period,
+public record SaleRankingResponse(
         Long sellerId,
         String sellerName,
-        BigDecimal totalSaleAmount
+        BigDecimal totalAmount
 ) {
 
 }
