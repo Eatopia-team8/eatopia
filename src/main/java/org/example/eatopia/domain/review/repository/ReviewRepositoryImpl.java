@@ -26,9 +26,9 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<ReviewSearchResponse> searchReviews(ReviewSearchCondition condition, Pageable pageable) {
+    public Page<ReviewSearchResponse> searchReviewsByProduct(Long productId, ReviewSearchCondition condition, Pageable pageable) {
 
-        BooleanBuilder filter = buildFilter(condition);
+        BooleanBuilder filter = buildFilter(productId, condition);
 
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
 
@@ -58,9 +58,12 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-    private BooleanBuilder buildFilter(ReviewSearchCondition condition) {
+    private BooleanBuilder buildFilter(Long productId, ReviewSearchCondition condition) {
 
         BooleanBuilder builder = new BooleanBuilder();
+
+        // 특정 상품에 대한 리뷰
+        builder.and(review.product.id.eq(productId));
 
         // 활성화 상태인 리뷰만 노출
         builder.and(review.status.eq(ReviewStatus.ACTIVE));

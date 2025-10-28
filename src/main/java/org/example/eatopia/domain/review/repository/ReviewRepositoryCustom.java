@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface ReviewRepositoryCustom {
 
-    Page<ReviewSearchResponse> searchReviews(ReviewSearchCondition condition, Pageable pageable);
+    Page<ReviewSearchResponse> searchReviewsByProduct(Long productId, ReviewSearchCondition condition, Pageable pageable);
 }

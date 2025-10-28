@@ -21,6 +21,6 @@ public class ReviewQueryServiceImpl implements ReviewQueryService {
     @Override
     public Page<ReviewSearchResponse> searchReviews(Long productId, ReviewSearchCondition condition, Pageable pageable) {
 
-        return reviewRepository.searchReviews(condition, pageable);
+        return reviewRepository.searchReviewsByProduct(productId, condition, pageable);
     }
 }
