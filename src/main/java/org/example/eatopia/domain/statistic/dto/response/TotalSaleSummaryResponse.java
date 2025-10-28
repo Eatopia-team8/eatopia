@@ -7,7 +7,10 @@ import java.util.List;
  */
 public record TotalSaleSummaryResponse(
         List<PeriodSaleResponse> periodSales,
-        List<SellerSaleRankingResponse> topSellers
+        List<SaleRankingResponse> topSellers
 ) {
 
+    public static TotalSaleSummaryResponse create(List<PeriodSaleResponse> periodSales, List<SaleRankingResponse> topSellers) {
+        return new TotalSaleSummaryResponse(periodSales, topSellers);
+    }
 }
