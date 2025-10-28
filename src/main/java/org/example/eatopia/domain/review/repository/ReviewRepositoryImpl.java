@@ -141,7 +141,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     // 삭제 포함 필터
     private BooleanExpression includeDeletedFilter(Boolean includeDeleted) {
-        return includeDeleted ? null : review.deletedAt.isNull();
+        return Boolean.FALSE.equals(includeDeleted) ? review.deletedAt.isNull() : null;
     }
 
     private OrderSpecifier<?> getOrderSpecifier(Sort sort) {
