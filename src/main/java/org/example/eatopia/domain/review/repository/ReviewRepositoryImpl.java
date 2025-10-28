@@ -104,7 +104,6 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(productFilter(productId))
                 .and(keywordFilter(condition.keyword()))
                 .and(ratingFilter(condition.rating()))
-                .and(review.content.contains(condition.keyword()))
                 .and(review.status.eq(ReviewStatus.ACTIVE));
     }
 
