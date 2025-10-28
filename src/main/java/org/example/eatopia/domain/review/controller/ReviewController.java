@@ -40,7 +40,7 @@ public class ReviewController {
     @GetMapping("/v1/products/{productId}/reviews")
     public ResponseEntity<Response<Page<ReviewSearchResponse>>> searchReviews(@PathVariable Long productId,
                                                                               @ModelAttribute ReviewSearchCondition condition,
-                                                                              @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                                              @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<ReviewSearchResponse> response = reviewQueryService.searchReviews(productId, condition, pageable);
 
