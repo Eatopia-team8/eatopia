@@ -10,6 +10,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
+import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
 import org.example.eatopia.domain.review.enums.ReviewStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,6 +59,14 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Page<ReviewSellerResponse> getReviewsBySeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable) {
+
+        BooleanBuilder filter = buildFilterSeller(productId, sellerId, condition);
+
+        return null;
+    }
+
     private BooleanBuilder buildFilter(Long productId, ReviewSearchCondition condition) {
 
         return new BooleanBuilder()
@@ -68,16 +77,40 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(review.status.eq(ReviewStatus.ACTIVE));
     }
 
+    private BooleanBuilder buildFilterSeller(Long productId, Long sellerId, ReviewSearchCondition condition) {
+
+        return new BooleanBuilder()
+                .and(review.product.seller.id.eq(sellerId))
+                .and(productFilter(productId))
+                .and(keywordFilter(condition.keyword()))
+                .and(ratingFilter(condition.rating()))
+                .and(statusFilter(condition.status()))
+                .and(includeDeletedFilter(condition.includeDeleted()));
+    }
+
+    // 상품 필터
     private BooleanExpression productFilter(Long productId) {
         return productId != null ? review.product.id.eq(productId) : null;
     }
 
+    // 키워드 필터
     private BooleanExpression keywordFilter(String keyword) {
         return (keyword != null && !keyword.isEmpty()) ? review.content.contains(keyword) : null;
     }
 
+    // 별점 필터
     private BooleanExpression ratingFilter(Integer rating) {
         return rating != null ? review.rating.eq(rating) : null;
+    }
+
+    // 상태 필터
+    private BooleanExpression statusFilter(ReviewStatus status) {
+        return status != null ? review.status.eq(status) : null;
+    }
+
+    // 삭제 포함 필터
+    private BooleanExpression includeDeletedFilter(Boolean includeDeleted) {
+        return includeDeleted ? null : review.deletedAt.isNull();
     }
 
     private OrderSpecifier<?> getOrderSpecifier(Sort sort) {
