@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.review.dto.request.ReviewRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
+import org.example.eatopia.domain.review.dto.response.ReviewAdminResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
@@ -59,5 +60,15 @@ public class ReviewController {
         Page<ReviewSellerResponse> response = reviewQueryService.getReviewsBySeller(productId, authUser.getId(), condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/v1/admin/reviews")
+    public ResponseEntity<Response<Page<ReviewAdminResponse>>> getReviewsForAdmin(@RequestParam(required = false) Long productId,
+                                                                                  @RequestParam(required = false) Long userId,
+                                                                                  @ModelAttribute ReviewSearchCondition condition,
+                                                                                  @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return ResponseEntity.ok(Response.success(null));
     }
 }
