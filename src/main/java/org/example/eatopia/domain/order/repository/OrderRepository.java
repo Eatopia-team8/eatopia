@@ -15,7 +15,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o " +
             "LEFT JOIN FETCH o.orderDetails od " +
             "LEFT JOIN FETCH od.product p " +
-            "LEFT JOIN FETCH o.couponIssue ci " +
+            //"LEFT JOIN FETCH o.couponIssue ci " +
             "LEFT JOIN FETCH o.user u " +
             "WHERE o.user.id = :userId AND o.id = :orderId")
     Optional<Order> findByUserIdAndId(Long userId, Long orderId);

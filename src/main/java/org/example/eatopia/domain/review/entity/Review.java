@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.SoftDeleteEntity;
+import org.example.eatopia.domain.order.entity.OrderDetail;
 import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.review.enums.ReviewStatus;
 import org.example.eatopia.domain.user.entity.User;
@@ -29,6 +30,10 @@ public class Review extends SoftDeleteEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_detail_id", unique = true, nullable = false)
+    private OrderDetail orderDetail;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -46,6 +51,7 @@ public class Review extends SoftDeleteEntity {
     @Builder(access = AccessLevel.PRIVATE)
     private Review(User user,
                    Product product,
+                   OrderDetail orderDetail,
                    String content,
                    Integer rating,
                    ReviewStatus status,
@@ -53,6 +59,7 @@ public class Review extends SoftDeleteEntity {
                    int reportCount) {
         this.user = user;
         this.product = product;
+        this.orderDetail = orderDetail;
         this.content = content;
         this.rating = rating;
         this.status = status;
@@ -60,10 +67,11 @@ public class Review extends SoftDeleteEntity {
         this.reportCount = reportCount;
     }
 
-    public static Review create(User user, Product product, String content, Integer rating) {
+    public static Review create(User user, Product product, OrderDetail orderDetail, String content, Integer rating) {
         return Review.builder()
                 .user(user)
                 .product(product)
+                .orderDetail(orderDetail)
                 .content(content)
                 .rating(rating)
                 .status(ReviewStatus.ACTIVE)
