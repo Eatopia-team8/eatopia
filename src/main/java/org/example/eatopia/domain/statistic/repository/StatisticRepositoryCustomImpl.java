@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.order.entity.OrderStatus;
 import org.example.eatopia.domain.statistic.dto.request.SaleSearchRequest;
 import org.example.eatopia.domain.statistic.dto.response.PeriodSaleResponse;
-import org.example.eatopia.domain.statistic.dto.response.SellerSaleRankingResponse;
-import org.example.eatopia.domain.statistic.dto.response.SellerSaleResponse;
+import org.example.eatopia.domain.statistic.dto.response.SaleRankingResponse;
+import org.example.eatopia.domain.statistic.dto.response.SaleResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -33,13 +33,13 @@ public class StatisticRepositoryCustomImpl implements StatisticRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<SellerSaleResponse> findSellerSaleByPeriod(SaleSearchRequest condition, Pageable pageable) {
+    public Page<SaleResponse> findSellerSaleByPeriod(SaleSearchRequest condition, Pageable pageable) {
         StringTemplate periodFormat = getPeriodFormat(condition.period());
         LocalDateTime start = condition.getStartDateTime();
         LocalDateTime end = condition.getEndDateTime();
 
-        List<SellerSaleResponse> content = queryFactory
-                .select(Projections.constructor(SellerSaleResponse.class,
+        List<SaleResponse> content = queryFactory
+                .select(Projections.constructor(SaleResponse.class,
                         periodFormat.as("period"),
                         orderDetail.sellerId,
                         user.name.as("sellerName"),
@@ -102,12 +102,12 @@ public class StatisticRepositoryCustomImpl implements StatisticRepository {
     }
 
     @Override
-    public List<SellerSaleRankingResponse> findTopSellingSeller(SaleSearchRequest condition, int limit) {
+    public List<SaleRankingResponse> findTopSellingSeller(SaleSearchRequest condition, int limit) {
         LocalDateTime start = condition.getStartDateTime();
         LocalDateTime end = condition.getEndDateTime();
 
         return queryFactory
-                .select(Projections.constructor(SellerSaleRankingResponse.class,
+                .select(Projections.constructor(SaleRankingResponse.class,
                         orderDetail.sellerId,
                         user.name.as("sellerName"),
                         orderDetail.price.multiply(orderDetail.quantity).sum().coalesce(BigDecimal.ZERO).as("totalAmount")
