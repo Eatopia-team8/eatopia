@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -66,7 +65,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(keywordFilter(condition.keyword()))
                 .and(ratingFilter(condition.rating()))
                 .and(review.content.contains(condition.keyword()))
-                .and(review.status.eq(ReviewStatus.ACTIVE);
+                .and(review.status.eq(ReviewStatus.ACTIVE));
     }
 
     private BooleanExpression productFilter(Long productId) {
