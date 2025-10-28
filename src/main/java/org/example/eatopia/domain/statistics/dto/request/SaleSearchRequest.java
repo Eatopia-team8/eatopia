@@ -16,12 +16,6 @@ public record SaleSearchRequest(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate endDate
 ) {
-    public SaleSearchRequest {
-        if (period == null || period.isBlank()) {
-            period = "daily";
-        }
-    }
-
     // LocalDate를 LocalDateTime으로 변환 (쿼리용 시작 시간)
     public LocalDateTime getStartDateTime() {
         return startDate != null ? startDate.atStartOfDay() : null;

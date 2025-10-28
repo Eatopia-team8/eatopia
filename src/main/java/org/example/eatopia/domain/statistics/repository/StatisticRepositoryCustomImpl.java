@@ -62,7 +62,7 @@ public class StatisticRepositoryCustomImpl implements StatisticRepository {
 
         // 전체 카운트 조회 쿼리
         JPAQuery<Long> countQuery = queryFactory
-                .select(orderDetail.sellerId.countDistinct())
+                .select(orderDetail.sellerId)
                 .from(orderDetail)
                 .join(orderDetail.order, order)
                 .join(orderDetail.product, product)
@@ -75,7 +75,8 @@ public class StatisticRepositoryCustomImpl implements StatisticRepository {
                 .groupBy(periodFormat, orderDetail.sellerId);
 
         // PageableExecutionUtils.getPage 사용해 count 쿼리 최적화
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne); // fetchOne()으로 단일 count 결과 가져오기
+        // fetch().size()를 사용하여 그룹의 총 개수를 계산합니다.
+        return PageableExecutionUtils.getPage(content, pageable, () -> (long) countQuery.fetch().size());
     }
 
     @Override
