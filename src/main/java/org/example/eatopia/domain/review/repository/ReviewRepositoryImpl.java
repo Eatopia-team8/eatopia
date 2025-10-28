@@ -4,11 +4,13 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
+import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
 import org.example.eatopia.domain.review.enums.ReviewStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,27 +60,88 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Page<ReviewSellerResponse> getReviewsBySeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable) {
+
+        BooleanBuilder filter = buildFilterSeller(productId, sellerId, condition);
+
+        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
+
+        List<ReviewSellerResponse> content = queryFactory
+                .select(
+                        Projections.constructor(
+                                ReviewSellerResponse.class,
+                                review.id,
+                                review.product.id,
+                                review.product.name,
+                                review.user.name,
+                                review.content,
+                                review.rating,
+                                review.status,
+                                review.createdAt,
+                                review.updatedAt,
+                                review.reportedAt,
+                                review.deletedAt
+                        )
+                )
+                .from(review)
+                .where(filter)
+                .orderBy(orderSpecifier)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(review.count())
+                .from(review)
+                .where(filter);
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
     private BooleanBuilder buildFilter(Long productId, ReviewSearchCondition condition) {
 
-        BooleanBuilder builder = new BooleanBuilder();
+        return new BooleanBuilder()
+                .and(productFilter(productId))
+                .and(keywordFilter(condition.keyword()))
+                .and(ratingFilter(condition.rating()))
+                .and(review.status.eq(ReviewStatus.ACTIVE));
+    }
 
-        // 특정 상품에 대한 리뷰
-        builder.and(review.product.id.eq(productId));
+    private BooleanBuilder buildFilterSeller(Long productId, Long sellerId, ReviewSearchCondition condition) {
 
-        // 활성화 상태인 리뷰만 노출
-        builder.and(review.status.eq(ReviewStatus.ACTIVE));
+        return new BooleanBuilder()
+                .and(review.product.seller.id.eq(sellerId))
+                .and(productFilter(productId))
+                .and(keywordFilter(condition.keyword()))
+                .and(ratingFilter(condition.rating()))
+                .and(statusFilter(condition.status()))
+                .and(includeDeletedFilter(condition.includeDeleted()));
+    }
 
-        // 내용 검색
-        if (StringUtils.hasText(condition.keyword())) {
-            builder.and(review.content.contains(condition.keyword()));
-        }
+    // 상품 필터
+    private BooleanExpression productFilter(Long productId) {
+        return productId != null ? review.product.id.eq(productId) : null;
+    }
 
-        // 별점
-        if (condition.rating() != null) {
-            builder.and(review.rating.eq(condition.rating()));
-        }
+    // 키워드 필터
+    private BooleanExpression keywordFilter(String keyword) {
+        return StringUtils.hasText(keyword) ? review.content.contains(keyword) : null;
+    }
 
-        return builder;
+    // 별점 필터
+    private BooleanExpression ratingFilter(Integer rating) {
+        return rating != null ? review.rating.eq(rating) : null;
+    }
+
+    // 상태 필터
+    private BooleanExpression statusFilter(ReviewStatus status) {
+        return status != null ? review.status.eq(status) : null;
+    }
+
+    // 삭제 포함 필터
+    private BooleanExpression includeDeletedFilter(Boolean includeDeleted) {
+        return Boolean.FALSE.equals(includeDeleted) ? review.deletedAt.isNull() : null;
     }
 
     private OrderSpecifier<?> getOrderSpecifier(Sort sort) {

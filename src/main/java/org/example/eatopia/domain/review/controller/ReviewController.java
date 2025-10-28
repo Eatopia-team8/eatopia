@@ -7,6 +7,7 @@ import org.example.eatopia.domain.review.dto.request.ReviewRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
 import org.example.eatopia.domain.review.dto.response.ReviewResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
+import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
 import org.example.eatopia.domain.review.service.command.ReviewCommandService;
 import org.example.eatopia.domain.review.service.query.ReviewQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
@@ -43,6 +44,19 @@ public class ReviewController {
                                                                               @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<ReviewSearchResponse> response = reviewQueryService.searchReviews(productId, condition, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    @PreAuthorize("hasRole('SELLER')")
+    @GetMapping("/v1/seller/reviews")
+    public ResponseEntity<Response<Page<ReviewSellerResponse>>> getReviewsBySeller(@RequestParam(required = false) Long productId,
+                                                                                   @ModelAttribute ReviewSearchCondition condition,
+                                                                                   @AuthenticationPrincipal UserPrincipal authUser,
+                                                                                   @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+
+        Page<ReviewSellerResponse> response = reviewQueryService.getReviewsBySeller(productId, authUser.getId(), condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
     }
