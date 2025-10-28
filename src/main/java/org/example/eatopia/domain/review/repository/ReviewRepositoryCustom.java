@@ -11,7 +11,7 @@ public interface ReviewRepositoryCustom {
 
     Page<ReviewSearchResponse> searchReviewsByProduct(Long productId, ReviewSearchCondition condition, Pageable pageable);
 
-    Page<ReviewSellerResponse> getReviewsBySeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable);
+    Page<ReviewSellerResponse> getReviewsForSeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable);
 
     Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable);
 }

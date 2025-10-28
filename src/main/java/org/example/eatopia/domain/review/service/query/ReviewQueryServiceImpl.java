@@ -36,7 +36,7 @@ public class ReviewQueryServiceImpl implements ReviewQueryService {
             throw new GlobalException(ReviewErrorCode.REVIEW_HIDDEN);
         }
 
-        return reviewRepository.getReviewsBySeller(productId, sellerId, condition, pageable);
+        return reviewRepository.getReviewsForSeller(productId, sellerId, condition, pageable);
     }
 
     @Override
