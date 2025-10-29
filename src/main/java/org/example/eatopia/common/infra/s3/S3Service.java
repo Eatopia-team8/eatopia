@@ -77,7 +77,7 @@ public class S3Service {
                 })
                 .toList();
 
-        return S3PresignedUrlResponse.of(urls);
+        return S3PresignedUrlResponse.from(urls);
     }
 
     // 파일명 유효화 + UUID 추가

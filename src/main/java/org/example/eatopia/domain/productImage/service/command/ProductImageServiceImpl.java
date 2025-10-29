@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductImageServiceImpl implements ProductImageService {
 
+    private static final int MAX_IMAGE_COUNT = 10;
     private final ProductImageRepository productImageRepository;
     private final ProductQueryService productQueryService;
 
@@ -33,7 +34,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         product.verifySeller(userId);
 
         long imageCount = productImageRepository.countByProductId(productId);
-        if (imageCount >= 10) {
+        if (imageCount >= MAX_IMAGE_COUNT) {
             throw new ProductException(ProductImageErrorCode.PRD_IMAGE_EXCEED_LIMIT);
         }
 

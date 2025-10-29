@@ -7,7 +7,7 @@ public record S3PresignedUrlResponse(
         List<PresignedUrlInfo> presignedUrls
 ) {
 
-    public static S3PresignedUrlResponse of(List<PresignedUrlInfo> presignedUrls) {
+    public static S3PresignedUrlResponse from(List<PresignedUrlInfo> presignedUrls) {
 
         return new S3PresignedUrlResponse(presignedUrls);
     }
