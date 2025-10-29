@@ -12,4 +12,7 @@ public interface RefundCommandService {
 
     //환불 거절
     RefundResponse canceledRefund(Long refundId);
+
+    //환불 실패
+    void failRefund(Long refundId, String reason);
 }

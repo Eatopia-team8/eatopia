@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.domain.payment.entity.Payment;
 import org.example.eatopia.domain.refund.dto.event.RefundSuccessEvent;
 import org.example.eatopia.domain.refund.entity.Refund;
+import org.example.eatopia.domain.refund.service.command.RefundCommandService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -17,6 +18,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class RefundEventListener {
 
     private final IamportClient iamportClient;
+    private final RefundCommandService refundCommandService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRefundSuccess(RefundSuccessEvent event) {
@@ -28,14 +30,20 @@ public class RefundEventListener {
             cancelData.setReason(refund.getReason().name());
 
             iamportClient.cancelPaymentByImpUid(cancelData);
-
         } catch (Exception e) {
-            log.error("PortOne API 환불 처리 실패! [Refund ID: {}, ImpUid: {}] - 오류: {}",
+            log.error("환불 처리 실패 [Refund ID: {}, ImpUid: {}] - 오류: {}",
                     refund.getId(),
                     payment.getImpUid(),
                     e.getMessage(),
                     e
             );
+
+            try {
+                refundCommandService.failRefund(refund.getId(), e.getMessage());
+            } catch (Exception rollbackEx) {
+                log.error("롤백 처리 중 오류 발생 [Refund ID: {}] - 오류: {}",
+                        refund.getId(), rollbackEx.getMessage(), rollbackEx);
+            }
         }
     }
 }
