@@ -142,7 +142,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(productFilter(productId))
                 .and(keywordFilter(condition.keyword()))
                 .and(ratingFilter(condition.rating()))
-                .and(review.status.eq(ReviewStatus.ACTIVE));
+                .and(review.status.eq(ReviewStatus.ACTIVE))
+                .and(review.deletedAt.isNull());
     }
 
     private BooleanBuilder buildSellerFilter(Long productId, Long sellerId, ReviewSearchCondition condition) {

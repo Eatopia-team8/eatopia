@@ -8,4 +8,6 @@ public interface ReviewCommandService {
     ReviewResponse createReview(Long orderDetailId, Long userId, ReviewRequest request);
 
     ReviewResponse updateReview(Long reviewId, Long userId, ReviewRequest request);
+
+    void deleteReview(Long reviewId, Long userId);
 }
