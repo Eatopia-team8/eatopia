@@ -12,6 +12,9 @@ import org.example.eatopia.domain.product.exception.ProductException;
 import org.example.eatopia.domain.product.repository.ProductRepository;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.example.eatopia.domain.product.validator.ProductValidator;
+import org.example.eatopia.domain.productImage.dto.request.ProductImageInfo;
+import org.example.eatopia.domain.productImage.entity.ProductImage;
+import org.example.eatopia.domain.productImage.repository.ProductImageRepository;
 import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
@@ -20,12 +23,15 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ProductCommandServiceImpl implements ProductCommandService {
 
     private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
     private final CategoryQueryService categoryQueryService;
     private final ProductValidator productValidator;
     private final UserQueryService userQueryService;
@@ -47,7 +53,6 @@ public class ProductCommandServiceImpl implements ProductCommandService {
         Product product = Product.create(
                 request.name(),
                 request.description(),
-                request.thumbnailUrl(),
                 request.price(),
                 request.stock(),
                 request.status(),
@@ -55,12 +60,14 @@ public class ProductCommandServiceImpl implements ProductCommandService {
                 seller
         );
 
-        product = productRepository.save(product);
+        productRepository.save(product);
 
-        return ProductResponse.from(product);
+        List<ProductImage> images = saveProductImages(product, request.images());
+
+        return ProductResponse.of(product, images);
     }
 
-    // 상품 수정
+    // 상품 수정 (이미지 제외)
     @Override
     @Caching(evict = {
             @CacheEvict(value = "product", key = "#productId"),
@@ -74,7 +81,6 @@ public class ProductCommandServiceImpl implements ProductCommandService {
         }
 
         Product product = productQueryService.getProductOrElseThrow(productId);
-
         product.verifySeller(userId);
 
         productValidator.validateUpdateRequest(request);
@@ -89,14 +95,15 @@ public class ProductCommandServiceImpl implements ProductCommandService {
         product.update(
                 request.name(),
                 request.description(),
-                request.thumbnailUrl(),
                 request.price(),
                 request.stock(),
                 request.status(),
                 category
         );
 
-        return ProductResponse.from(product);
+        List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(productId);
+
+        return ProductResponse.of(product, images);
     }
 
     // 상품 삭제
@@ -143,5 +150,19 @@ public class ProductCommandServiceImpl implements ProductCommandService {
     private Product findProductWithLock(Long productId) {
         return productRepository.findByIdWithPessimisticLock(productId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_NOT_FOUND));
+    }
+
+    // 이미지 저장 (생성)
+    private List<ProductImage> saveProductImages(Product product, List<ProductImageInfo> imageInfos) {
+        List<ProductImage> images = imageInfos.stream()
+                .map(imageInfo -> ProductImage.create(
+                        product,
+                        imageInfo.imageUrl(),
+                        imageInfo.displayOrder(),
+                        imageInfo.isThumbnail()
+                ))
+                .toList();
+
+        return productImageRepository.saveAll(images);
     }
 }

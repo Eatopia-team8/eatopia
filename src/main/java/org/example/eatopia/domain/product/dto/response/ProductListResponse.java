@@ -5,21 +5,19 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public record ProductListResponse(
-        List<ProductResponse> content,
-        int pageNumber,
-        int pageSize,
-        long totalElements,
+        List<ProductResponse> products,
+        int currentPage,
         int totalPages,
-        boolean isLast
+        long totalElements,
+        int pageSize
 ) {
-    public static ProductListResponse from(Page<ProductResponse> page) {
+    public static ProductListResponse of(List<ProductResponse> products, Page<?> page) {
         return new ProductListResponse(
-                page.getContent(),
+                products,
                 page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
                 page.getTotalPages(),
-                page.isLast()
+                page.getTotalElements(),
+                page.getSize()
         );
     }
 }

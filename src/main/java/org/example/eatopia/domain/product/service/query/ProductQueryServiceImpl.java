@@ -8,11 +8,18 @@ import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.product.exception.ProductErrorCode;
 import org.example.eatopia.domain.product.exception.ProductException;
 import org.example.eatopia.domain.product.repository.ProductRepository;
+import org.example.eatopia.domain.productImage.entity.ProductImage;
+import org.example.eatopia.domain.productImage.repository.ProductImageRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductQueryServiceImpl implements ProductQueryService {
 
     private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
 
     // ----- 캐시 없음 -----
     @Override
@@ -27,17 +35,35 @@ public class ProductQueryServiceImpl implements ProductQueryService {
 
         Product product = getProductOrElseThrow(productId);
 
-        return ProductResponse.from(product);
+        List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(productId);
+
+        return ProductResponse.of(product, images);
     }
 
     @Override
     public ProductListResponse searchProducts(ProductSearchCondition condition, Pageable pageable) {
 
-        Page<Product> products = productRepository.searchProducts(condition, pageable);
+        Page<Product> productPage = productRepository.searchProducts(condition, pageable);
 
-        Page<ProductResponse> productResponsePage = products.map(ProductResponse::from);
+        // 상품 ID 목록 추출
+        List<Long> productIds = productPage.getContent().stream()
+                .map(Product::getId)
+                .toList();
 
-        return ProductListResponse.from(productResponsePage);
+        // 이미지 일괄 조회 (N+1 방지)
+        Map<Long, List<ProductImage>> imageMap = productImageRepository.findAllByProductIdOrderByDisplayOrderAsc(productIds)
+                .stream()
+                .collect(Collectors.groupingBy(img -> img.getProduct().getId()));
+
+        // ProductResponse 생성
+        List<ProductResponse> products = productPage.getContent().stream()
+                .map(product -> ProductResponse.of(
+                        product,
+                        imageMap.getOrDefault(product.getId(), Collections.emptyList())
+                ))
+                .toList();
+
+        return ProductListResponse.of(products, productPage);
     }
 
     // ----- 캐시 있음 -----
@@ -65,5 +91,5 @@ public class ProductQueryServiceImpl implements ProductQueryService {
         return productRepository.findWithCategoryAndSellerById(productId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.PRD_ID_NOT_FOUND));
     }
-
 }
+

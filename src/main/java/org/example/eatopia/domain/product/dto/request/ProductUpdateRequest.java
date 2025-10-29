@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 public record ProductUpdateRequest(
         String name,
         String description,
-        String thumbnailUrl,
         BigDecimal price,
         Integer stock,
         ProductStatus status,
@@ -16,7 +15,8 @@ public record ProductUpdateRequest(
 
     public boolean hasNoUpdate() {
 
-        return name == null && description == null && thumbnailUrl == null
-                && price == null && stock == null && status == null && categoryId == null;
+        return name == null && description == null
+                && price == null && stock == null && status == null
+                && categoryId == null;
     }
 }
