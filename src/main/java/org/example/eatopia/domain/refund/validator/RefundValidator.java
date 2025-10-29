@@ -17,7 +17,6 @@ public class RefundValidator {
 
     private final RefundRepository refundRepository;
 
-
     public void validateRefundRequest(User user, OrderDetail orderDetail) {
 
         // 주문자 확인
@@ -36,6 +35,7 @@ public class RefundValidator {
         }
     }
 
+    //pending 확인
     public void validateRefundStatusPending(Refund refund) {
         if (refund.getStatus() != RefundStatus.PENDING) {
             throw new RefundException(RefundErrorCode.REFUND_NOT_PENDING);
