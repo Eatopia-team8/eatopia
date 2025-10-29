@@ -99,7 +99,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         reviewReportRepository.save(report);
 
         // 리뷰 상태 변경
-        
+        review.report();
 
         return null;
     }
