@@ -164,7 +164,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(ratingFilter(condition.rating()))
                 .and(statusFilter(condition.status()))
                 .and(includeDeletedFilter(condition.includeDeleted()))
-                .and(onlyDeletedFilter(condition.onlyReported()))
+                .and(onlyReportedFilter(condition.onlyReported()))
                 .and(userFilter(userId));
     }
 
@@ -194,8 +194,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     }
 
     // 신고 리뷰만 필터
-    private BooleanExpression onlyDeletedFilter(Boolean onlyDeleted) {
-        return Boolean.TRUE.equals(onlyDeleted) ? review.reportedAt.isNotNull() : null;
+    private BooleanExpression onlyReportedFilter(Boolean onlyReported) {
+        return Boolean.TRUE.equals(onlyReported) ? review.reportedAt.isNotNull() : null;
     }
 
     // 회원 필터
