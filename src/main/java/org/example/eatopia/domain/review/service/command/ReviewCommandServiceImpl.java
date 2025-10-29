@@ -87,7 +87,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     public ReviewReportResponse reportReview(Long reviewId, Long userId, ReviewReportRequest request) {
 
         // 중복 신고 불가
-        if (reviewReportRepository.existsByIdAndUserId(reviewId, userId)) {
+        if (reviewReportRepository.existsByReviewIdAndUserId(reviewId, userId)) {
             throw new GlobalException(ReviewErrorCode.REVIEW_ALREADY_REPORTED);
         }
 
