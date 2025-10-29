@@ -1,10 +1,11 @@
 package org.example.eatopia.domain.payment.dto.response;
 
 import org.example.eatopia.domain.payment.entity.Payment;
-import org.example.eatopia.domain.payment.entity.PaymentMethod;
-import org.example.eatopia.domain.payment.entity.PaymentStatus;
+import org.example.eatopia.domain.payment.enums.PaymentMethod;
+import org.example.eatopia.domain.payment.enums.PaymentStatus;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public record PaymentResponse(
@@ -19,10 +20,13 @@ public record PaymentResponse(
         LocalDateTime updatedAt
 ) {
     public static PaymentResponse from(Payment payment) {
+
+        BigDecimal price = payment.getPrice().setScale(0, RoundingMode.FLOOR);
+
         return new PaymentResponse(
                 payment.getId(),
                 payment.getOrder().getId(),
-                payment.getPrice(),
+                price,
                 payment.getMethod(),
                 payment.getStatus(),
                 payment.getImpUid(),
