@@ -78,7 +78,7 @@ public class ProductQueryServiceImpl implements ProductQueryService {
     @Cacheable(
             value = "productList",
             key = "T(String).valueOf(#condition) + '_' + #pageable.pageNumber + '_' + #pageable.pageSize",
-            unless = "#result != null && !#result.content().isEmpty()"
+            unless = "#result == null || #result.content().isEmpty()"
     )
     public ProductListResponse searchProductsWithCache(ProductSearchCondition condition, Pageable pageable) {
 
