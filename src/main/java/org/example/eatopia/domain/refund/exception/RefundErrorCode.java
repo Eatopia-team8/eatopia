@@ -15,7 +15,8 @@ public enum RefundErrorCode implements ErrorCode {
     REFUND_FORBIDDEN(HttpStatus.FORBIDDEN, "RFD-005", "해당 주문에 대한 환불 권한이 없습니다."),
     REFUND_NOT_FOUND(HttpStatus.NOT_FOUND, "RFD-006", "환불 요청 내역을 찾을 수 없습니다."),
     REFUND_NOT_PENDING(HttpStatus.BAD_REQUEST, "RFD-007", "환불 대기 상태일때 환불할 수 있습니다."),
-    REFUND_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RFD-008", "Portone API 호출에 실패했습니다.");
+    REFUND_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RFD-008", "Portone API 호출에 실패했습니다."),
+    REFUND_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "RFD-009", "환불 요청 가능 기간이 지났습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
