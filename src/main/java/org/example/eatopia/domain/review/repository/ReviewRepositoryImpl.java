@@ -53,12 +53,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        JPAQuery<Long> countQuery = queryFactory
-                .select(review.count())
-                .from(review)
-                .where(filter);
-
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return (Page<ReviewSearchResponse>) createPage(content, pageable, filter);
     }
 
     @Override
@@ -92,12 +87,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        JPAQuery<Long> countQuery = queryFactory
-                .select(review.count())
-                .from(review)
-                .where(filter);
-
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return (Page<ReviewSellerResponse>) createPage(content, pageable, filter);
     }
 
     @Override
@@ -134,6 +124,10 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        return (Page<ReviewAdminResponse>) createPage(content, pageable, filter);
+    }
+
+    private Page<?> createPage(List<?> content, Pageable pageable, BooleanBuilder filter) {
         JPAQuery<Long> countQuery = queryFactory
                 .select(review.count())
                 .from(review)
