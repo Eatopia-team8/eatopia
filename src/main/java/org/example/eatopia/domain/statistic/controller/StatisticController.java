@@ -31,11 +31,9 @@ import java.time.LocalDate;
 @RequestMapping("/v2/statistic")
 @RequiredArgsConstructor
 public class StatisticController {
+
     private final StatisticQueryService statisticQueryService;
 
-    /**
-     * 판매자 매출 조회 (ADMIN: 전체 및 선택 조회, SELLER: 자신만 조회)
-     */
     @Operation(summary = "판매자별 매출 조회",
             description = "ADMIN은 모든 판매자 또는 특정 판매자의 매출을 조회(일별,월별)할 수 있고, SELLER는 자신의 매출만 조회(일별,월별)할 수 있습니다.",
             security = {@SecurityRequirement(name = "bearerAuth")},
@@ -64,10 +62,6 @@ public class StatisticController {
         Page<SaleResponse> resultPage = statisticQueryService.getSellerSales(request, pageable);
         return ResponseEntity.ok(Response.success(resultPage));
     }
-
-    /**
-     * 전체 매출 조회
-     */
 
     @Operation(summary = "전체 매출 요약 조회",
             description = "지정된 기간 동안의 전체 매출(일별,월별) 목록과 매출 상위 판매자 10명의 목록을 조회합니다.",
