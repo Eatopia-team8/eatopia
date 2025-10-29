@@ -101,6 +101,6 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         // 리뷰 상태 변경
         review.report();
 
-        return null;
+        return ReviewReportResponse.from(report);
     }
 }

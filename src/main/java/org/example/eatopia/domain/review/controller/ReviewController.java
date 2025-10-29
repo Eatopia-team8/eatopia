@@ -101,6 +101,6 @@ public class ReviewController {
 
         ReviewReportResponse response = reviewCommandService.reportReview(reviewId, authUser.getId(), request);
 
-        return ResponseEntity.ok(Response.success(null));
+        return ResponseEntity.ok(Response.success(response));
     }
 }
