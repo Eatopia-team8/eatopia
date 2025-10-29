@@ -28,4 +28,15 @@ public record ReviewResponse(
                 null
         );
     }
+
+    public static ReviewResponse fromForUpdate(Review review) {
+        return new ReviewResponse(
+                review.getId(),
+                review.getProduct().getId(),
+                review.getContent(),
+                review.getRating(),
+                null,
+                review.getUpdatedAt()
+        );
+    }
 }

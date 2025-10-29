@@ -6,4 +6,6 @@ import org.example.eatopia.domain.review.dto.response.ReviewResponse;
 public interface ReviewCommandService {
 
     ReviewResponse createReview(Long orderDetailId, Long userId, ReviewRequest request);
+
+    ReviewResponse updateReview(Long reviewId, Long userId, ReviewRequest request);
 }

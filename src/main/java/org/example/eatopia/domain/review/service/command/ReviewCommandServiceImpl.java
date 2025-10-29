@@ -49,4 +49,20 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 
         return ReviewResponse.fromForCreate(review);
     }
+
+    @Override
+    public ReviewResponse updateReview(Long reviewId, Long userId, ReviewRequest request) {
+
+        Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        // 활성화 상태, 삭제되지 않은 리뷰만 수정 가능
+        if (!review.isUpdatable()) {
+            throw new GlobalException(ReviewErrorCode.REVIEW_CANNOT_UPDATE);
+        }
+
+        review.update(request.content(), request.rating());
+
+        return ReviewResponse.fromForUpdate(review);
+    }
 }
