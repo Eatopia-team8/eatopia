@@ -29,9 +29,6 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(columnDefinition = "TEXT")
-    private String thumbnailUrl;
-
     @Column(nullable = false, precision = 10)
     private BigDecimal price;
 
@@ -50,14 +47,12 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-    public static Product create(String name, String description, String thumbnailUrl,
-                                 BigDecimal price, Integer stock, ProductStatus status,
-                                 Category category, User seller) {
+    public static Product create(String name, String description, BigDecimal price,
+                                 Integer stock, ProductStatus status, Category category, User seller) {
 
         return Product.builder()
                 .name(name)
                 .description(description)
-                .thumbnailUrl(thumbnailUrl)
                 .price(price)
                 .stock(stock)
                 .status(status)
@@ -66,13 +61,11 @@ public class Product extends BaseEntity {
                 .build();
     }
 
-    public void update(String name, String description, String thumbnailUrl,
-                       BigDecimal price, Integer stock, ProductStatus status,
-                       Category category) {
+    public void update(String name, String description, BigDecimal price,
+                       Integer stock, ProductStatus status, Category category) {
 
         Optional.ofNullable(name).ifPresent(value -> this.name = value);
         Optional.ofNullable(description).ifPresent(value -> this.description = value);
-        Optional.ofNullable(thumbnailUrl).ifPresent(value -> this.thumbnailUrl = value);
         Optional.ofNullable(price).ifPresent(value -> this.price = value);
         Optional.ofNullable(stock).ifPresent(value -> this.stock = value);
         Optional.ofNullable(status).ifPresent(value -> this.status = value);
