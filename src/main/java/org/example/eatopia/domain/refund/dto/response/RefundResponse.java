@@ -5,6 +5,7 @@ import org.example.eatopia.domain.refund.enums.RefundReason;
 import org.example.eatopia.domain.refund.enums.RefundStatus;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public record RefundResponse(
@@ -17,11 +18,14 @@ public record RefundResponse(
         LocalDateTime createdAt
 ) {
     public static RefundResponse from(Refund refund) {
+
+        BigDecimal amount = refund.getAmount().setScale(0, RoundingMode.FLOOR);
+
         return new RefundResponse(
                 refund.getId(),
                 refund.getOrderDetail().getId(),
                 refund.getPayment().getId(),
-                refund.getAmount(),
+                amount,
                 refund.getReason(),
                 refund.getStatus(),
                 refund.getCreatedAt()
