@@ -65,4 +65,17 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 
         return ReviewResponse.fromForUpdate(review);
     }
+
+    @Override
+    public void deleteReview(Long reviewId, Long userId) {
+
+        Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        if (review.getDeletedAt() != null) {
+            throw new GlobalException(ReviewErrorCode.REVIEW_ALREADY_DELETED);
+        }
+
+        review.softDelete();
+    }
 }

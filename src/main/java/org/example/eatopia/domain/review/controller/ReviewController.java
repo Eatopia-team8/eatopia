@@ -84,4 +84,14 @@ public class ReviewController {
 
         return ResponseEntity.ok(Response.success(response));
     }
+
+    @PreAuthorize("hasRole('BUYER')")
+    @DeleteMapping("/v1/reviews/{reviewId}")
+    public ResponseEntity<Response<Void>> deleteReview(@PathVariable Long reviewId,
+                                                       @AuthenticationPrincipal UserPrincipal authUser) {
+
+        reviewCommandService.deleteReview(reviewId, authUser.getId());
+
+        return ResponseEntity.ok(Response.success());
+    }
 }
