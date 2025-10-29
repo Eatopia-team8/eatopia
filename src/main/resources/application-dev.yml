@@ -1,18 +1,21 @@
 spring:
-  # 1. AWS Parameter Store에서 /config/dev/ 하위의 모든 설정 가져오기
   config:
     import:
       - "optional:aws-parameterstore:/config/dev/"
 
-  # 2. AWS 리전 명시 (Parameter Store 접근 시 필수)
   cloud:
     aws:
       region:
         static: ap-northeast-2
       stack:
         auto: false
+      credentials:
+        access-key: ${spring.cloud.aws.credentials.access-key}
+        secret-key: ${spring.cloud.aws.credentials.secret-key}
+      s3:
+        bucket: ${cloud.aws.s3.bucket}
 
-  # 3. DB 설정 (Parameter Store에서 ${db.host}, ${db.name} 등을 가져옴)
+  # 3. DB 설정 (Parameter Store에서 가져옴)
   datasource:
     url: jdbc:mysql://${db.host}:${db.port:3306}/${db.name}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: ${db.username}
@@ -60,10 +63,23 @@ springdoc:
 server:
   servlet:
     context-path: /api/eatopia
+  port: 8080
+
+# --- JWT 키 (Parameter Store에서 가져옴) ---
+jwt:
+  secret-key: ${jwt.secret-key}
+  access-token-expiration-milliseconds: ${jwt.access-token-expiration-milliseconds}
+
+# --- Portone 키 (Parameter Store에서 가져옴) ---
+portone:
+  api-key: ${portone.api-key}
+  api-secret: ${portone.api-secret}
 
 # 9. 로깅 설정
 logging:
   level:
     org.springframework.security: INFO
-    io.awspring.cloud: DEBUG  # AWS 라이브러리 로그
-    org.springframework.core.env: DEBUG # 프로퍼티(설정값) 로딩 로그
+    io.awspring.cloud: DEBUG       # AWS Parameter Store 로깅
+    org.springframework.core.env: DEBUG # 설정 로딩 로그
+    com.amazonaws.util.EC2MetadataUtils: ERROR # 불필요한 AWS 메타데이터 로그 억제
+
