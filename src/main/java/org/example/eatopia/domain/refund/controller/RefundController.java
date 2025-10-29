@@ -35,7 +35,7 @@ public class RefundController {
                     @ApiResponse(responseCode = "200", description = "생성 성공"),
                     @ApiResponse(responseCode = "400", description = "생성 실패")
             })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @PostMapping
     public ResponseEntity<Response<RefundResponse>> requestRefund(
             @AuthenticationPrincipal UserPrincipal authUser,
@@ -45,13 +45,13 @@ public class RefundController {
         return ResponseEntity.ok(Response.success(refundResponse));
     }
 
-    @Operation(summary = "환불 목록 조회", description = "BUYER의 환불을 조회합니다.",
+    @Operation(summary = "환불 목록 조회", description = "BUYER의 환불 목록을 조회합니다.",
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공"),
                     @ApiResponse(responseCode = "400", description = "조회 실패")
             })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_BUYER')")
     @GetMapping
     public ResponseEntity<Response<Page<RefundResponse>>> getMyRefunds(
             @AuthenticationPrincipal UserPrincipal authUser,

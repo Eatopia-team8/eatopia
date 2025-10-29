@@ -22,6 +22,7 @@ public class RefundValidator {
     private final RefundRepository refundRepository;
 
     public void validateRefundRequest(User user, OrderDetail orderDetail) {
+        
         Order order = orderDetail.getOrder();
 
         // 주문자 확인

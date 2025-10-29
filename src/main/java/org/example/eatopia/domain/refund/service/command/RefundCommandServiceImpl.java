@@ -88,6 +88,7 @@ public class RefundCommandServiceImpl implements RefundCommandService {
     @Override
     @Transactional // 별도 트랜잭션을 보장해야 됨
     public void failRefund(Long refundId, String failReason) {
+        
         log.warn("PortOne 환불 API 실패 [Refund ID: {}]. 사유: {}", refundId, failReason);
         Refund refund = refundRepository.findById(refundId)
                 .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_NOT_FOUND));
@@ -95,19 +96,13 @@ public class RefundCommandServiceImpl implements RefundCommandService {
         if (refund.getStatus() == RefundStatus.SUCCESS) {
             OrderDetail orderDetail = refund.getOrderDetail();
 
-            try {
-                productCommandService.decreaseStock(
-                        orderDetail.getProduct().getId(),
-                        orderDetail.getQuantity()
-                );
+            productCommandService.decreaseStock(
+                    orderDetail.getProduct().getId(),
+                    orderDetail.getQuantity()
+            );
 
-                refund.updateStatus(RefundStatus.FAILED);
-                log.info("롤백 완료 [Refund ID: {}]", refundId);
-
-            } catch (Exception e) {
-                log.error("롤백 처리 중 심각한 오류 발생 [Refund ID: {}] - 오류: {}",
-                        refundId, e.getMessage(), e);
-            }
+            refund.updateStatus(RefundStatus.FAILED);
+            log.info("롤백 완료 [Refund ID: {}]", refundId);
         }
     }
 }
