@@ -73,4 +73,15 @@ public class ReviewController {
 
         return ResponseEntity.ok(Response.success(response));
     }
+
+    @PreAuthorize("hasRole('BUYER')")
+    @PatchMapping("/v1/reviews/{reviewId}")
+    public ResponseEntity<Response<ReviewResponse>> updateReview(@PathVariable Long reviewId,
+                                                                 @Valid @RequestBody ReviewRequest request,
+                                                                 @AuthenticationPrincipal UserPrincipal authUser) {
+
+        ReviewResponse response = reviewCommandService.updateReview(reviewId, authUser.getId(), request);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
 }

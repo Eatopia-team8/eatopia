@@ -83,4 +83,9 @@ public class Review extends SoftDeleteEntity {
                 .build();
     }
 
+    public void update(String content, Integer rating) {
+        this.content = content;
+        this.rating = rating;
+    }
+
 }

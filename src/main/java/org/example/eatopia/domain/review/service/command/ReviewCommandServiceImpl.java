@@ -8,6 +8,7 @@ import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.example.eatopia.domain.review.dto.request.ReviewRequest;
 import org.example.eatopia.domain.review.dto.response.ReviewResponse;
 import org.example.eatopia.domain.review.entity.Review;
+import org.example.eatopia.domain.review.enums.ReviewStatus;
 import org.example.eatopia.domain.review.exception.ReviewErrorCode;
 import org.example.eatopia.domain.review.repository.ReviewReportRepository;
 import org.example.eatopia.domain.review.repository.ReviewRepository;
@@ -48,5 +49,21 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         reviewRepository.save(review);
 
         return ReviewResponse.fromForCreate(review);
+    }
+
+    @Override
+    public ReviewResponse updateReview(Long reviewId, Long userId, ReviewRequest request) {
+
+        Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        // 활성화 상태, 삭제되지 않은 리뷰만 수정 가능
+        if (review.getStatus() != ReviewStatus.ACTIVE || review.getDeletedAt() != null) {
+            throw new GlobalException(ReviewErrorCode.REVIEW_CANNOT_UPDATE);
+        }
+
+        review.update(request.content(), request.rating());
+
+        return ReviewResponse.fromForUpdate(review);
     }
 }
