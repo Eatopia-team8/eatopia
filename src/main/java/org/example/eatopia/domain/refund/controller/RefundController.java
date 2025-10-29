@@ -24,7 +24,7 @@ public class RefundController {
     private final RefundCommandService refundCommandService;
     private final RefundQueryService refundQueryService;
 
-    @PreAuthorize("hasRole('ROLE_BUYER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<Response<RefundResponse>> requestRefund(
             @AuthenticationPrincipal UserPrincipal authUser,
@@ -34,7 +34,7 @@ public class RefundController {
         return ResponseEntity.ok(Response.success(refundResponse));
     }
 
-    @PreAuthorize("hasRole('ROLE_BUYER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<Response<Page<RefundResponse>>> getMyRefunds(
             @AuthenticationPrincipal UserPrincipal authUser,
@@ -44,7 +44,7 @@ public class RefundController {
         return ResponseEntity.ok(Response.success(responsePage));
     }
 
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{refundId}/success")
     public ResponseEntity<Response<RefundResponse>> successRefund(
             @PathVariable Long refundId
@@ -53,7 +53,7 @@ public class RefundController {
         return ResponseEntity.ok(Response.success(refundResponse));
     }
 
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{refundId}/canceled")
     public ResponseEntity<Response<RefundResponse>> canceledRefund(
             @PathVariable Long refundId
