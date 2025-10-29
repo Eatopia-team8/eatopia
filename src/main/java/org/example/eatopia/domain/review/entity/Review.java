@@ -88,4 +88,8 @@ public class Review extends SoftDeleteEntity {
         this.rating = rating;
     }
 
+    public boolean isUpdatable() {
+        return this.status == ReviewStatus.ACTIVE && getDeletedAt() == null;
+    }
+
 }
