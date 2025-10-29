@@ -5,12 +5,16 @@ import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.order.entity.OrderDetail;
 import org.example.eatopia.domain.order.service.query.OrderQueryService;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
+import org.example.eatopia.domain.review.dto.request.ReviewReportRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewRequest;
+import org.example.eatopia.domain.review.dto.response.ReviewReportResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewResponse;
 import org.example.eatopia.domain.review.entity.Review;
+import org.example.eatopia.domain.review.entity.ReviewReport;
 import org.example.eatopia.domain.review.exception.ReviewErrorCode;
 import org.example.eatopia.domain.review.repository.ReviewReportRepository;
 import org.example.eatopia.domain.review.repository.ReviewRepository;
+import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,5 +81,26 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         }
 
         review.softDelete();
+    }
+
+    @Override
+    public ReviewReportResponse reportReview(Long reviewId, Long userId, ReviewReportRequest request) {
+
+        // 중복 신고 불가
+        if (reviewReportRepository.existsByIdAndUserId(reviewId, userId)) {
+            throw new GlobalException(ReviewErrorCode.REVIEW_ALREADY_REPORTED);
+        }
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
+        User user = userQueryService.getUserEntityById(userId);
+
+        ReviewReport report = ReviewReport.create(review, user, request.reason());
+        reviewReportRepository.save(report);
+
+        // 리뷰 상태 변경
+        
+
+        return null;
     }
 }

@@ -3,12 +3,10 @@ package org.example.eatopia.domain.review.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
+import org.example.eatopia.domain.review.dto.request.ReviewReportRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
-import org.example.eatopia.domain.review.dto.response.ReviewAdminResponse;
-import org.example.eatopia.domain.review.dto.response.ReviewResponse;
-import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
-import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
+import org.example.eatopia.domain.review.dto.response.*;
 import org.example.eatopia.domain.review.service.command.ReviewCommandService;
 import org.example.eatopia.domain.review.service.query.ReviewQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
@@ -93,5 +91,16 @@ public class ReviewController {
         reviewCommandService.deleteReview(reviewId, authUser.getId());
 
         return ResponseEntity.ok(Response.success());
+    }
+
+    @PreAuthorize("hasRole('BUYER')")
+    @PostMapping("/v1/reviews/{reviewId}/report")
+    public ResponseEntity<Response<ReviewReportResponse>> reportReview(@PathVariable Long reviewId,
+                                                                       @Valid @RequestBody ReviewReportRequest request,
+                                                                       @AuthenticationPrincipal UserPrincipal authUser) {
+
+        ReviewReportResponse response = reviewCommandService.reportReview(reviewId, authUser.getId(), request);
+
+        return ResponseEntity.ok(Response.success(null));
     }
 }
