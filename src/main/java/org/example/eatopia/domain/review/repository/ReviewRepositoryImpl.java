@@ -59,7 +59,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     @Override
     public Page<ReviewSellerResponse> getReviewsForSeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable) {
 
-        BooleanBuilder filter = buildFilterSeller(productId, sellerId, condition);
+        BooleanBuilder filter = buildSellerFilter(productId, sellerId, condition);
 
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
 
@@ -93,7 +93,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     @Override
     public Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable) {
 
-        BooleanBuilder filter = builderFilterAdmin(productId, userId, condition);
+        BooleanBuilder filter = buildAdminFilter(productId, userId, condition);
 
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
 
@@ -145,7 +145,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(review.status.eq(ReviewStatus.ACTIVE));
     }
 
-    private BooleanBuilder buildFilterSeller(Long productId, Long sellerId, ReviewSearchCondition condition) {
+    private BooleanBuilder buildSellerFilter(Long productId, Long sellerId, ReviewSearchCondition condition) {
 
         return new BooleanBuilder()
                 .and(review.product.seller.id.eq(sellerId))
@@ -156,7 +156,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(includeDeletedFilter(condition.includeDeleted()));
     }
 
-    private BooleanBuilder builderFilterAdmin(Long productId, Long userId, ReviewSearchCondition condition) {
+    private BooleanBuilder buildAdminFilter(Long productId, Long userId, ReviewSearchCondition condition) {
 
         return new BooleanBuilder()
                 .and(productFilter(productId))
