@@ -20,6 +20,7 @@ import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -86,9 +87,9 @@ public class RefundCommandServiceImpl implements RefundCommandService {
     }
 
     @Override
-    @Transactional // 별도 트랜잭션을 보장해야 됨
+    @Transactional(propagation = Propagation.REQUIRES_NEW) // 별도 트랜잭션을 보장해야 됨
     public void failRefund(Long refundId, String failReason) {
-        
+
         log.warn("PortOne 환불 API 실패 [Refund ID: {}]. 사유: {}", refundId, failReason);
         Refund refund = refundRepository.findById(refundId)
                 .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_NOT_FOUND));
