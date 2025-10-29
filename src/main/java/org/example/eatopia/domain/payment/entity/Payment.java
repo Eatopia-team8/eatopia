@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.domain.order.entity.Order;
+import org.example.eatopia.domain.payment.enums.PaymentMethod;
+import org.example.eatopia.domain.payment.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 
