@@ -48,6 +48,8 @@ public class Review extends SoftDeleteEntity {
 
     private int reportCount;
 
+    private Long handledById;
+
     @Builder(access = AccessLevel.PRIVATE)
     private Review(User user,
                    Product product,
@@ -56,7 +58,8 @@ public class Review extends SoftDeleteEntity {
                    Integer rating,
                    ReviewStatus status,
                    LocalDateTime reportedAt,
-                   int reportCount) {
+                   int reportCount,
+                   Long handledById) {
         this.user = user;
         this.product = product;
         this.orderDetail = orderDetail;
@@ -65,6 +68,7 @@ public class Review extends SoftDeleteEntity {
         this.status = status;
         this.reportedAt = reportedAt;
         this.reportCount = reportCount;
+        this.handledById = handledById;
     }
 
     public static Review create(User user, Product product, OrderDetail orderDetail, String content, Integer rating) {

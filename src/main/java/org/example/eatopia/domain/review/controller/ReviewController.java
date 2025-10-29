@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.review.dto.request.ReviewRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
+import org.example.eatopia.domain.review.dto.response.ReviewAdminResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
@@ -50,13 +51,25 @@ public class ReviewController {
 
     @PreAuthorize("hasRole('SELLER')")
     @GetMapping("/v1/seller/reviews")
-    public ResponseEntity<Response<Page<ReviewSellerResponse>>> getReviewsBySeller(@RequestParam(required = false) Long productId,
-                                                                                   @ModelAttribute ReviewSearchCondition condition,
-                                                                                   @AuthenticationPrincipal UserPrincipal authUser,
-                                                                                   @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Response<Page<ReviewSellerResponse>>> getReviewsForSeller(@RequestParam(required = false) Long productId,
+                                                                                    @ModelAttribute ReviewSearchCondition condition,
+                                                                                    @AuthenticationPrincipal UserPrincipal authUser,
+                                                                                    @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 
-        Page<ReviewSellerResponse> response = reviewQueryService.getReviewsBySeller(productId, authUser.getId(), condition, pageable);
+        Page<ReviewSellerResponse> response = reviewQueryService.getReviewsForSeller(productId, authUser.getId(), condition, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/v1/admin/reviews")
+    public ResponseEntity<Response<Page<ReviewAdminResponse>>> getReviewsForAdmin(@RequestParam(required = false) Long productId,
+                                                                                  @RequestParam(required = false) Long userId,
+                                                                                  @ModelAttribute ReviewSearchCondition condition,
+                                                                                  @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<ReviewAdminResponse> response = reviewQueryService.getReviewsForAdmin(productId, userId, condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
     }

@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
+import org.example.eatopia.domain.review.dto.response.ReviewAdminResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
 import org.example.eatopia.domain.review.enums.ReviewStatus;
@@ -52,18 +53,13 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        JPAQuery<Long> countQuery = queryFactory
-                .select(review.count())
-                .from(review)
-                .where(filter);
-
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return (Page<ReviewSearchResponse>) createPage(content, pageable, filter);
     }
 
     @Override
-    public Page<ReviewSellerResponse> getReviewsBySeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable) {
+    public Page<ReviewSellerResponse> getReviewsForSeller(Long productId, Long sellerId, ReviewSearchCondition condition, Pageable pageable) {
 
-        BooleanBuilder filter = buildFilterSeller(productId, sellerId, condition);
+        BooleanBuilder filter = buildSellerFilter(productId, sellerId, condition);
 
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
 
@@ -91,6 +87,47 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        return (Page<ReviewSellerResponse>) createPage(content, pageable, filter);
+    }
+
+    @Override
+    public Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable) {
+
+        BooleanBuilder filter = buildAdminFilter(productId, userId, condition);
+
+        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(pageable.getSort());
+
+        List<ReviewAdminResponse> content = queryFactory
+                .select(
+                        Projections.constructor(
+                                ReviewAdminResponse.class,
+                                review.id,
+                                review.user.id,
+                                review.user.name,
+                                review.product.id,
+                                review.product.name,
+                                review.content,
+                                review.rating,
+                                review.status,
+                                review.reportedAt,
+                                review.reportCount,
+                                review.handledById,
+                                review.createdAt,
+                                review.updatedAt,
+                                review.deletedAt
+                        )
+                )
+                .from(review)
+                .where(filter)
+                .orderBy(orderSpecifier)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return (Page<ReviewAdminResponse>) createPage(content, pageable, filter);
+    }
+
+    private Page<?> createPage(List<?> content, Pageable pageable, BooleanBuilder filter) {
         JPAQuery<Long> countQuery = queryFactory
                 .select(review.count())
                 .from(review)
@@ -108,7 +145,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(review.status.eq(ReviewStatus.ACTIVE));
     }
 
-    private BooleanBuilder buildFilterSeller(Long productId, Long sellerId, ReviewSearchCondition condition) {
+    private BooleanBuilder buildSellerFilter(Long productId, Long sellerId, ReviewSearchCondition condition) {
 
         return new BooleanBuilder()
                 .and(review.product.seller.id.eq(sellerId))
@@ -117,6 +154,18 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(ratingFilter(condition.rating()))
                 .and(statusFilter(condition.status()))
                 .and(includeDeletedFilter(condition.includeDeleted()));
+    }
+
+    private BooleanBuilder buildAdminFilter(Long productId, Long userId, ReviewSearchCondition condition) {
+
+        return new BooleanBuilder()
+                .and(productFilter(productId))
+                .and(keywordFilter(condition.keyword()))
+                .and(ratingFilter(condition.rating()))
+                .and(statusFilter(condition.status()))
+                .and(includeDeletedFilter(condition.includeDeleted()))
+                .and(onlyReportedFilter(condition.onlyReported()))
+                .and(userFilter(userId));
     }
 
     // 상품 필터
@@ -142,6 +191,16 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     // 삭제 포함 필터
     private BooleanExpression includeDeletedFilter(Boolean includeDeleted) {
         return Boolean.FALSE.equals(includeDeleted) ? review.deletedAt.isNull() : null;
+    }
+
+    // 신고 리뷰만 필터
+    private BooleanExpression onlyReportedFilter(Boolean onlyReported) {
+        return Boolean.TRUE.equals(onlyReported) ? review.reportedAt.isNotNull() : null;
+    }
+
+    // 회원 필터
+    private BooleanExpression userFilter(Long userId) {
+        return userId != null ? review.user.id.eq(userId) : null;
     }
 
     private OrderSpecifier<?> getOrderSpecifier(Sort sort) {

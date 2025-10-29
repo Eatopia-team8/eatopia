@@ -6,6 +6,7 @@ public record ReviewSearchCondition(
         String keyword,
         Integer rating,
         ReviewStatus status,
-        Boolean includeDeleted
+        Boolean includeDeleted,
+        Boolean onlyReported
 ) {
 }
