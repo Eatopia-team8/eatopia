@@ -1,7 +1,7 @@
 package org.example.eatopia.domain.order.dto.response;
 
 import org.example.eatopia.domain.order.entity.Order;
-import org.example.eatopia.domain.order.entity.OrderStatus;
+import org.example.eatopia.domain.order.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,6 +23,7 @@ public record OrderDetailResponse(
         BigDecimal finalPrice,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
+        String address,
         List<OrderDetailProductResponse> orderProduct
 ) {
     public static OrderDetailResponse from(final Order order) {
@@ -42,6 +43,7 @@ public record OrderDetailResponse(
                 order.getFinalPrice(),
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
+                order.getAddress(),
                 itemResponses
         );
     }
