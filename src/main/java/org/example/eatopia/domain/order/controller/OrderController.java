@@ -63,7 +63,7 @@ public class OrderController {
         return ResponseEntity.ok(orderDetail);
     }
 
-    @Operation(summary = "주문 목록 조", description = "사용자의 주문 내역 목록을 조회합니다.",
+    @Operation(summary = "주문 목록 조회", description = "사용자의 주문 내역 목록을 조회합니다.",
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공"),
