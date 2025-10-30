@@ -13,7 +13,9 @@ public enum OrderErrorCode implements ErrorCode {
     SELLER_ID_REQUIRED(HttpStatus.BAD_REQUEST, "ORD-003", "판매자 ID는 필수입니다."),
     CANNOT_CANCEL_ORDER(HttpStatus.BAD_REQUEST, "ORD-004", "주문을 취소할 수 없는 상태입니다."),
     CANNOT_SUCCESS_ORDER(HttpStatus.BAD_REQUEST, "ORD-005", "주문을 완료할 수 없는 상태입니다."),
-    OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "ORD-006", "재고는 0 이상이어야 합니다.");
+    OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "ORD-006", "재고는 0 이상이어야 합니다."),
+    EMPTY_CART_ORDER(HttpStatus.BAD_REQUEST, "ORD-007", "주문할 상품이 없습니다."),
+    INVALID_FINAL_PRICE(HttpStatus.BAD_REQUEST, "ORD-008", "최종 결제 금액은 0원 이상이어야 합니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
