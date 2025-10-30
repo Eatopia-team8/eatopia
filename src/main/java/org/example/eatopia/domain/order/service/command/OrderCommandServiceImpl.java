@@ -1,7 +1,8 @@
 package org.example.eatopia.domain.order.service.command;
 
 import lombok.RequiredArgsConstructor;
-import org.example.eatopia.common.core.exception.GlobalException;
+import org.example.eatopia.domain.address.dto.AddressResponse;
+import org.example.eatopia.domain.address.service.query.AddressQueryService;
 import org.example.eatopia.domain.cart.entity.CartItem;
 import org.example.eatopia.domain.cart.service.command.CartCommandService;
 import org.example.eatopia.domain.cart.service.query.CartQueryService;
@@ -12,8 +13,9 @@ import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
 import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderDetail;
-import org.example.eatopia.domain.order.entity.OrderStatus;
+import org.example.eatopia.domain.order.enums.OrderStatus;
 import org.example.eatopia.domain.order.exception.OrderErrorCode;
+import org.example.eatopia.domain.order.exception.OrderException;
 import org.example.eatopia.domain.order.repository.OrderDetailRepository;
 import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
@@ -41,6 +43,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private final UserQueryService userQueryService;
     private final CartQueryService cartQueryService;
     private final CouponQueryService couponQueryService;
+    private final AddressQueryService addressQueryService;
 
     private final ProductCommandService productCommandService;
     private final CartCommandService cartCommandService;
@@ -55,8 +58,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Override
     public OrderDetailResponse createOrder(Long userId, OrderCreateRequest request) {
         User user = userQueryService.getUserEntityById(userId);
+        AddressResponse address = addressQueryService.getAddressById(userId, request.addressId());
         List<CartItem> cartItems = cartQueryService.getSelectedCartItems(userId);
-        //널 확인 validator
+
+        orderValidator.validateCartItems(cartItems);
 
         //금액 계산
         BigDecimal totalProductPrice = BigDecimal.ZERO;
@@ -69,7 +74,6 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                     product.getPrice().multiply(BigDecimal.valueOf(quantity))
             );
         }
-        //총 금액 검증 필요
 
         // 쿠폰 선택
         /*
@@ -94,6 +98,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 .add(totalDeliveryPrice)
                 .subtract(discountDeliveryPrice);
 
+        orderValidator.validateFinalPrice(finalPrice);
+
         String code = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         Order order = Order.create(
                 user,
@@ -103,7 +109,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 totalDeliveryPrice,
                 discountDeliveryPrice,
                 finalPrice,
-                couponIssueId
+                couponIssueId,
+                address.address()
         );
         Order savedOrder = orderRepository.save(order);
 
@@ -136,7 +143,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Override
     public OrderDetailResponse successOrder(Long userId, Long orderId) {
         Order order = orderRepository.findByUserIdAndId(userId, orderId)
-                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
         orderValidator.orderSuccessValidate(order);
 
@@ -164,24 +171,29 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Override
     public OrderDetailResponse cancelOrder(Long userId, Long orderId) {
         Order order = orderRepository.findByUserIdAndId(userId, orderId)
-                .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
         orderValidator.orderCancelValidate(order);
+
+        // SUCCESS 상태일 때만 결제 취소 및 재고 롤백
+        if (order.getStatus() == OrderStatus.SUCCESS) {
+            eventPublisher.publishEvent(new OrderCancelledEvent(order));
+
+            List<OrderDetail> orderDetails = order.getOrderDetails();
+            for (OrderDetail detail : orderDetails) {
+                productCommandService.increaseStock(detail.getProduct().getId(), detail.getQuantity());
+            }
+
+            //주문 취소시 쿠폰 롤백
+            /*
+            Long issueId = order.getCouponIssueId();
+            if (issueId != null) {
+                couponCommandService.rollbackCoupon(issueId);
+            }
+            */
+        }
+        // PENDING 상태일 땐 CANCELED로 변경
         order.updateStatus(OrderStatus.CANCELED);
-        eventPublisher.publishEvent(new OrderCancelledEvent(order));
-
-        List<OrderDetail> orderDetails = order.getOrderDetails();
-        for (OrderDetail detail : orderDetails) {
-            productCommandService.increaseStock(detail.getProduct().getId(), detail.getQuantity());
-        }
-
-        //주문 취소시 쿠폰 롤백
-        /*
-        Long issueId = order.getCouponIssueId();
-        if (issueId != null) {
-            couponCommandService.rollbackCoupon(issueId);
-        }
-        */
 
         return OrderDetailResponse.from(order);
     }

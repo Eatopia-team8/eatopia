@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
+import org.example.eatopia.domain.order.enums.OrderStatus;
 import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
@@ -49,6 +50,9 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal finalPrice;
 
+    @Column(name = "address", nullable = false, length = 255)
+    private String address;
+
     @Column(name = "couponIssueId")
     private Long couponIssueId;
 
@@ -63,7 +67,8 @@ public class Order extends BaseEntity {
                   BigDecimal totalDeliveryPrice,
                   BigDecimal discountDeliveryPrice,
                   BigDecimal finalPrice,
-                  Long couponIssueId) {
+                  Long couponIssueId,
+                  String address) {
         this.user = user;
         this.code = code;
         this.status = OrderStatus.PENDING;
@@ -73,6 +78,7 @@ public class Order extends BaseEntity {
         this.discountDeliveryPrice = discountDeliveryPrice;
         this.finalPrice = finalPrice;
         this.couponIssueId = couponIssueId;
+        this.address = address;
     }
 
     public static Order create(User user,
@@ -82,7 +88,8 @@ public class Order extends BaseEntity {
                                BigDecimal totalDeliveryPrice,
                                BigDecimal discountDeliveryPrice,
                                BigDecimal finalPrice,
-                               Long couponIssueId) {
+                               Long couponIssueId,
+                               String address) {
         return Order.builder()
                 .user(user)
                 .code(code)
@@ -92,6 +99,7 @@ public class Order extends BaseEntity {
                 .discountDeliveryPrice(discountDeliveryPrice)
                 .finalPrice(finalPrice)
                 .couponIssueId(couponIssueId)
+                .address(address)
                 .build();
     }
 

@@ -3,7 +3,7 @@ package org.example.eatopia.domain.refund.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderDetail;
-import org.example.eatopia.domain.order.entity.OrderStatus;
+import org.example.eatopia.domain.order.enums.OrderStatus;
 import org.example.eatopia.domain.refund.entity.Refund;
 import org.example.eatopia.domain.refund.enums.RefundStatus;
 import org.example.eatopia.domain.refund.exception.RefundErrorCode;
@@ -22,7 +22,7 @@ public class RefundValidator {
     private final RefundRepository refundRepository;
 
     public void validateRefundRequest(User user, OrderDetail orderDetail) {
-        
+
         Order order = orderDetail.getOrder();
 
         // 주문자 확인

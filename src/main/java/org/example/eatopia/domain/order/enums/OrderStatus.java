@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.order.entity;
+package org.example.eatopia.domain.order.enums;
 
 public enum OrderStatus {
 

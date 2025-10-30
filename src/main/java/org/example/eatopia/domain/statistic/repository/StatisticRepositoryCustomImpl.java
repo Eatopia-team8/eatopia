@@ -7,7 +7,7 @@ import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.example.eatopia.domain.order.entity.OrderStatus;
+import org.example.eatopia.domain.order.enums.OrderStatus;
 import org.example.eatopia.domain.statistic.dto.request.SaleSearchRequest;
 import org.example.eatopia.domain.statistic.dto.response.PeriodSaleResponse;
 import org.example.eatopia.domain.statistic.dto.response.SaleRankingResponse;

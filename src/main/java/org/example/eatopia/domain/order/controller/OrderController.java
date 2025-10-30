@@ -1,5 +1,8 @@
 package org.example.eatopia.domain.order.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.order.dto.request.OrderCreateRequest;
@@ -25,9 +28,12 @@ public class OrderController {
     private final OrderCommandService orderCommandService;
     private final OrderQueryService orderQueryService;
 
-    /**
-     * SecurityContext에서 사용자 정보 추출
-     */
+    @Operation(summary = "주문 생성", description = "주문을 생성합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "생성 성공"),
+                    @ApiResponse(responseCode = "400", description = "생성 실패")
+            })
     @PreAuthorize("hasRole('ROLE_BUYER')")
     @PostMapping
     public ResponseEntity<OrderDetailResponse> createOrder(
@@ -40,6 +46,12 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
+    @Operation(summary = "주문 상세 조회", description = "사용자의 주문을 상세 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @ApiResponse(responseCode = "400", description = "조회 실패")
+            })
     @PreAuthorize("hasRole('ROLE_BUYER')")
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrder(
@@ -51,6 +63,12 @@ public class OrderController {
         return ResponseEntity.ok(orderDetail);
     }
 
+    @Operation(summary = "주문 목록 조회", description = "사용자의 주문 내역 목록을 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @ApiResponse(responseCode = "400", description = "조회 실패")
+            })
     @PreAuthorize("hasRole('ROLE_BUYER')")
     @GetMapping
     public ResponseEntity<Page<OrderResponse>> getOrders(
@@ -62,6 +80,12 @@ public class OrderController {
         return ResponseEntity.ok(ordersPage);
     }
 
+    @Operation(summary = "주문 취소", description = "주문을 취소합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "취소 성공"),
+                    @ApiResponse(responseCode = "400", description = "취소 실패")
+            })
     @PreAuthorize("hasRole('ROLE_BUYER')")
     @PatchMapping("{orderId}/cancel")
     public ResponseEntity<OrderDetailResponse> cancelOrder(
