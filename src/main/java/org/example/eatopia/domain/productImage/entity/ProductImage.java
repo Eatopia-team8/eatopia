@@ -42,4 +42,7 @@ public class ProductImage extends BaseEntity {
         this.isThumbnail = isThumbnail;
     }
 
+    public void updateDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
 }
