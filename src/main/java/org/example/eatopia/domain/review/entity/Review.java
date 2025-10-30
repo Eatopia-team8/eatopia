@@ -103,4 +103,8 @@ public class Review extends SoftDeleteEntity {
         this.reportCount++;
     }
 
+    public void hide(Long adminId) {
+        this.status = ReviewStatus.HIDDEN;
+        this.handledById = adminId;
+    }
 }
