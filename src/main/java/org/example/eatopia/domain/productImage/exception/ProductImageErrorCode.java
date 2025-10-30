@@ -14,7 +14,8 @@ public enum ProductImageErrorCode implements ErrorCode {
     PRD_DUPLICATE_IMAGE_ORDER(HttpStatus.BAD_REQUEST, "PRD-IMG-004", "이미지 순서가 중복되었습니다."),
     PRD_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD-IMG-005", "이미지를 찾을 수 없습니다."),
     PRD_IMAGE_NOT_BELONG_TO_PRODUCT(HttpStatus.BAD_REQUEST, "PRD-IMG-006", "해당 상품의 이미지가 아닙니다."),
-    PRD_IMAGE_LAST_ONE(HttpStatus.BAD_REQUEST, "PRD-IMG-007", "상품 이미지는 최소 1개 이상 필요합니다.");
+    PRD_IMAGE_LAST_ONE(HttpStatus.BAD_REQUEST, "PRD-IMG-007", "상품 이미지는 최소 1개 이상 필요합니다."),
+    PRD_IMAGE_INVALID_DISPLAY_ORDER(HttpStatus.BAD_REQUEST, "PRD-IMG-008", "유효하지 않은 이미지 순서입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
