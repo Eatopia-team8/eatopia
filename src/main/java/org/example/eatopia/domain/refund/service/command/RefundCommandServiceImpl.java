@@ -47,10 +47,11 @@ public class RefundCommandServiceImpl implements RefundCommandService {
         User user = userQueryService.getUserEntityById(userId);
         OrderDetail orderDetail = orderDetailQueryService.getOrderDetailEntityById(request.orderDetailId());
         Payment payment = paymentQueryService.getPaymentEntityByOrder(orderDetail.getOrder());
+        Integer quantity = request.quantity();
 
-        refundValidator.validateRefundRequest(user, orderDetail);
-        BigDecimal refundAmount = orderDetail.getPrice().multiply(BigDecimal.valueOf(orderDetail.getQuantity()));
-        Refund refund = Refund.of(user, payment, orderDetail, refundAmount, request.reason());
+        refundValidator.validateRefundRequest(user, orderDetail, quantity);
+        BigDecimal refundAmount = orderDetail.getPrice().multiply(BigDecimal.valueOf(quantity));
+        Refund refund = Refund.of(user, payment, orderDetail, refundAmount, request.reason(), quantity);
         Refund savedRefund = refundRepository.save(refund);
 
         return RefundResponse.from(savedRefund);
@@ -66,7 +67,7 @@ public class RefundCommandServiceImpl implements RefundCommandService {
 
         productCommandService.increaseStock(
                 orderDetail.getProduct().getId(),
-                orderDetail.getQuantity()
+                refund.getQuantity()
         );
 
         refund.updateStatus(RefundStatus.SUCCESS);
@@ -99,7 +100,7 @@ public class RefundCommandServiceImpl implements RefundCommandService {
 
             productCommandService.decreaseStock(
                     orderDetail.getProduct().getId(),
-                    orderDetail.getQuantity()
+                    refund.getQuantity()
             );
 
             refund.updateStatus(RefundStatus.FAILED);

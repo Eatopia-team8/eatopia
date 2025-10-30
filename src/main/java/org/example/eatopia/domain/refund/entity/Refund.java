@@ -40,6 +40,9 @@ public class Refund extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal amount;
 
+    @Column(nullable = false)
+    private Integer quantity;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RefundReason reason;
@@ -49,22 +52,24 @@ public class Refund extends BaseEntity {
     private RefundStatus status;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Refund(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason) {
+    private Refund(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason, Integer quantity) {
         this.user = user;
         this.payment = payment;
         this.orderDetail = orderDetail;
         this.amount = amount;
         this.reason = reason;
+        this.quantity = quantity;
         this.status = RefundStatus.PENDING;
     }
 
-    public static Refund of(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason) {
+    public static Refund of(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason, Integer quantity) {
         return Refund.builder()
                 .user(user)
                 .payment(payment)
                 .orderDetail(orderDetail)
                 .amount(amount)
                 .reason(reason)
+                .quantity(quantity)
                 .build();
     }
 

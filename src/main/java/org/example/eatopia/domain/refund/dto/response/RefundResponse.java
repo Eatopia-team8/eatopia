@@ -13,6 +13,7 @@ public record RefundResponse(
         Long orderDetailId,
         Long paymentId,
         BigDecimal amount,
+        Integer quantity,
         RefundReason reason,
         RefundStatus status,
         LocalDateTime createdAt
@@ -26,6 +27,7 @@ public record RefundResponse(
                 refund.getOrderDetail().getId(),
                 refund.getPayment().getId(),
                 amount,
+                refund.getQuantity(),
                 refund.getReason(),
                 refund.getStatus(),
                 refund.getCreatedAt()
