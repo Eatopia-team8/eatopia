@@ -60,24 +60,29 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
     public void cancelPaymentByOrder(Order order) {
         paymentRepository.findByOrder(order).ifPresent(payment -> {
             paymentValidator.paymentCancelValidate(payment);
-            try {
-                CancelData cancelData = new CancelData(
-                        payment.getImpUid(),
-                        true,
-                        payment.getPrice()
-                );
 
-                log.info("환불 API [Payment ID: {}, ImpUid: {}]", payment.getId(), payment.getImpUid());
-                iamportClient.cancelPaymentByImpUid(cancelData);
+            if (payment.getStatus() == PaymentStatus.SUCCESS) {
+                try {
+                    CancelData cancelData = new CancelData(
+                            payment.getImpUid(),
+                            true,
+                            payment.getPrice()
+                    );
 
-                log.info("환불 API 성공 [Payment ID: {}, ImpUid: {}]", payment.getId(), payment.getImpUid());
+                    log.info("환불 API [Payment ID: {}, ImpUid: {}]", payment.getId(), payment.getImpUid());
+                    iamportClient.cancelPaymentByImpUid(cancelData);
+
+                    log.info("환불 API 성공 [Payment ID: {}, ImpUid: {}]", payment.getId(), payment.getImpUid());
+                    payment.updateStatus(PaymentStatus.CANCELED);
+                } catch (IamportResponseException | IOException e) {
+                    log.error("환불 API 실패 [Payment ID: {}, ImpUid: {}] - 오류: {}", payment.getId(), payment.getImpUid(), e.getMessage(), e);
+                    throw new PaymentException(PaymentErrorCode.PAYMENT_API_ERROR);
+                } catch (Exception e) {
+                    log.error("결제 취소 처리 중 오류 발생 [Payment ID: {}] - 오류: {}", payment.getId(), e.getMessage(), e);
+                    throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELED_FAILED);
+                }
+            } else if (payment.getStatus() == PaymentStatus.PENDING) {
                 payment.updateStatus(PaymentStatus.CANCELED);
-            } catch (IamportResponseException | IOException e) {
-                log.error("환불 API 실패 [Payment ID: {}, ImpUid: {}] - 오류: {}", payment.getId(), payment.getImpUid(), e.getMessage(), e);
-                throw new PaymentException(PaymentErrorCode.PAYMENT_API_ERROR);
-            } catch (Exception e) {
-                log.error("결제 취소 처리 중 오류 발생 [Payment ID: {}] - 오류: {}", payment.getId(), e.getMessage(), e);
-                throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELED_FAILED);
             }
         });
     }

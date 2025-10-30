@@ -4,6 +4,7 @@ import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.auth.exception.AuthErrorCode;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.service.query.OrderQueryService;
@@ -41,10 +42,6 @@ public class PaymentValidator {
      */
     public void paymentCancelValidate(Payment payment) {
         if (payment.getStatus() == PaymentStatus.CANCELED) {
-            throw new PaymentException(PaymentErrorCode.CANNOT_CANCEL_PAYMENT);
-        }
-
-        if (payment.getStatus() == PaymentStatus.PENDING) {
             throw new PaymentException(PaymentErrorCode.CANNOT_CANCEL_PAYMENT);
         }
     }
@@ -87,8 +84,8 @@ public class PaymentValidator {
         Order order;
         try {
             order = orderQueryService.findOrderByCode(merchantUid);
-        } catch (PaymentException e) {
-            throw new PaymentException(PaymentErrorCode.INVALID_MERCHANT_UID);
+        } catch (GlobalException e) {
+            throw new GlobalException(PaymentErrorCode.INVALID_MERCHANT_UID);
         }
 
         //결제 정보 확인
