@@ -103,4 +103,14 @@ public class ReviewController {
 
         return ResponseEntity.ok(Response.success(response));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/v1/admin/reviews/{reviewId}/reports")
+    public ResponseEntity<Response<Page<ReviewReportResponse>>> getReviewReports(@PathVariable Long reviewId,
+                                                                                 @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<ReviewReportResponse> response = reviewQueryService.getReviewReports(reviewId, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
 }
