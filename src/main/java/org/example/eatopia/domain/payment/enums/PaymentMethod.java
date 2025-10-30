@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.payment.entity;
+package org.example.eatopia.domain.payment.enums;
 
 public enum PaymentMethod {
 
