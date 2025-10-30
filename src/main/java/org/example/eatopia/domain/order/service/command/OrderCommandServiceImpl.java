@@ -174,21 +174,26 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
         orderValidator.orderCancelValidate(order);
+
+        // SUCCESS 상태일 때만 결제 취소 및 재고 롤백
+        if (order.getStatus() == OrderStatus.SUCCESS) {
+            eventPublisher.publishEvent(new OrderCancelledEvent(order));
+
+            List<OrderDetail> orderDetails = order.getOrderDetails();
+            for (OrderDetail detail : orderDetails) {
+                productCommandService.increaseStock(detail.getProduct().getId(), detail.getQuantity());
+            }
+
+            //주문 취소시 쿠폰 롤백
+            /*
+            Long issueId = order.getCouponIssueId();
+            if (issueId != null) {
+                couponCommandService.rollbackCoupon(issueId);
+            }
+            */
+        }
+        // PENDING 상태일 땐 CANCELED로 변경
         order.updateStatus(OrderStatus.CANCELED);
-        eventPublisher.publishEvent(new OrderCancelledEvent(order));
-
-        List<OrderDetail> orderDetails = order.getOrderDetails();
-        for (OrderDetail detail : orderDetails) {
-            productCommandService.increaseStock(detail.getProduct().getId(), detail.getQuantity());
-        }
-
-        //주문 취소시 쿠폰 롤백
-        /*
-        Long issueId = order.getCouponIssueId();
-        if (issueId != null) {
-            couponCommandService.rollbackCoupon(issueId);
-        }
-        */
 
         return OrderDetailResponse.from(order);
     }

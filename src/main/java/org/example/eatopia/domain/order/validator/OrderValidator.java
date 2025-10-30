@@ -23,7 +23,11 @@ public class OrderValidator {
     }
 
     public void orderCancelValidate(Order order) {
-        if (order.getStatus() != OrderStatus.SUCCESS) {
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            throw new OrderException(OrderErrorCode.ALREADY_CANCELED_ORDER);
+        }
+
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.SUCCESS) {
             throw new OrderException(OrderErrorCode.CANNOT_CANCEL_ORDER);
         }
     }
