@@ -2,6 +2,7 @@ package org.example.eatopia.domain.review.service.query;
 
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
 import org.example.eatopia.domain.review.dto.response.ReviewAdminResponse;
+import org.example.eatopia.domain.review.dto.response.ReviewReportResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
 import org.springframework.data.domain.Page;
@@ -51,4 +52,6 @@ public interface ReviewQueryService {
      * @return 관리자용 리뷰 목록 페이지
      */
     Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable);
+
+    Page<ReviewReportResponse> getReviewReports(Long reviewId, Pageable pageable);
 }
