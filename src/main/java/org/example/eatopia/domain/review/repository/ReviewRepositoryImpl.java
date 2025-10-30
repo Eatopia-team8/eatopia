@@ -142,7 +142,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .and(productFilter(productId))
                 .and(keywordFilter(condition.keyword()))
                 .and(ratingFilter(condition.rating()))
-                .and(review.status.eq(ReviewStatus.ACTIVE))
+                .and(review.status.in(ReviewStatus.ACTIVE, ReviewStatus.REPORTED))
                 .and(review.deletedAt.isNull());
     }
 

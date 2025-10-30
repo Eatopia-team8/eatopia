@@ -92,4 +92,15 @@ public class Review extends SoftDeleteEntity {
         return this.status == ReviewStatus.ACTIVE && getDeletedAt() == null;
     }
 
+    // 리뷰 상태 신고 처리
+    public void report() {
+
+        if (this.status == ReviewStatus.ACTIVE) {
+            this.status = ReviewStatus.REPORTED;
+        }
+
+        this.reportedAt = LocalDateTime.now();
+        this.reportCount++;
+    }
+
 }
