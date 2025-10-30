@@ -53,5 +53,15 @@ public interface ReviewQueryService {
      */
     Page<ReviewAdminResponse> getReviewsForAdmin(Long productId, Long userId, ReviewSearchCondition condition, Pageable pageable);
 
+    /**
+     * 지정된 리뷰 ID에 대한 모든 신고 내역을 조회합니다.
+     * <p>
+     * 관리자 전용 기능으로, 삭제된 리뷰의 신고 내역도 함께 조회할 수 있습니다.
+     * 결과는 페이징 처리되어 반환됩니다.
+     *
+     * @param reviewId 조회할 리뷰 ID
+     * @param pageable 페이징 설정
+     * @return 신고 내역 페이지
+     */
     Page<ReviewReportResponse> getReviewReports(Long reviewId, Pageable pageable);
 }
