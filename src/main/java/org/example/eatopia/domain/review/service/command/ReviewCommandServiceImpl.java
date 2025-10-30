@@ -93,7 +93,6 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 
         Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
-
         User user = userQueryService.getUserEntityById(userId);
 
         ReviewReport report = ReviewReport.create(review, user, request.reason());
