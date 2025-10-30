@@ -21,8 +21,4 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
     Optional<ProductImage> findThumbnailByProductId(@Param("productId") Long productId);
 
     long countByProductId(Long productId);
-
-    // 특정 상품의 이미지만 순서대로 조회 (단건)
-    @Query("SELECT pi FROM ProductImage pi WHERE pi.product.id = :productId ORDER BY pi.displayOrder ASC")
-    List<ProductImage> findAllByProductIdOrderByDisplayOrder(@Param("productId") Long productId);
 }

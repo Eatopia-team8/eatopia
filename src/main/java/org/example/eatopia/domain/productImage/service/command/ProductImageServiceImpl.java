@@ -65,7 +65,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         Product product = productQueryService.getProductOrElseThrow(productId);
         product.verifySeller(userId);
 
-        List<ProductImage> images = productImageRepository.findAllByProductIdOrderByDisplayOrder(productId);
+        List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(productId);
 
         ProductImage target = images.stream()
                 .filter(img -> img.getId().equals(imageId))
@@ -77,7 +77,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         int oldOrder = target.getDisplayOrder();
 
         // 동일한 순서면 early return
-        if (newOrder == oldOrder) {
+        if (java.util.Objects.equals(newOrder, oldOrder)) {
             return;
         }
 
