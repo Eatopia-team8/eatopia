@@ -14,4 +14,6 @@ public interface ReviewCommandService {
     void deleteReview(Long reviewId, Long userId);
 
     ReviewReportResponse reportReview(Long reviewId, Long userId, ReviewReportRequest request);
+
+    void hideReview(Long reviewId, Long adminId);
 }

@@ -113,4 +113,14 @@ public class ReviewController {
 
         return ResponseEntity.ok(Response.success(response));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/v1/admin/reviews/{reviewId}/hide")
+    public ResponseEntity<Response<Void>> hideReview(@PathVariable Long reviewId,
+                                                     @AuthenticationPrincipal UserPrincipal authUser) {
+
+        reviewCommandService.hideReview(reviewId, authUser.getId());
+
+        return ResponseEntity.ok(Response.success());
+    }
 }

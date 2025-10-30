@@ -103,4 +103,17 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 
         return ReviewReportResponse.from(report);
     }
+
+    @Override
+    public void hideReview(Long reviewId, Long adminId) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        if (!review.isHidable()) {
+            throw new GlobalException(ReviewErrorCode.REVIEW_CANNOT_HIDE);
+        }
+
+        review.hide(adminId);
+    }
 }
