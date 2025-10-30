@@ -115,7 +115,7 @@ public class ReviewController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/v1/reviews/{reviewId}/hide")
+    @PatchMapping("/v1/reviews/{reviewId}/hide")
     public ResponseEntity<Response<Void>> hideReview(@PathVariable Long reviewId,
                                                      @AuthenticationPrincipal UserPrincipal authUser) {
 
