@@ -11,7 +11,6 @@ import org.example.eatopia.domain.review.dto.response.ReviewReportResponse;
 import org.example.eatopia.domain.review.dto.response.ReviewResponse;
 import org.example.eatopia.domain.review.entity.Review;
 import org.example.eatopia.domain.review.entity.ReviewReport;
-import org.example.eatopia.domain.review.enums.ReviewStatus;
 import org.example.eatopia.domain.review.exception.ReviewErrorCode;
 import org.example.eatopia.domain.review.repository.ReviewReportRepository;
 import org.example.eatopia.domain.review.repository.ReviewRepository;
@@ -111,7 +110,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
-        if (review.getStatus() != ReviewStatus.REPORTED) {
+        if (!review.isHidable()) {
             throw new GlobalException(ReviewErrorCode.REVIEW_CANNOT_HIDE);
         }
 
