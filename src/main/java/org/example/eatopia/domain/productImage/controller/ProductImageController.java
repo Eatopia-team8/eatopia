@@ -59,4 +59,18 @@ public class ProductImageController {
 
         return ResponseEntity.ok(Response.success());
     }
+
+    // 이미지 개별 삭제 (판매자, 어드민)
+    @PreAuthorize("hasAnyRole('ROLE_SELLER', 'ROLE_ADMIN')")
+    @DeleteMapping("/v1/products/{productId}/images/{imageId}")
+    public ResponseEntity<Response<Void>> deleteProductImage(@PathVariable Long productId,
+                                                             @PathVariable Long imageId,
+                                                             @AuthenticationPrincipal UserPrincipal authUser) {
+
+        productImageService.deleteProductImage(
+                productId, imageId, authUser.getId(), authUser.getUserRole()
+        );
+
+        return ResponseEntity.ok(Response.success());
+    }
 }

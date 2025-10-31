@@ -1,11 +1,18 @@
 package org.example.eatopia.common.infra.s3;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.common.infra.s3.dto.request.S3PresignedUrlRequest;
 import org.example.eatopia.common.infra.s3.dto.response.S3PresignedUrlResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -30,6 +37,34 @@ public class S3Service {
 
     @Value("${spring.cloud.aws.region.static}")
     private String region;
+
+    @Value("${spring.cloud.aws.credentials.access-key}")
+    private String accessKey;
+
+    @Value("${spring.cloud.aws.credentials.secret-key}")
+    private String secretKey;
+
+    private S3Client s3Client;
+
+    @PostConstruct
+    public void init() {
+        // S3Client 초기화 (삭제 작업용)
+        this.s3Client = S3Client.builder()
+                .region(Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)
+                ))
+                .build();
+        log.info("S3Client 초기화 완료 - region: {}, bucket: {}", region, bucketName);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (s3Client != null) {
+            s3Client.close();
+            log.info("S3Client 종료 완료");
+        }
+    }
 
     // 단건
     public S3PresignedUrlResponse createPresignedUrl(String fileName, String contentType) {
@@ -90,6 +125,74 @@ public class S3Service {
     private void validateFileCount(int fileCount) {
         if (fileCount > MAX_FILE_COUNT) {
             throw new IllegalArgumentException("파일은 최대 " + MAX_FILE_COUNT + "개까지 업로드 가능합니다.");
+        }
+    }
+
+    // S3 파일 삭제 (CloudFront 대응)
+    public void deleteFile(String imageUrl) {
+        try {
+            String key = extractKeyFromUrl(imageUrl);
+
+            if (key == null || key.isEmpty()) {
+                log.error("S3 key 추출 실패 - imageUrl: {}", imageUrl);
+                return;
+            }
+
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+            s3Client.deleteObject(deleteRequest);
+
+            log.info("S3 파일 삭제 완료 - key: {}", key);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패 - imageUrl: {}, error: {}", imageUrl, e.getMessage(), e);
+            // S3 삭제 실패해도 DB 삭제는 가능하도록 예외 X
+        }
+    }
+
+    // URL에서 key 추출 (CloudFront 및 S3 URL 모두 대응)
+    private String extractKeyFromUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // CloudFront URL인 경우
+            if (imageUrl.contains("cloudfront.net/")) {
+                String[] parts = imageUrl.split("cloudfront.net/");
+                if (parts.length > 1) {
+                    return parts[1];
+                }
+            }
+
+            // S3 리전 포함 URL인 경우
+            if (imageUrl.contains(".s3.") && imageUrl.contains(".amazonaws.com/")) {
+                int startIndex = imageUrl.indexOf(".amazonaws.com/") + 15; // ".amazonaws.com/" 길이
+                return imageUrl.substring(startIndex);
+            }
+
+            // S3 경로 스타일 URL: https://s3.amazonaws.com/bucket/images/product.jpg
+            // 또는 https://s3.ap-northeast-2.amazonaws.com/bucket/images/product.jpg
+            if (imageUrl.contains("s3.") && imageUrl.contains(".amazonaws.com/" + bucketName + "/")) {
+                String[] parts = imageUrl.split(bucketName + "/");
+                if (parts.length > 1) {
+                    return parts[1];
+                }
+            }
+
+            // 이미 key만 있는 경우
+            if (!imageUrl.startsWith("http")) {
+                return imageUrl;
+            }
+
+            log.warn("알 수 없는 URL 형식 - imageUrl: {}", imageUrl);
+            return null;
+
+        } catch (Exception e) {
+            log.error("Key 추출 중 오류 발생 - imageUrl: {}, error: {}", imageUrl, e.getMessage());
+            return null;
         }
     }
 }
