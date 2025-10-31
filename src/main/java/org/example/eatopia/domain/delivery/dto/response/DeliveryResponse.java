@@ -9,7 +9,8 @@ public record DeliveryResponse(
         Long deliveryId,
         DeliveryStatus status,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        LocalDateTime deliveredAt
 ) {
     public static DeliveryResponse from(Delivery delivery) {
         //주문이 완료되지 않으면 NULL 반환
@@ -21,7 +22,8 @@ public record DeliveryResponse(
                 delivery.getId(),
                 delivery.getStatus(),
                 delivery.getCreatedAt(),
-                delivery.getUpdatedAt()
+                delivery.getUpdatedAt(),
+                delivery.getDeliveredAt()
         );
     }
 }

@@ -9,10 +9,8 @@ import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.delivery.dto.request.DeliveryUpdateRequest;
 import org.example.eatopia.domain.delivery.dto.response.DeliveryResponse;
 import org.example.eatopia.domain.delivery.service.command.DeliveryCommandService;
-import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Delivery API", description = "배달 관리 API")
@@ -30,10 +28,9 @@ public class DeliveryController {
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<Response<DeliveryResponse>> updateDeliveryStatus(
             @PathVariable Long orderId,
-            @Valid @RequestBody DeliveryUpdateRequest request,
-            @AuthenticationPrincipal UserPrincipal principal
+            @Valid @RequestBody DeliveryUpdateRequest request
     ) {
-        DeliveryResponse response = deliveryCommandService.updateDeliveryStatus(orderId, request, principal);
+        DeliveryResponse response = deliveryCommandService.updateDeliveryStatus(orderId, request);
         return ResponseEntity.ok(Response.success(response));
     }
 }

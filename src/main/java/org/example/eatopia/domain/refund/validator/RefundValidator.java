@@ -53,7 +53,7 @@ public class RefundValidator {
             throw new RefundException(RefundErrorCode.REFUND_NOT_ALLOWED_BEFORE_DELIVERY);
         }
 
-        LocalDateTime deliveredAt = delivery.getUpdatedAt();
+        LocalDateTime deliveredAt = delivery.getDeliveredAt();
         if (deliveredAt == null) {
             throw new RefundException(RefundErrorCode.REFUND_NOT_ALLOWED);
         }
