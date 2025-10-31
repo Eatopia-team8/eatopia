@@ -32,12 +32,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.example.eatopia.common.core.consts.Const.DEFAULT_DELIVERY_PRICE;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class OrderCommandServiceImpl implements OrderCommandService {
 
-    private static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000");
     private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
 
     private final UserQueryService userQueryService;
