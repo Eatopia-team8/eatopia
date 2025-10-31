@@ -38,10 +38,13 @@ public class Refund extends BaseEntity {
     private OrderDetail orderDetail;
 
     @Column(nullable = false)
-    private BigDecimal amount;
+    private BigDecimal amount; // 환불 금액
 
     @Column(nullable = false)
-    private Integer quantity;
+    private BigDecimal price; // 상품 가격
+
+    @Column(nullable = false)
+    private Integer quantity; // 환불 수량
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -52,24 +55,25 @@ public class Refund extends BaseEntity {
     private RefundStatus status;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Refund(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason, Integer quantity) {
+    private Refund(User user, Payment payment, OrderDetail orderDetail, BigDecimal price, Integer quantity, RefundReason reason) {
         this.user = user;
         this.payment = payment;
         this.orderDetail = orderDetail;
-        this.amount = amount;
-        this.reason = reason;
+        this.price = price;
         this.quantity = quantity;
+        this.amount = price.multiply(BigDecimal.valueOf(quantity));
+        this.reason = reason;
         this.status = RefundStatus.PENDING;
     }
 
-    public static Refund of(User user, Payment payment, OrderDetail orderDetail, BigDecimal amount, RefundReason reason, Integer quantity) {
+    public static Refund of(User user, Payment payment, OrderDetail orderDetail, BigDecimal price, Integer quantity, RefundReason reason) {
         return Refund.builder()
                 .user(user)
                 .payment(payment)
                 .orderDetail(orderDetail)
-                .amount(amount)
-                .reason(reason)
+                .price(price)
                 .quantity(quantity)
+                .reason(reason)
                 .build();
     }
 
