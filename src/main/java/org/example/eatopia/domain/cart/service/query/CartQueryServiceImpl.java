@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,8 +28,13 @@ public class CartQueryServiceImpl implements CartQueryService {
     @Override
     public CartResponse getCartByUser(Long userId) {
 
-        Cart cart = getCart(userId);
+        Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
 
+        if (optionalCart.isEmpty()) {
+            return CartResponse.empty(userId);
+        }
+
+        Cart cart = optionalCart.get();
         List<CartItem> cartItems = cartItemRepository.findAllByCartWithProduct(cart.getId());
 
         List<CartItemResponse> itemResponses = cartItems.stream()
