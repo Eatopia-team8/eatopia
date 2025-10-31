@@ -84,9 +84,6 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         Long couponIssueId = null;
         BigDecimal discountProductPrice = BigDecimal.ZERO;
         BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
-        if (totalProductPrice.compareTo(DELIVERY_FREE_THRESHOLD) >= 0) {
-            discountDeliveryPrice = DEFAULT_DELIVERY_PRICE;
-        }
 
         /*
         if (couponIssue != null) {
@@ -95,6 +92,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             couponIssueId = couponIssue.getId();
         }
          */
+
+        //쿠폰 가격 추가해야함
+        if (totalProductPrice.compareTo(DELIVERY_FREE_THRESHOLD) >= 0) {
+            discountDeliveryPrice = DEFAULT_DELIVERY_PRICE;
+        }
         //최종 금액 계산
         BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
         BigDecimal finalPrice = totalProductPrice
