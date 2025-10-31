@@ -21,4 +21,6 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
     Optional<ProductImage> findThumbnailByProductId(@Param("productId") Long productId);
 
     long countByProductId(Long productId);
+
+    Optional<ProductImage> findFirstByProductIdAndIdNotOrderByDisplayOrderAsc(Long productId, Long excludeId);
 }

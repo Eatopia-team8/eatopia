@@ -1,7 +1,9 @@
 package org.example.eatopia.domain.productImage.service.command;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.infra.s3.S3Service;
 import org.example.eatopia.domain.product.entity.Product;
+import org.example.eatopia.domain.product.exception.ProductException;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.example.eatopia.domain.productImage.dto.request.ProductImageAddRequest;
 import org.example.eatopia.domain.productImage.dto.response.ProductImageResponse;
@@ -10,6 +12,7 @@ import org.example.eatopia.domain.productImage.exception.ProductImageErrorCode;
 import org.example.eatopia.domain.productImage.exception.ProductImageException;
 import org.example.eatopia.domain.productImage.repository.ProductImageRepository;
 import org.example.eatopia.domain.productImage.validator.ProductImageValidator;
+import org.example.eatopia.domain.user.config.UserRole;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     private final ProductImageRepository productImageRepository;
     private final ProductQueryService productQueryService;
     private final ProductImageValidator productImageValidator;
+    private final S3Service s3Service;
 
     @Override
     @Caching(evict = {
@@ -124,6 +128,46 @@ public class ProductImageServiceImpl implements ProductImageService {
                 .ifPresent(thumbnail -> thumbnail.updateThumbnailStatus(false));
 
         newThumbnail.updateThumbnailStatus(true);
+    }
+
+    @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
+    public void deleteProductImage(Long productId, Long imageId, Long userId, UserRole userRole) {
+
+        Product product = productQueryService.getProductOrElseThrow(productId);
+        product.verifySellerOrAdmin(userId, userRole == UserRole.ADMIN);
+
+        ProductImage image = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new ProductException(ProductImageErrorCode.PRD_IMAGE_NOT_FOUND));
+
+        if (!image.getProduct().getId().equals(productId)) {
+            throw new ProductException(ProductImageErrorCode.PRD_IMAGE_NOT_BELONG_TO_PRODUCT);
+        }
+
+        long imageCount = productImageRepository.countByProductId(productId);
+        if (imageCount <= 1) {
+            throw new ProductException(ProductImageErrorCode.PRD_IMAGE_LAST_ONE);
+        }
+
+        // 대표이미지 삭제 시 다음 이미지를 대표이미지로 지정
+        if (image.getIsThumbnail()) {
+            ProductImage nextThumbnail = productImageRepository.findFirstByProductIdAndIdNotOrderByDisplayOrderAsc(
+                    productId, imageId
+            ).orElseThrow(() -> new ProductException(ProductImageErrorCode.PRD_IMAGE_NOT_FOUND));
+
+            nextThumbnail.updateThumbnailStatus(true);
+            productImageRepository.save(nextThumbnail);
+        }
+
+        // DB에서 먼저 삭제
+        productImageRepository.delete(image);
+
+        // S3에서 삭제
+        s3Service.deleteFile(image.getImageUrl());
     }
 }
 
