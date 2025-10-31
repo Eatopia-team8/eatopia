@@ -2,6 +2,8 @@ package org.example.eatopia.domain.refund.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.exception.GlobalException;
+import org.example.eatopia.domain.delivery.entity.Delivery;
+import org.example.eatopia.domain.delivery.enums.DeliveryStatus;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderDetail;
 import org.example.eatopia.domain.order.enums.OrderStatus;
@@ -22,7 +24,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class RefundValidator {
 
-    private static final long REFUND_DEADLINE = 7;
+    private static final long REFUND_DEADLINE = 3;
     private final RefundRepository refundRepository;
 
     public void validateRefundRequest(User user, OrderDetail orderDetail, Payment payment, Integer quantity) {
@@ -40,15 +42,26 @@ public class RefundValidator {
             throw new RefundException(RefundErrorCode.ORDER_NOT_SUCCESSFUL);
         }
 
-        //기한 확인
-        LocalDateTime orderCompletedAt = order.getUpdatedAt();
-        if (orderCompletedAt != null) {
-            LocalDateTime deadline = orderCompletedAt.plusDays(REFUND_DEADLINE);
-            if (LocalDateTime.now().isAfter(deadline)) {
-                throw new RefundException(RefundErrorCode.REFUND_PERIOD_EXPIRED);
-            }
-        } else {
+        Delivery delivery = order.getDelivery();
+
+        if (delivery == null) {
             throw new RefundException(RefundErrorCode.REFUND_NOT_ALLOWED);
+        }
+
+        // 배송이 완료되지 않았으면 환불 불가
+        if (delivery.getStatus() != DeliveryStatus.DELIVERED) {
+            throw new RefundException(RefundErrorCode.REFUND_NOT_ALLOWED_BEFORE_DELIVERY);
+        }
+
+        LocalDateTime deliveredAt = delivery.getUpdatedAt();
+        if (deliveredAt == null) {
+            throw new RefundException(RefundErrorCode.REFUND_NOT_ALLOWED);
+        }
+
+        LocalDateTime deadline = deliveredAt.plusDays(REFUND_DEADLINE);
+
+        if (LocalDateTime.now().isAfter(deadline)) {
+            throw new RefundException(RefundErrorCode.REFUND_PERIOD_EXPIRED);
         }
 
         //전체 환불인지 확인
