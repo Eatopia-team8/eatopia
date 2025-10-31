@@ -165,7 +165,6 @@ public class ProductImageServiceImpl implements ProductImageService {
 
         // DB에서 먼저 삭제
         productImageRepository.delete(image);
-        productImageRepository.flush(); // 즉시 반영
 
         // S3에서 삭제
         s3Service.deleteFile(image.getImageUrl());

@@ -146,7 +146,7 @@ public class S3Service {
             s3Client.deleteObject(deleteRequest);
 
             log.info("S3 파일 삭제 완료 - key: {}", key);
-        } catch (Exception e) {
+        } catch (software.amazon.awssdk.core.exception.SdkException e) {
             log.error("S3 파일 삭제 실패 - imageUrl: {}, error: {}", imageUrl, e.getMessage(), e);
             // S3 삭제 실패해도 DB 삭제는 가능하도록 예외 X
         }
@@ -158,40 +158,33 @@ public class S3Service {
             return null;
         }
 
+        // 이미 key만 있는 경우
+        if (!imageUrl.startsWith("http")) {
+            return imageUrl;
+        }
+
         try {
-            // CloudFront URL인 경우
-            if (imageUrl.contains("cloudfront.net/")) {
-                String[] parts = imageUrl.split("cloudfront.net/");
-                if (parts.length > 1) {
-                    return parts[1];
-                }
+            java.net.URI uri = new java.net.URI(imageUrl);
+            String path = uri.getPath();
+
+            // path의 맨 앞 '/' 제거
+            if (path.startsWith("/")) {
+                path = path.substring(1);
             }
 
-            // S3 리전 포함 URL인 경우
-            if (imageUrl.contains(".s3.") && imageUrl.contains(".amazonaws.com/")) {
-                int startIndex = imageUrl.indexOf(".amazonaws.com/") + 15; // ".amazonaws.com/" 길이
-                return imageUrl.substring(startIndex);
+            // S3 Path-style URL은 경로에 버킷 이름이 포함되므로 제거
+            // /bucketName/products/image.jpg -> products/image.jpg
+            String bucketPrefix = bucketName + "/";
+            if (path.startsWith(bucketPrefix)) {
+                return path.substring(bucketPrefix.length());
             }
 
-            // S3 경로 스타일 URL: https://s3.amazonaws.com/bucket/images/product.jpg
-            // 또는 https://s3.ap-northeast-2.amazonaws.com/bucket/images/product.jpg
-            if (imageUrl.contains("s3.") && imageUrl.contains(".amazonaws.com/" + bucketName + "/")) {
-                String[] parts = imageUrl.split(bucketName + "/");
-                if (parts.length > 1) {
-                    return parts[1];
-                }
-            }
+            // CloudFront URL 또는 S3 Virtual-hosted-style URL의 경우
+            // '/'가 제거된 경로 자체가 key
+            return path;
 
-            // 이미 key만 있는 경우
-            if (!imageUrl.startsWith("http")) {
-                return imageUrl;
-            }
-
-            log.warn("알 수 없는 URL 형식 - imageUrl: {}", imageUrl);
-            return null;
-
-        } catch (Exception e) {
-            log.error("Key 추출 중 오류 발생 - imageUrl: {}, error: {}", imageUrl, e.getMessage());
+        } catch (java.net.URISyntaxException e) {
+            log.error("Key 추출 중 URI 구문 분석 오류 발생 - imageUrl: {}", imageUrl, e);
             return null;
         }
     }
