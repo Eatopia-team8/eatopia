@@ -17,11 +17,13 @@ import org.example.eatopia.domain.payment.exception.PaymentErrorCode;
 import org.example.eatopia.domain.payment.exception.PaymentException;
 import org.example.eatopia.domain.payment.repository.PaymentRepository;
 import org.example.eatopia.domain.payment.validator.PaymentValidator;
+import org.example.eatopia.domain.refund.service.query.RefundQueryService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -30,6 +32,8 @@ import java.io.IOException;
 public class PaymentCommandServiceImpl implements PaymentCommandService {
 
     private final PaymentRepository paymentRepository;
+
+    private final RefundQueryService refundQueryService;
 
     private final IamportClient iamportClient;
     private final PaymentValidator paymentValidator;
@@ -57,8 +61,31 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
     }
 
     @Override
+    public void partialRefund(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+
+        BigDecimal totalRefund = refundQueryService.getSuccessAmountByPaymentId(payment.getId());
+        BigDecimal remainAmount = payment.getPrice().subtract(totalRefund);
+
+        if (remainAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            payment.updateStatus(PaymentStatus.CANCELED);
+        } else {
+            payment.updateStatus(PaymentStatus.PARTIALLY_REFUND);
+        }
+    }
+
+    @Override
     public void cancelPaymentByOrder(Order order) {
         paymentRepository.findByOrder(order).ifPresent(payment -> {
+            if (payment.getStatus() == PaymentStatus.CANCELED) {
+                paymentValidator.paymentCancelValidate(payment);
+            }
+
+            if (payment.getStatus() == PaymentStatus.PARTIALLY_REFUND) {
+                throw new PaymentException(PaymentErrorCode.ALREADY_PARTIALLY_REFUNDED);
+            }
+
             paymentValidator.paymentCancelValidate(payment);
 
             if (payment.getStatus() == PaymentStatus.SUCCESS) {

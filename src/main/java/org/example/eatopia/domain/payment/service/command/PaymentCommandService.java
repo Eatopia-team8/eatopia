@@ -24,4 +24,7 @@ public interface PaymentCommandService {
      * @throws IOException              네트워크 오류
      */
     PaymentResponse verifyPayment(Long userId, PaymentVerifyRequest request) throws IamportResponseException, IOException;
+
+    //부분 환불 성공시 payment 갱신
+    void partialRefund(Long paymentId);
 }
