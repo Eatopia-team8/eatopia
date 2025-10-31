@@ -66,7 +66,7 @@ public class CartQueryServiceImpl implements CartQueryService {
         return cartItemRepository.findSelectedItemsForOrder(userId);
     }
 
-    public BigDecimal calculateDeliveryFee(BigDecimal totalAmount) {
+    private BigDecimal calculateDeliveryFee(BigDecimal totalAmount) {
         return totalAmount.compareTo(Const.DELIVERY_FREE_THRESHOLD) < 0
                 ? Const.DEFAULT_DELIVERY_PRICE : BigDecimal.ZERO;
     }
