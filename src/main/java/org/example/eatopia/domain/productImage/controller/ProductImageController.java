@@ -47,4 +47,16 @@ public class ProductImageController {
 
         return ResponseEntity.ok(Response.success());
     }
+
+    // 대표 이미지 변경 (판매자)
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PatchMapping("/v1/products/{productId}/images/{imageId}/thumbnail")
+    public ResponseEntity<Response<Void>> updateThumbnail(@PathVariable Long productId,
+                                                          @PathVariable Long imageId,
+                                                          @AuthenticationPrincipal UserPrincipal authUser) {
+
+        productImageService.updateThumbnail(productId, imageId, authUser.getId());
+
+        return ResponseEntity.ok(Response.success());
+    }
 }

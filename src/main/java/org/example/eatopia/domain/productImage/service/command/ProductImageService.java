@@ -8,4 +8,6 @@ public interface ProductImageService {
     ProductImageResponse addProductImage(Long productId, ProductImageAddRequest request, Long userId);
 
     void updateImageOrder(Long productId, Long imageId, Integer newOrder, Long userId);
+
+    void updateThumbnail(Long productId, Long imageId, Long userId);
 }
