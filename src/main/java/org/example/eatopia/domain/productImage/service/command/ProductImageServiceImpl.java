@@ -97,5 +97,28 @@ public class ProductImageServiceImpl implements ProductImageService {
         // 대상 이미지의 순서를 새로 설정
         target.updateDisplayOrder(newOrder);
     }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = "productList", allEntries = true)
+    })
+    public void updateThumbnail(Long productId, Long imageId, Long userId) {
+
+        Product product = productQueryService.getProductOrElseThrow(productId);
+        product.verifySeller(userId);
+
+        ProductImage newThumbnail = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new ProductImageException(ProductImageErrorCode.PRD_IMAGE_NOT_FOUND));
+
+        if (!newThumbnail.getProduct().getId().equals(productId)) {
+            throw new ProductImageException(ProductImageErrorCode.PRD_IMAGE_NOT_BELONG_TO_PRODUCT);
+        }
+
+        productImageRepository.findThumbnailByProductId(productId)
+                .ifPresent(thumbnail -> thumbnail.updateThumbnailStatus(false));
+
+        newThumbnail.updateThumbnailStatus(true);
+    }
 }
 
