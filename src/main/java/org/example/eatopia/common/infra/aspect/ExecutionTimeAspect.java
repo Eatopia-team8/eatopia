@@ -14,17 +14,21 @@ public class ExecutionTimeAspect {
 
     @Around("@annotation(logExecutionTime)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint, LogExecutionTime logExecutionTime) throws Throwable {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         Object result = joinPoint.proceed();
 
-        long executionTime = System.currentTimeMillis() - start;
+        long executionTimeNano = System.nanoTime() - start;
+
+        double executionTimeMs = (double) executionTimeNano / 1_000_000.0;
+
+        String formattedExecutionTime = String.format("%.2f", executionTimeMs);
 
         String label = logExecutionTime.value().isEmpty()
                 ? joinPoint.getSignature().toShortString()
                 : logExecutionTime.value();
 
-        log.info("⏱️ {} 실행 시간: {}ms", label, executionTime);
+        log.info("⏱️ {} 실행 시간: {}ms", label, formattedExecutionTime);
 
         return result;
     }
