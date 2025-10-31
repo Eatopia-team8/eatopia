@@ -78,13 +78,6 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
     @Override
     public void cancelPaymentByOrder(Order order) {
         paymentRepository.findByOrder(order).ifPresent(payment -> {
-            if (payment.getStatus() == PaymentStatus.CANCELED) {
-                paymentValidator.paymentCancelValidate(payment);
-            }
-
-            if (payment.getStatus() == PaymentStatus.PARTIALLY_REFUND) {
-                throw new PaymentException(PaymentErrorCode.ALREADY_PARTIALLY_REFUNDED);
-            }
 
             paymentValidator.paymentCancelValidate(payment);
 

@@ -55,6 +55,10 @@ public class RefundValidator {
         if (payment.getStatus() == PaymentStatus.CANCELED) {
             throw new GlobalException(PaymentErrorCode.ALREADY_REFUNDED);
         }
+        //중복 요청 방지
+        if (refundRepository.existsActiveRefundByOrderDetailId(orderDetail.getId())) {
+            throw new RefundException(RefundErrorCode.ALREADY_REFUNDED);
+        }
 
         //환불한 수량의 합
         int refundQuantity = refundRepository.sumSuccessQuantityByOrderDetailId(orderDetail.getId()).orElse(0);

@@ -44,6 +44,10 @@ public class PaymentValidator {
         if (payment.getStatus() == PaymentStatus.CANCELED) {
             throw new PaymentException(PaymentErrorCode.CANNOT_CANCEL_PAYMENT);
         }
+
+        if (payment.getStatus() == PaymentStatus.PARTIALLY_REFUND) {
+            throw new PaymentException(PaymentErrorCode.ALREADY_PARTIALLY_REFUNDED);
+        }
     }
 
     public Payment paymentUpdateValidate(Long userId, Long paymentId) {
