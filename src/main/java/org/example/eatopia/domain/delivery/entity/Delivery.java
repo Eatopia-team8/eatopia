@@ -33,18 +33,12 @@ public class Delivery extends BaseEntity {
         this.status = DeliveryStatus.PREPARING;
     }
 
-    /**
-     * 배달 엔티티 생성 정적 팩토리 메서드
-     */
-    public static Delivery create(Order order) {
+    public static Delivery from(Order order) {
         return Delivery.builder()
                 .order(order)
                 .build();
     }
 
-    /**
-     * 배달 상태 업데이트
-     */
     public void updateStatus(DeliveryStatus status) {
         this.status = status;
     }
