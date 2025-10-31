@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum RefundErrorCode implements ErrorCode {
-    ORDER_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "RFD-001", "환불할 주문 상품을 찾을 수 없습니다."),
+    REFUND_NOT_ALLOWED_BEFORE_DELIVERY(HttpStatus.BAD_REQUEST, "RFD-001", "배송이 완료되지 않은 상품은 환불을 요청할 수 없습니다."),
     ALREADY_REFUNDED(HttpStatus.CONFLICT, "RFD-002", "이미 환불 처리된 상품입니다."),
     REFUND_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "RFD-003", "환불이 불가능한 주문 상태입니다."),
     ORDER_NOT_SUCCESSFUL(HttpStatus.BAD_REQUEST, "RFD-004", "결제가 완료되지 않은 주문은 환불할 수 없습니다."),

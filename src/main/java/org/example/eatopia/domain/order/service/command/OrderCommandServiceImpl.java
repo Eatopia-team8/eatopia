@@ -163,6 +163,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
         */
         order.updateStatus(OrderStatus.SUCCESS);
+        order.startDelivery();
+
         return OrderDetailResponse.from(order);
     }
 

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
+import org.example.eatopia.domain.delivery.entity.Delivery;
 import org.example.eatopia.domain.order.enums.OrderStatus;
 import org.example.eatopia.domain.user.entity.User;
 
@@ -59,6 +60,9 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Delivery delivery;
+
     @Builder(access = AccessLevel.PRIVATE)
     private Order(User user,
                   String code,
@@ -109,5 +113,16 @@ public class Order extends BaseEntity {
 
     public void addOrderDetail(OrderDetail orderDetail) {
         this.orderDetails.add(orderDetail);
+    }
+
+    /**
+     * 주문 성공시 배달 상품 준비
+     */
+    public void startDelivery() {
+        if (this.status != OrderStatus.SUCCESS || this.delivery != null) {
+            return;
+        }
+
+        this.delivery = Delivery.from(this);
     }
 }

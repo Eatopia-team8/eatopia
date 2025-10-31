@@ -9,6 +9,8 @@ import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.domain.delivery.enums.DeliveryStatus;
 import org.example.eatopia.domain.order.entity.Order;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,6 +29,9 @@ public class Delivery extends BaseEntity {
     @Column(nullable = false)
     private DeliveryStatus status;
 
+    @Column
+    private LocalDateTime deliveredAt;
+
     @Builder(access = AccessLevel.PRIVATE)
     private Delivery(Order order) {
         this.order = order;
@@ -40,6 +45,10 @@ public class Delivery extends BaseEntity {
     }
 
     public void updateStatus(DeliveryStatus status) {
+        if (status == DeliveryStatus.DELIVERED && this.deliveredAt == null) {
+            this.deliveredAt = LocalDateTime.now();
+        }
+
         this.status = status;
     }
 }
