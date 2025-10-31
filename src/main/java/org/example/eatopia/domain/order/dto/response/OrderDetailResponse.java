@@ -1,5 +1,6 @@
 package org.example.eatopia.domain.order.dto.response;
 
+import org.example.eatopia.domain.delivery.dto.response.DeliveryResponse;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.enums.OrderStatus;
 
@@ -24,7 +25,8 @@ public record OrderDetailResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         String address,
-        List<OrderDetailProductResponse> orderProduct
+        List<OrderDetailProductResponse> orderProduct,
+        DeliveryResponse delivery
 ) {
     public static OrderDetailResponse from(final Order order) {
         List<OrderDetailProductResponse> itemResponses = order.getOrderDetails().stream()
@@ -44,7 +46,8 @@ public record OrderDetailResponse(
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
                 order.getAddress(),
-                itemResponses
+                itemResponses,
+                DeliveryResponse.from(order.getDelivery())
         );
     }
 }
