@@ -18,7 +18,9 @@ public enum PaymentErrorCode implements ErrorCode {
     PAYMENT_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PAY-006", "결제 API 연동 중 오류가 발생했습니다."),
     PAYMENT_AMOUNT_MISMATCH(HttpStatus.CONFLICT, "PAY-007", "결제 금액이 일치하지 않습니다."),
     INVALID_MERCHANT_UID(HttpStatus.NOT_FOUND, "PAY-008", "주문 정보를 찾을 수 없습니다."),
-    PORTONE_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "PAY-009", "PortOne 결제에 실패했습니다.");
+    PORTONE_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "PAY-009", "PortOne 결제에 실패했습니다."),
+    ALREADY_PARTIALLY_REFUNDED(HttpStatus.CONFLICT, "PAY-010", "이미 부분 환불이 진행된 결제는 전체 취소할 수 없습니다."),
+    ALREADY_REFUNDED(HttpStatus.CONFLICT, "PAY-011", "이미 전체 환불된 결제입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

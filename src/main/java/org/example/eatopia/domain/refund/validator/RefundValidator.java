@@ -1,9 +1,13 @@
 package org.example.eatopia.domain.refund.validator;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderDetail;
 import org.example.eatopia.domain.order.enums.OrderStatus;
+import org.example.eatopia.domain.payment.entity.Payment;
+import org.example.eatopia.domain.payment.enums.PaymentStatus;
+import org.example.eatopia.domain.payment.exception.PaymentErrorCode;
 import org.example.eatopia.domain.refund.entity.Refund;
 import org.example.eatopia.domain.refund.enums.RefundStatus;
 import org.example.eatopia.domain.refund.exception.RefundErrorCode;
@@ -21,7 +25,7 @@ public class RefundValidator {
     private static final long REFUND_DEADLINE = 7;
     private final RefundRepository refundRepository;
 
-    public void validateRefundRequest(User user, OrderDetail orderDetail, Integer quantity) {
+    public void validateRefundRequest(User user, OrderDetail orderDetail, Payment payment, Integer quantity) {
 
         Order order = orderDetail.getOrder();
 
@@ -31,7 +35,8 @@ public class RefundValidator {
         }
 
         // 결제 완료
-        if (order.getStatus() != OrderStatus.SUCCESS) {
+        if (order.getStatus() != OrderStatus.SUCCESS ||
+                (payment.getStatus() != PaymentStatus.SUCCESS && payment.getStatus() != PaymentStatus.PARTIALLY_REFUND)) {
             throw new RefundException(RefundErrorCode.ORDER_NOT_SUCCESSFUL);
         }
 
@@ -44,6 +49,15 @@ public class RefundValidator {
             }
         } else {
             throw new RefundException(RefundErrorCode.REFUND_NOT_ALLOWED);
+        }
+
+        //전체 환불인지 확인
+        if (payment.getStatus() == PaymentStatus.CANCELED) {
+            throw new GlobalException(PaymentErrorCode.ALREADY_REFUNDED);
+        }
+        //중복 요청 방지
+        if (refundRepository.existsActiveRefundByOrderDetailId(orderDetail.getId())) {
+            throw new RefundException(RefundErrorCode.ALREADY_REFUNDED);
         }
 
         //환불한 수량의 합

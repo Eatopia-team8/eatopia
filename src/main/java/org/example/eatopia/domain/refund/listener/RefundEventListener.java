@@ -5,6 +5,7 @@ import com.siot.IamportRestClient.request.CancelData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.domain.payment.entity.Payment;
+import org.example.eatopia.domain.payment.service.command.PaymentCommandService;
 import org.example.eatopia.domain.refund.dto.event.RefundSuccessEvent;
 import org.example.eatopia.domain.refund.entity.Refund;
 import org.example.eatopia.domain.refund.service.command.RefundCommandService;
@@ -19,6 +20,7 @@ public class RefundEventListener {
 
     private final IamportClient iamportClient;
     private final RefundCommandService refundCommandService;
+    private final PaymentCommandService paymentCommandService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRefundSuccess(RefundSuccessEvent event) {
@@ -30,6 +32,7 @@ public class RefundEventListener {
             cancelData.setReason(refund.getReason().name());
 
             iamportClient.cancelPaymentByImpUid(cancelData);
+            paymentCommandService.partialRefund(payment.getId());
         } catch (Exception e) {
             log.error("환불 처리 실패 [Refund ID: {}, ImpUid: {}] - 오류: {}",
                     refund.getId(),
