@@ -48,8 +48,8 @@ public class CartQueryServiceImpl implements CartQueryService {
         BigDecimal totalAmount = itemResponses.stream()
                 .map(CartItemResponse::totalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal deliveryFee = Const.DEFAULT_DELIVERY_PRICE;
-        BigDecimal finalAmount = totalAmount.add(Const.DEFAULT_DELIVERY_PRICE);
+        BigDecimal deliveryFee = calculateDeliveryFee(totalAmount);
+        BigDecimal finalAmount = totalAmount.add(deliveryFee);
 
         return CartResponse.of(cart, itemResponses, totalAmount, deliveryFee, finalAmount);
     }
@@ -64,5 +64,10 @@ public class CartQueryServiceImpl implements CartQueryService {
     public List<CartItem> getSelectedCartItems(Long userId) {
 
         return cartItemRepository.findSelectedItemsForOrder(userId);
+    }
+
+    public BigDecimal calculateDeliveryFee(BigDecimal totalAmount) {
+        return totalAmount.compareTo(Const.DELIVERY_FREE_THRESHOLD) < 0
+                ? Const.DEFAULT_DELIVERY_PRICE : BigDecimal.ZERO;
     }
 }
