@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.example.eatopia.common.core.consts.Const.DEFAULT_DELIVERY_PRICE;
+import static org.example.eatopia.common.core.consts.Const.DELIVERY_FREE_THRESHOLD;
 
 @Service
 @RequiredArgsConstructor
@@ -92,6 +93,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
          */
 
+        //쿠폰 가격 추가해야함
+        if (totalProductPrice.compareTo(DELIVERY_FREE_THRESHOLD) >= 0) {
+            discountDeliveryPrice = DEFAULT_DELIVERY_PRICE;
+        }
         //최종 금액 계산
         BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
         BigDecimal finalPrice = totalProductPrice
