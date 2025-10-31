@@ -48,9 +48,11 @@ public class RefundCommandServiceImpl implements RefundCommandService {
         OrderDetail orderDetail = orderDetailQueryService.getOrderDetailEntityById(request.orderDetailId());
         Payment payment = paymentQueryService.getPaymentEntityByOrder(orderDetail.getOrder());
 
-        refundValidator.validateRefundRequest(user, orderDetail);
-        BigDecimal refundAmount = orderDetail.getPrice().multiply(BigDecimal.valueOf(orderDetail.getQuantity()));
-        Refund refund = Refund.of(user, payment, orderDetail, refundAmount, request.reason());
+        Integer quantity = request.quantity();
+        BigDecimal price = orderDetail.getPrice();
+        refundValidator.validateRefundRequest(user, orderDetail, quantity);
+
+        Refund refund = Refund.of(user, payment, orderDetail, price, quantity, request.reason());
         Refund savedRefund = refundRepository.save(refund);
 
         return RefundResponse.from(savedRefund);
@@ -66,7 +68,7 @@ public class RefundCommandServiceImpl implements RefundCommandService {
 
         productCommandService.increaseStock(
                 orderDetail.getProduct().getId(),
-                orderDetail.getQuantity()
+                refund.getQuantity()
         );
 
         refund.updateStatus(RefundStatus.SUCCESS);
@@ -92,14 +94,14 @@ public class RefundCommandServiceImpl implements RefundCommandService {
 
         log.warn("PortOne 환불 API 실패 [Refund ID: {}]. 사유: {}", refundId, failReason);
         Refund refund = refundRepository.findById(refundId)
-                .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_NOT_FOUND));
+                .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_API_ERROR));
 
         if (refund.getStatus() == RefundStatus.SUCCESS) {
             OrderDetail orderDetail = refund.getOrderDetail();
 
             productCommandService.decreaseStock(
                     orderDetail.getProduct().getId(),
-                    orderDetail.getQuantity()
+                    refund.getQuantity()
             );
 
             refund.updateStatus(RefundStatus.FAILED);

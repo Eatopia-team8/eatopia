@@ -21,7 +21,7 @@ public class RefundValidator {
     private static final long REFUND_DEADLINE = 7;
     private final RefundRepository refundRepository;
 
-    public void validateRefundRequest(User user, OrderDetail orderDetail) {
+    public void validateRefundRequest(User user, OrderDetail orderDetail, Integer quantity) {
 
         Order order = orderDetail.getOrder();
 
@@ -46,9 +46,15 @@ public class RefundValidator {
             throw new RefundException(RefundErrorCode.REFUND_NOT_ALLOWED);
         }
 
-        // 환불 확인
-        if (refundRepository.existsByOrderDetailId(orderDetail.getId())) {
-            throw new RefundException(RefundErrorCode.ALREADY_REFUNDED);
+        //환불한 수량의 합
+        int refundQuantity = refundRepository.sumSuccessQuantityByOrderDetailId(orderDetail.getId()).orElse(0);
+
+        if (quantity == null || quantity <= 0) {
+            throw new RefundException(RefundErrorCode.INVALID_REFUND_QUANTITY);
+        }
+
+        if (refundQuantity + quantity > orderDetail.getQuantity()) {
+            throw new RefundException(RefundErrorCode.REFUND_QUANTITY_OVER);
         }
     }
 
