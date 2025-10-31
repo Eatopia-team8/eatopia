@@ -18,13 +18,17 @@ public class ExecutionTimeAspect {
 
         Object result = joinPoint.proceed();
 
-        long executionTime = System.nanoTime() - start;
+        long executionTimeNano = System.nanoTime() - start;
+
+        double executionTimeMs = (double) executionTimeNano / 1_000_000.0;
+
+        String formattedExecutionTime = String.format("%.2f", executionTimeMs);
 
         String label = logExecutionTime.value().isEmpty()
                 ? joinPoint.getSignature().toShortString()
                 : logExecutionTime.value();
 
-        log.info("⏱️ {} 실행 시간: {}ms", label, executionTime);
+        log.info("⏱️ {} 실행 시간: {}ms", label, formattedExecutionTime);
 
         return result;
     }
