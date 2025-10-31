@@ -115,6 +115,11 @@ public class ProductImageServiceImpl implements ProductImageService {
             throw new ProductImageException(ProductImageErrorCode.PRD_IMAGE_NOT_BELONG_TO_PRODUCT);
         }
 
+        // 이미 대표 이미지면 return
+        if (Boolean.TRUE.equals(newThumbnail.getIsThumbnail())) {
+            return;
+        }
+
         productImageRepository.findThumbnailByProductId(productId)
                 .ifPresent(thumbnail -> thumbnail.updateThumbnailStatus(false));
 
