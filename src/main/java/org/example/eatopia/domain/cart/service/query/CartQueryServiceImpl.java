@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.cart.service.query;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.dto.response.CartResponse;
 import org.example.eatopia.domain.cart.entity.Cart;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,8 +28,13 @@ public class CartQueryServiceImpl implements CartQueryService {
     @Override
     public CartResponse getCartByUser(Long userId) {
 
-        Cart cart = getCart(userId);
+        Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
 
+        if (optionalCart.isEmpty()) {
+            return CartResponse.empty(userId);
+        }
+
+        Cart cart = optionalCart.get();
         List<CartItem> cartItems = cartItemRepository.findAllByCartWithProduct(cart.getId());
 
         List<CartItemResponse> itemResponses = cartItems.stream()
@@ -37,14 +44,14 @@ public class CartQueryServiceImpl implements CartQueryService {
                 })
                 .collect(Collectors.toList());
 
-        // 총액,할인,최종 금액 계산
+        // 총액,배송비,최종 금액 계산
         BigDecimal totalAmount = itemResponses.stream()
                 .map(CartItemResponse::totalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal discountAmount = BigDecimal.ZERO; // TODO: 할인 계산 로직
-        BigDecimal finalAmount = totalAmount.subtract(discountAmount);
+        BigDecimal deliveryFee = calculateDeliveryFee(totalAmount);
+        BigDecimal finalAmount = totalAmount.add(deliveryFee);
 
-        return CartResponse.of(cart, itemResponses, totalAmount, discountAmount, finalAmount);
+        return CartResponse.of(cart, itemResponses, totalAmount, deliveryFee, finalAmount);
     }
 
     @Override
@@ -57,5 +64,10 @@ public class CartQueryServiceImpl implements CartQueryService {
     public List<CartItem> getSelectedCartItems(Long userId) {
 
         return cartItemRepository.findSelectedItemsForOrder(userId);
+    }
+
+    private BigDecimal calculateDeliveryFee(BigDecimal totalAmount) {
+        return totalAmount.compareTo(Const.DELIVERY_FREE_THRESHOLD) < 0
+                ? Const.DEFAULT_DELIVERY_PRICE : BigDecimal.ZERO;
     }
 }
