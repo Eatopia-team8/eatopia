@@ -10,7 +10,7 @@ public record CartResponse(
         Long userId,
         List<CartItemResponse> items,
         BigDecimal totalAmount,
-        BigDecimal discountAmount,
+        BigDecimal deliveryFee,
         BigDecimal finalAmount
 ) {
 
@@ -18,7 +18,7 @@ public record CartResponse(
             Cart cart,
             List<CartItemResponse> items,
             BigDecimal totalAmount,
-            BigDecimal discountAmount,
+            BigDecimal deliveryFee,
             BigDecimal finalAmount
     ) {
 
@@ -27,7 +27,7 @@ public record CartResponse(
                 cart.getUser().getId(),
                 items,
                 totalAmount,
-                discountAmount,
+                deliveryFee,
                 finalAmount
         );
     }

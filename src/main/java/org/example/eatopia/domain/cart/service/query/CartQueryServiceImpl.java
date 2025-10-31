@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.cart.service.query;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.domain.cart.dto.response.CartItemResponse;
 import org.example.eatopia.domain.cart.dto.response.CartResponse;
 import org.example.eatopia.domain.cart.entity.Cart;
@@ -37,14 +38,14 @@ public class CartQueryServiceImpl implements CartQueryService {
                 })
                 .collect(Collectors.toList());
 
-        // 총액,할인,최종 금액 계산
+        // 총액,배송비,최종 금액 계산
         BigDecimal totalAmount = itemResponses.stream()
                 .map(CartItemResponse::totalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal discountAmount = BigDecimal.ZERO; // TODO: 할인 계산 로직
-        BigDecimal finalAmount = totalAmount.subtract(discountAmount);
+        BigDecimal deliveryFee = Const.DEFAULT_DELIVERY_PRICE;
+        BigDecimal finalAmount = totalAmount.add(Const.DEFAULT_DELIVERY_PRICE);
 
-        return CartResponse.of(cart, itemResponses, totalAmount, discountAmount, finalAmount);
+        return CartResponse.of(cart, itemResponses, totalAmount, deliveryFee, finalAmount);
     }
 
     @Override
