@@ -69,7 +69,7 @@ public class ProductQueryServiceImpl implements ProductQueryService {
         return searchProducts(condition, pageable);
     }
 
-    // ----- V3: 선택적 캐시 + 인기 검색어 집계 -----
+    // ----- V3: 선택적 캐시 (인기 검색어는 컨트롤러에서 처리) -----
     @Override
     @Cacheable(
             value = "productListV3",
@@ -78,9 +78,6 @@ public class ProductQueryServiceImpl implements ProductQueryService {
             unless = "#result == null || #result.content().isEmpty()"
     )
     public ProductListResponse searchProductsV3(ProductSearchCondition condition, Pageable pageable) {
-
-        // 인기 검색어 집계 (키워드가 있을 때만)
-        searchKeywordQueryService.recordKeyword(condition.keyword());
 
         return searchProducts(condition, pageable);
     }
