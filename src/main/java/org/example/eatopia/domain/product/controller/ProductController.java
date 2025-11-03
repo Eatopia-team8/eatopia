@@ -101,4 +101,18 @@ public class ProductController {
 
         return ResponseEntity.ok(Response.success(response));
     }
+
+    // 상품 목록 조회
+    // - 모든 검색 조건 지원 (keyword, status, price, sortBy 등)
+    // - categoryId + 최신순 + 페이지<10 + 필터 없을 때만 캐시
+    // - 키워드 검색 시 인기 검색어 집계
+    @LogExecutionTime("V3 - Selective Cache & Keyword Tracking - 상품 목록 조회")
+    @GetMapping("/v3/products")
+    public ResponseEntity<Response<ProductListResponse>> searchProductsV3(@ModelAttribute ProductSearchCondition condition,
+                                                                          @PageableDefault(size = 10) Pageable pageable) {
+
+        ProductListResponse response = productQueryService.searchProductsV3(condition, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
 }

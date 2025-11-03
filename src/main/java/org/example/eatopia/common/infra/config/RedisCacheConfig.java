@@ -77,6 +77,12 @@ public class RedisCacheConfig {
                         RedisSerializationContext.SerializationPair
                                 .fromSerializer(productListSerializer)));
 
+        // V3 Product 목록 (선택적 캐시) - 10분: ProductListResponse 타입 명시
+        perCache.put("productListV3", base.entryTtl(Duration.ofMinutes(10))
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair
+                                .fromSerializer(productListSerializer)));
+
         return RedisCacheManager.builder(cf)
                 .cacheDefaults(base)
                 .withInitialCacheConfigurations(perCache)
