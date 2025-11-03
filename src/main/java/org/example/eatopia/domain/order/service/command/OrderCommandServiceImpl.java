@@ -5,6 +5,7 @@ import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.domain.cart.entity.CartItem;
 import org.example.eatopia.domain.cart.service.command.CartCommandService;
 import org.example.eatopia.domain.cart.service.query.CartQueryService;
+import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.service.command.CouponCommandService;
 import org.example.eatopia.domain.coupon.service.query.CouponQueryService;
 import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
@@ -72,20 +73,14 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         //총 금액 검증 필요
 
         // 쿠폰 선택
-        /*
-        CouponIssue couponIssue = couponQueryService.getUsableIssuedCoupons(userId);
-         */
-        Long couponIssueId = null;
+        CouponIssue couponIssue = couponQueryService.getUsableIssuedCoupon(request.couponIssueId());
+
         BigDecimal discountProductPrice = BigDecimal.ZERO;
         BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
 
-        /*
         if (couponIssue != null) {
-            discountProductPrice = couponCommandService.calculateDiscountValue(totalProductPrice, couponIssue);
-            //쿠폰 등록 , 환불 로직에 필요
-            couponIssueId = couponIssue.getId();
+            discountProductPrice = couponCommandService.calculateDiscountValue(couponIssue, totalProductPrice);
         }
-         */
 
         //최종 금액 계산
         BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
@@ -103,7 +98,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 totalDeliveryPrice,
                 discountDeliveryPrice,
                 finalPrice,
-                couponIssueId
+                request.couponIssueId()
         );
         Order savedOrder = orderRepository.save(order);
 
