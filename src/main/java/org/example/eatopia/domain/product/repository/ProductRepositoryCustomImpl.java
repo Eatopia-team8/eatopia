@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.product.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.category.service.query.CategoryQueryService;
 import org.example.eatopia.domain.product.dto.request.ProductSearchCondition;
 import org.example.eatopia.domain.product.entity.Product;
+import org.example.eatopia.domain.product.enums.ProductSortBy;
 import org.example.eatopia.domain.product.enums.ProductStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,13 +39,16 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         // 공통 검색 조건 생성
         BooleanBuilder searchConditions = buildSearchConditions(condition, categoryIds);
 
+        // OrderSpecifier 생성
+        OrderSpecifier<?> orderSpecifier = createOrderSpecifier(condition.sortBy());
+
         // 상품 목록 조회
         List<Product> content = queryFactory
                 .selectFrom(product)
                 .leftJoin(product.category, category).fetchJoin()
                 .leftJoin(product.seller).fetchJoin()
                 .where(searchConditions)
-                .orderBy(product.createdAt.desc()) // 신상품 정렬 기준
+                .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -55,6 +60,19 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 .where(searchConditions);
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    // 정렬 조건 생성
+    private OrderSpecifier<?> createOrderSpecifier(ProductSortBy sortBy) {
+        if (sortBy == null) {
+            sortBy = ProductSortBy.LATEST;
+        }
+
+        return switch (sortBy) {
+            case LATEST -> product.createdAt.desc();
+            case PRICE_ASC -> product.price.asc();
+            case PRICE_DESC -> product.price.desc();
+        };
     }
 
     // 상품 검색 통합해서 BooleanBuilder 생성
@@ -109,7 +127,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
             builder.and(product.price.loe(maxPrice));
         }
     }
-    
+
     // HIDE 상태 제외
     private BooleanExpression statusNotHide() {
         return product.status.ne(ProductStatus.HIDE);
