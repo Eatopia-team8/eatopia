@@ -92,7 +92,7 @@ public class UserQueryServiceImpl implements UserQueryService {
                 .orElseThrow(() -> new GlobalException(UserErrorCode.USER_NOT_FOUND, requestingUserId));
 
         //2. Admin역할이 아니면 ACCESS_DENIED 오류 발생
-        if (!requester.isAdmin()) {
+        if (!requester.getUserRole().name().equals("ADMIN")) {
             throw new GlobalException(UserErrorCode.ACCESS_DENIED);
         }
 
