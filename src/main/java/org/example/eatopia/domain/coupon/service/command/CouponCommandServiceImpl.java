@@ -98,6 +98,37 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         coupon.softDelete();
     }
 
+    // 타 도메인용 메서드
+    // 할인 금액 계산
+    public BigDecimal calculateDiscountValue(Long couponIssueId, BigDecimal totalProductPrice) {
+
+        // 구매 금액이 null이거나 0인 경우 할인금액 0원 반환
+        if (totalProductPrice == null || totalProductPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
+                .orElseThrow(() -> new CouponIssueException(CouponIssueCode.COUPON_ISSUE_NOT_FOUND));
+        Coupon coupon = couponIssue.getCoupon();
+
+        couponIssueValidator.validateMinOrderAmount(coupon.getMinOrderAmount(), totalProductPrice);
+
+        BigDecimal calculatedDiscountValue;
+        // 퍼센트형 할인 쿠폰일 시 할인 금액 계산
+        if (Boolean.TRUE.equals(coupon.getPercent())) {
+
+            BigDecimal discountPercent = coupon.getDiscountValue().divide(BigDecimal.valueOf(100));
+
+            couponIssueValidator.validateDiscountPercentRange(discountPercent);
+
+            calculatedDiscountValue = totalProductPrice.multiply(discountPercent).divide(BigDecimal.valueOf(100), 0, RoundingMode.DOWN);
+
+            return calculatedDiscountValue;
+        }
+
+        return coupon.getDiscountValue();
+    }
+
     public void useIssuedCoupon(Long couponIssueId) {
 
         CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
@@ -107,6 +138,18 @@ public class CouponCommandServiceImpl implements CouponCommandService {
 
         couponIssue.useIssuedCoupon();
     }
+
+    public void rollbackCoupon(Long couponIssueId) {
+
+        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
+                .orElseThrow(() -> new CouponIssueException(CouponIssueCode.COUPON_ISSUE_NOT_FOUND));
+
+        couponIssueValidator.validateRollbackable(couponIssue);
+
+        couponIssue.rollback();
+    }
+
+
     // 헬퍼메서드
     // 고유한 쿠폰 코드 생성(중복 체크하며 재시도)
     private String generateUniqueCode() {
