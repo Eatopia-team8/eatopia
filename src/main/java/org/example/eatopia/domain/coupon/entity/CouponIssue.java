@@ -45,11 +45,13 @@ public class CouponIssue {
     @Column(name = "issued_at", nullable = false)
     private LocalDateTime issuedAt;
 
+    @Column(name = "used_at")
+    private LocalDateTime usedAt;
+
     @Builder
     private CouponIssue(User user, Coupon coupon) {
         this.user = user;
         this.coupon = coupon;
-        this.isUsed = false;
     }
 
     public static CouponIssue of(User user, Coupon coupon) {
@@ -57,5 +59,9 @@ public class CouponIssue {
                 .user(user)
                 .coupon(coupon)
                 .build();
+    }
+
+    public void useIssuedCoupon() {
+        this.usedAt = LocalDateTime.now();
     }
 }

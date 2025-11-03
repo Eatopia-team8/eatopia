@@ -98,6 +98,15 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         coupon.softDelete();
     }
 
+    public void useIssuedCoupon(Long couponIssueId) {
+
+        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
+                .orElseThrow(() -> new CouponIssueException(CouponIssueCode.COUPON_ISSUE_NOT_FOUND));
+
+        couponIssueValidator.validateUsable(couponIssue);
+
+        couponIssue.useIssuedCoupon();
+    }
     // 헬퍼메서드
     // 고유한 쿠폰 코드 생성(중복 체크하며 재시도)
     private String generateUniqueCode() {

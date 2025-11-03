@@ -148,12 +148,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         //주문 성공하면 쿠폰 사용
-        /*
         Long issueId = order.getCouponIssueId();
         if (issueId != null) {
-            couponCommandService.useCoupon(issueId);
+            couponCommandService.useIssuedCoupon(issueId);
         }
-        */
+
         order.updateStatus(OrderStatus.SUCCESS);
         return OrderDetailResponse.from(order);
     }
