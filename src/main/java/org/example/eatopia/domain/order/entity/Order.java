@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
+import org.example.eatopia.domain.delivery.entity.Delivery;
+import org.example.eatopia.domain.order.enums.OrderStatus;
 import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
@@ -49,11 +51,17 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal finalPrice;
 
+    @Column(name = "address", nullable = false, length = 255)
+    private String address;
+
     @Column(name = "couponIssueId")
     private Long couponIssueId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Delivery delivery;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Order(User user,
@@ -63,7 +71,8 @@ public class Order extends BaseEntity {
                   BigDecimal totalDeliveryPrice,
                   BigDecimal discountDeliveryPrice,
                   BigDecimal finalPrice,
-                  Long couponIssueId) {
+                  Long couponIssueId,
+                  String address) {
         this.user = user;
         this.code = code;
         this.status = OrderStatus.PENDING;
@@ -73,6 +82,7 @@ public class Order extends BaseEntity {
         this.discountDeliveryPrice = discountDeliveryPrice;
         this.finalPrice = finalPrice;
         this.couponIssueId = couponIssueId;
+        this.address = address;
     }
 
     public static Order create(User user,
@@ -82,7 +92,8 @@ public class Order extends BaseEntity {
                                BigDecimal totalDeliveryPrice,
                                BigDecimal discountDeliveryPrice,
                                BigDecimal finalPrice,
-                               Long couponIssueId) {
+                               Long couponIssueId,
+                               String address) {
         return Order.builder()
                 .user(user)
                 .code(code)
@@ -92,6 +103,7 @@ public class Order extends BaseEntity {
                 .discountDeliveryPrice(discountDeliveryPrice)
                 .finalPrice(finalPrice)
                 .couponIssueId(couponIssueId)
+                .address(address)
                 .build();
     }
 
@@ -101,5 +113,16 @@ public class Order extends BaseEntity {
 
     public void addOrderDetail(OrderDetail orderDetail) {
         this.orderDetails.add(orderDetail);
+    }
+
+    /**
+     * 주문 성공시 배달 상품 준비
+     */
+    public void startDelivery() {
+        if (this.status != OrderStatus.SUCCESS || this.delivery != null) {
+            return;
+        }
+
+        this.delivery = Delivery.from(this);
     }
 }

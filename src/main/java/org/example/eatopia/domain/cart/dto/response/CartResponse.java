@@ -3,6 +3,7 @@ package org.example.eatopia.domain.cart.dto.response;
 import org.example.eatopia.domain.cart.entity.Cart;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 public record CartResponse(
@@ -10,7 +11,7 @@ public record CartResponse(
         Long userId,
         List<CartItemResponse> items,
         BigDecimal totalAmount,
-        BigDecimal discountAmount,
+        BigDecimal deliveryFee,
         BigDecimal finalAmount
 ) {
 
@@ -18,7 +19,7 @@ public record CartResponse(
             Cart cart,
             List<CartItemResponse> items,
             BigDecimal totalAmount,
-            BigDecimal discountAmount,
+            BigDecimal deliveryFee,
             BigDecimal finalAmount
     ) {
 
@@ -27,8 +28,19 @@ public record CartResponse(
                 cart.getUser().getId(),
                 items,
                 totalAmount,
-                discountAmount,
+                deliveryFee,
                 finalAmount
+        );
+    }
+
+    public static CartResponse empty(Long userId) {
+        return new CartResponse(
+                null,
+                userId,
+                Collections.emptyList(),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
         );
     }
 }

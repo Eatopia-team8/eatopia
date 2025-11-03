@@ -1,5 +1,7 @@
 package org.example.eatopia.domain.product.dto.request;
 
+import org.example.eatopia.domain.product.enums.ProductSortBy;
+
 import java.math.BigDecimal;
 
 public record ProductSearchCondition(
@@ -7,6 +9,7 @@ public record ProductSearchCondition(
         Long categoryId,
         String status,
         BigDecimal minPrice,
-        BigDecimal maxPrice
+        BigDecimal maxPrice,
+        ProductSortBy sortBy
 ) {
 }

@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum RefundErrorCode implements ErrorCode {
-    ORDER_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "RFD-001", "환불할 주문 상품을 찾을 수 없습니다."),
+    REFUND_NOT_ALLOWED_BEFORE_DELIVERY(HttpStatus.BAD_REQUEST, "RFD-001", "배송이 완료되지 않은 상품은 환불을 요청할 수 없습니다."),
     ALREADY_REFUNDED(HttpStatus.CONFLICT, "RFD-002", "이미 환불 처리된 상품입니다."),
     REFUND_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "RFD-003", "환불이 불가능한 주문 상태입니다."),
     ORDER_NOT_SUCCESSFUL(HttpStatus.BAD_REQUEST, "RFD-004", "결제가 완료되지 않은 주문은 환불할 수 없습니다."),
@@ -16,7 +16,9 @@ public enum RefundErrorCode implements ErrorCode {
     REFUND_NOT_FOUND(HttpStatus.NOT_FOUND, "RFD-006", "환불 요청 내역을 찾을 수 없습니다."),
     REFUND_NOT_PENDING(HttpStatus.BAD_REQUEST, "RFD-007", "환불 대기 상태일때 환불할 수 있습니다."),
     REFUND_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "RFD-008", "Portone API 호출에 실패했습니다."),
-    REFUND_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "RFD-009", "환불 요청 가능 기간이 지났습니다.");
+    REFUND_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "RFD-009", "환불 요청 가능 기간이 지났습니다."),
+    INVALID_REFUND_QUANTITY(HttpStatus.BAD_REQUEST, "RFD-010", "환불 수량은 1 이상이어야 합니다."),
+    REFUND_QUANTITY_OVER(HttpStatus.BAD_REQUEST, "RFD-011", "환불 수량이 주문 수량을 초과할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

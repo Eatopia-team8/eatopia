@@ -3,12 +3,10 @@ package org.example.eatopia.domain.review.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
+import org.example.eatopia.domain.review.dto.request.ReviewReportRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewRequest;
 import org.example.eatopia.domain.review.dto.request.ReviewSearchCondition;
-import org.example.eatopia.domain.review.dto.response.ReviewAdminResponse;
-import org.example.eatopia.domain.review.dto.response.ReviewResponse;
-import org.example.eatopia.domain.review.dto.response.ReviewSearchResponse;
-import org.example.eatopia.domain.review.dto.response.ReviewSellerResponse;
+import org.example.eatopia.domain.review.dto.response.*;
 import org.example.eatopia.domain.review.service.command.ReviewCommandService;
 import org.example.eatopia.domain.review.service.query.ReviewQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
@@ -91,6 +89,37 @@ public class ReviewController {
                                                        @AuthenticationPrincipal UserPrincipal authUser) {
 
         reviewCommandService.deleteReview(reviewId, authUser.getId());
+
+        return ResponseEntity.ok(Response.success());
+    }
+
+    @PreAuthorize("hasRole('BUYER')")
+    @PostMapping("/v1/reviews/{reviewId}/report")
+    public ResponseEntity<Response<ReviewReportResponse>> reportReview(@PathVariable Long reviewId,
+                                                                       @Valid @RequestBody ReviewReportRequest request,
+                                                                       @AuthenticationPrincipal UserPrincipal authUser) {
+
+        ReviewReportResponse response = reviewCommandService.reportReview(reviewId, authUser.getId(), request);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/v1/admin/reviews/{reviewId}/reports")
+    public ResponseEntity<Response<Page<ReviewReportResponse>>> getReviewReports(@PathVariable Long reviewId,
+                                                                                 @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<ReviewReportResponse> response = reviewQueryService.getReviewReports(reviewId, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/v1/admin/reviews/{reviewId}/hide")
+    public ResponseEntity<Response<Void>> hideReview(@PathVariable Long reviewId,
+                                                     @AuthenticationPrincipal UserPrincipal authUser) {
+
+        reviewCommandService.hideReview(reviewId, authUser.getId());
 
         return ResponseEntity.ok(Response.success());
     }

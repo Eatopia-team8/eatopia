@@ -2,32 +2,38 @@ package org.example.eatopia.domain.payment.service.command;
 
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.domain.order.entity.Order;
-import org.example.eatopia.domain.order.service.query.OrderQueryService;
 import org.example.eatopia.domain.payment.dto.event.PaymentCompletedEvent;
 import org.example.eatopia.domain.payment.dto.request.PaymentCreateRequest;
 import org.example.eatopia.domain.payment.dto.request.PaymentUpdateRequest;
 import org.example.eatopia.domain.payment.dto.request.PaymentVerifyRequest;
 import org.example.eatopia.domain.payment.dto.response.PaymentResponse;
 import org.example.eatopia.domain.payment.entity.Payment;
-import org.example.eatopia.domain.payment.entity.PaymentStatus;
+import org.example.eatopia.domain.payment.enums.PaymentStatus;
+import org.example.eatopia.domain.payment.exception.PaymentErrorCode;
+import org.example.eatopia.domain.payment.exception.PaymentException;
 import org.example.eatopia.domain.payment.repository.PaymentRepository;
 import org.example.eatopia.domain.payment.validator.PaymentValidator;
+import org.example.eatopia.domain.refund.service.query.RefundQueryService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class PaymentCommandServiceImpl implements PaymentCommandService {
 
-    private final OrderQueryService orderQueryService;
-
     private final PaymentRepository paymentRepository;
+
+    private final RefundQueryService refundQueryService;
 
     private final IamportClient iamportClient;
     private final PaymentValidator paymentValidator;
@@ -48,20 +54,56 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
     public PaymentResponse verifyPayment(Long userId, PaymentVerifyRequest request) throws IamportResponseException, IOException {
         Payment payment = paymentValidator.verifyPayment(userId, request);
 
-        payment.updateStatus(PaymentStatus.SUCCESS);
+        payment.completePayment(request.impUid());
         eventPublisher.publishEvent(new PaymentCompletedEvent(payment.getOrder().getId(), payment.getOrder().getUser().getId()));
 
         return PaymentResponse.from(payment);
     }
 
     @Override
+    public void partialRefund(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+
+        BigDecimal totalRefund = refundQueryService.getSuccessAmountByPaymentId(payment.getId());
+        BigDecimal remainAmount = payment.getPrice().subtract(totalRefund);
+
+        if (remainAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            payment.updateStatus(PaymentStatus.CANCELED);
+        } else {
+            payment.updateStatus(PaymentStatus.PARTIALLY_REFUND);
+        }
+    }
+
+    @Override
     public void cancelPaymentByOrder(Order order) {
         paymentRepository.findByOrder(order).ifPresent(payment -> {
-            paymentValidator.paymentCancelValidate(payment);
-            PaymentStatus originalStatus = payment.getStatus();
-            payment.updateStatus(PaymentStatus.CANCELED);
 
-            // TODO: [구현 필요] PortOne 환불 API 호출
+            paymentValidator.paymentCancelValidate(payment);
+
+            if (payment.getStatus() == PaymentStatus.SUCCESS) {
+                try {
+                    CancelData cancelData = new CancelData(
+                            payment.getImpUid(),
+                            true,
+                            payment.getPrice()
+                    );
+
+                    log.info("환불 API [Payment ID: {}, ImpUid: {}]", payment.getId(), payment.getImpUid());
+                    iamportClient.cancelPaymentByImpUid(cancelData);
+
+                    log.info("환불 API 성공 [Payment ID: {}, ImpUid: {}]", payment.getId(), payment.getImpUid());
+                    payment.updateStatus(PaymentStatus.CANCELED);
+                } catch (IamportResponseException | IOException e) {
+                    log.error("환불 API 실패 [Payment ID: {}, ImpUid: {}] - 오류: {}", payment.getId(), payment.getImpUid(), e.getMessage(), e);
+                    throw new PaymentException(PaymentErrorCode.PAYMENT_API_ERROR);
+                } catch (Exception e) {
+                    log.error("결제 취소 처리 중 오류 발생 [Payment ID: {}] - 오류: {}", payment.getId(), e.getMessage(), e);
+                    throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELED_FAILED);
+                }
+            } else if (payment.getStatus() == PaymentStatus.PENDING) {
+                payment.updateStatus(PaymentStatus.CANCELED);
+            }
         });
     }
 

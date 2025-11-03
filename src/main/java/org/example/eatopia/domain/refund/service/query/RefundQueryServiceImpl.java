@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -20,5 +22,11 @@ class RefundQueryServiceImpl implements RefundQueryService {
 
         return refundRepository.findByUserId(userId, pageable)
                 .map(RefundResponse::from);
+    }
+
+    @Override
+    public BigDecimal getSuccessAmountByPaymentId(Long paymentId) {
+        return refundRepository.sumSuccessAmountByPaymentId(paymentId)
+                .orElse(BigDecimal.ZERO);
     }
 }

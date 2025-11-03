@@ -1,5 +1,7 @@
 package org.example.eatopia.common.core.consts;
 
+import java.math.BigDecimal;
+
 public abstract class Const {
 
     public static final String LOGIN_USER = "LOGIN_USER";
@@ -15,4 +17,7 @@ public abstract class Const {
     public static final int CODE_LENGTH = 8;
     public static final java.security.SecureRandom RANDOM = new java.security.SecureRandom();
 
+    // 배송비 정책
+    public static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000"); // 기본 배송비
+    public static final BigDecimal DELIVERY_FREE_THRESHOLD = new BigDecimal("30000"); // 무료배송 기준 금액
 }
