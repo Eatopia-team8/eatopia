@@ -11,6 +11,7 @@ import org.example.eatopia.domain.product.dto.response.ProductListResponse;
 import org.example.eatopia.domain.product.dto.response.ProductResponse;
 import org.example.eatopia.domain.product.service.command.ProductCommandService;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
+import org.example.eatopia.domain.search.service.query.SearchKeywordQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,6 +26,7 @@ public class ProductController {
 
     private final ProductCommandService productCommandService;
     private final ProductQueryService productQueryService;
+    private final SearchKeywordQueryService searchKeywordQueryService;
 
     // 상품 등록 (판매자)
     @PreAuthorize("hasRole('ROLE_SELLER')")
@@ -98,6 +100,23 @@ public class ProductController {
                                                                                  @PageableDefault(size = 10) Pageable pageable) {
 
         ProductListResponse response = productQueryService.searchProductsWithCache(condition, pageable);
+
+        return ResponseEntity.ok(Response.success(response));
+    }
+
+    // 상품 목록 조회
+    // - 모든 검색 조건 지원 (keyword, status, price, sortBy 등)
+    // - categoryId + 최신순 + 페이지<10 + 필터 없을 때만 캐시
+    // - 키워드 검색 시 인기 검색어 집계
+    @LogExecutionTime("V3 - Selective Cache & Keyword Tracking - 상품 목록 조회")
+    @GetMapping("/v3/products")
+    public ResponseEntity<Response<ProductListResponse>> searchProductsV3(@ModelAttribute ProductSearchCondition condition,
+                                                                          @PageableDefault(size = 10) Pageable pageable) {
+
+        // 인기 검색어 집계 (캐시 여부와 무관하게 항상 실행)
+        searchKeywordQueryService.recordKeyword(condition.keyword());
+
+        ProductListResponse response = productQueryService.searchProductsV3(condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
     }
