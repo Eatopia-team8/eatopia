@@ -45,7 +45,12 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 2. 현재 비밀번호 검증
         userValidator.validateCurrentPassword(request.oldPassword(), user.getPassword());
 
-        // 3. 업데이트
+        // 3. 새 비밀번호가 기존 비밀번호와 동일한지 검증
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new GlobalException(UserErrorCode.PASSWORD_IS_SAME);
+        }
+
+        // 4. 업데이트
         String encodedNewPassword = passwordEncoder.encode(request.newPassword());
         user.updatePassword(encodedNewPassword);
     }
