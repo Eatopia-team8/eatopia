@@ -5,6 +5,9 @@ import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
+import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
+import org.example.eatopia.domain.coupon.exception.CouponIssueException;
+import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
@@ -98,5 +101,9 @@ public class CouponQueryServiceImpl implements CouponQueryService {
 
         return response;
 
+        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
+                .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
+
+        return couponIssue;
     }
 }

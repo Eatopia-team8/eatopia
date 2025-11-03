@@ -8,7 +8,7 @@ import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
-import org.example.eatopia.domain.coupon.exception.CouponIssueCode;
+import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponIssueException;
 import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
@@ -136,7 +136,7 @@ public class CouponCommandServiceImpl implements CouponCommandService {
     public void useIssuedCoupon(Long couponIssueId) {
 
         CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
-                .orElseThrow(() -> new CouponIssueException(CouponIssueCode.COUPON_ISSUE_NOT_FOUND));
+                .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
 
         couponIssueValidator.validateUsable(couponIssue);
 
@@ -146,7 +146,7 @@ public class CouponCommandServiceImpl implements CouponCommandService {
     public void rollbackCoupon(Long couponIssueId) {
 
         CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
-                .orElseThrow(() -> new CouponIssueException(CouponIssueCode.COUPON_ISSUE_NOT_FOUND));
+                .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
 
         couponIssueValidator.validateRollbackable(couponIssue);
 

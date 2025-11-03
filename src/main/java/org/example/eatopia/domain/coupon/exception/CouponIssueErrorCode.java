@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponIssueCode implements ErrorCode {
+public enum CouponIssueErrorCode implements ErrorCode {
 
     COUPON_ISSUE_NOT_FOUND(HttpStatus.NOT_FOUND, "CPNI-001", "발급된 쿠폰을 찾을 수 없습니다."),
     INVALID_DISCOUNT_RATE(HttpStatus.BAD_REQUEST, "CPNI-002", "허용된 할인율 범위를 벗어났습니다."),

@@ -4,7 +4,7 @@ import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
-import org.example.eatopia.domain.coupon.exception.CouponIssueCode;
+import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponIssueException;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,7 @@ public class CouponIssueValidator {
     // 할인율 0~100 검증
     public void validateDiscountPercentRange(BigDecimal discountPercent) {
         if (discountPercent == null || discountPercent.compareTo(BigDecimal.ZERO) < 0 || discountPercent.compareTo(BigDecimal.valueOf(100)) > 0) {
-            throw new CouponIssueException(CouponIssueCode.INVALID_DISCOUNT_RATE);
+            throw new CouponIssueException(CouponIssueErrorCode.INVALID_DISCOUNT_RATE);
         }
     }
 
@@ -36,20 +36,20 @@ public class CouponIssueValidator {
 
         // 이미 사용된 쿠폰 검증
         if (couponIssue.getUsedAt() != null) {
-            throw new CouponIssueException(CouponIssueCode.COUPON_ALREADY_USED);
+            throw new CouponIssueException(CouponIssueErrorCode.COUPON_ALREADY_USED);
         }
 
         // 쿠폰 유효기간 검증
         if (coupon.getStartAt().isAfter(now)) {
-            throw new CouponIssueException(CouponIssueCode.COUPON_NOT_YET_VALID);
+            throw new CouponIssueException(CouponIssueErrorCode.COUPON_NOT_YET_VALID);
         }
         if (coupon.getEndAt().isBefore(now)) {
-            throw new CouponIssueException(CouponIssueCode.COUPON_EXPIRED);
+            throw new CouponIssueException(CouponIssueErrorCode.COUPON_EXPIRED);
         }
 
         // 삭제된 쿠폰 검증
         if (coupon.getDeletedAt() != null) {
-            throw new CouponIssueException(CouponIssueCode.COUPON_INACTIVE);
+            throw new CouponIssueException(CouponIssueErrorCode.COUPON_INACTIVE);
         }
     }
 }
