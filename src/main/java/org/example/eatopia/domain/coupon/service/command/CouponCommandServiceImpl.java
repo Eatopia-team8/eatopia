@@ -8,8 +8,11 @@ import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
+import org.example.eatopia.domain.coupon.exception.CouponIssueCode;
+import org.example.eatopia.domain.coupon.exception.CouponIssueException;
 import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
+import org.example.eatopia.domain.coupon.validator.CouponIssueValidator;
 import org.example.eatopia.domain.coupon.validator.CouponValidator;
 import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
@@ -37,6 +40,7 @@ public class CouponCommandServiceImpl implements CouponCommandService {
     private final CouponRepository couponRepository;
     private final CouponIssueRepository couponIssueRepository;
     private final CouponValidator couponValidator;
+    private final CouponIssueValidator couponIssueValidator;
 
     // 쿠폰 생성 처리
     public CouponResponse createCoupon(CouponCreateRequest request, UserPrincipal userAuth) {

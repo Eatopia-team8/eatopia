@@ -38,9 +38,6 @@ public class CouponIssue {
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
-    @Column(name = "is_used", nullable = false, columnDefinition = "boolean default false")
-    private boolean isUsed;
-
     @CreatedDate
     @Column(name = "issued_at", nullable = false)
     private LocalDateTime issuedAt;
