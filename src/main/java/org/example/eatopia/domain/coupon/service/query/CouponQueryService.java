@@ -17,5 +17,5 @@ public interface CouponQueryService {
     Page<CouponResponse> getDownloadableCoupons(UserPrincipal userAuth, Pageable pageable);
 
     // 타도메인에서 사용하는 메서드
-    CouponIssue getUsableIssuedCoupon(Long couponIssueId);
+    CouponIssue getIssuedCoupon(Long couponIssueId);
 }

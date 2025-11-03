@@ -73,7 +73,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         //총 금액 검증 필요
 
         // 쿠폰 선택
-        CouponIssue couponIssue = couponQueryService.getUsableIssuedCoupon(request.couponIssueId());
+        CouponIssue couponIssue = couponQueryService.getIssuedCoupon(request.couponIssueId());
 
         BigDecimal discountProductPrice = BigDecimal.ZERO;
         BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
@@ -174,6 +174,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         Long issueId = order.getCouponIssueId();
         if (issueId != null) {
             couponCommandService.rollbackCoupon(issueId);
+            CouponIssue couponIssue = couponQueryService.getIssuedCoupon(couponIssueId);
         }
         */
 

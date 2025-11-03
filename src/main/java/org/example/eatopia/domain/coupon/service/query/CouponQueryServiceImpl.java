@@ -105,7 +105,7 @@ public class CouponQueryServiceImpl implements CouponQueryService {
     }
 
     // 타도메인에서 사용하는 메서드
-    public CouponIssue getUsableIssuedCoupon(Long couponIssueId) {
+    public CouponIssue getIssuedCoupon(Long couponIssueId) {
 
         CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
                 .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
