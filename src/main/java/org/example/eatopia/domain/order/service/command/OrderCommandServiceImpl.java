@@ -170,13 +170,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         //주문 취소시 쿠폰 롤백
-        /*
-        Long issueId = order.getCouponIssueId();
-        if (issueId != null) {
-            couponCommandService.rollbackCoupon(issueId);
+        Long couponIssueId = order.getCouponIssueId();
+        if (couponIssueId != null) {
             CouponIssue couponIssue = couponQueryService.getIssuedCoupon(couponIssueId);
+            couponCommandService.rollbackCouponIssue(couponIssue);
         }
-        */
 
         return OrderDetailResponse.from(order);
     }
