@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class AuthControllerTest {
+class AuthServiceTest {
 
     @Autowired
     private AuthController authController;
