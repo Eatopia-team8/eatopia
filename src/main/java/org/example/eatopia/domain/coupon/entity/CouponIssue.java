@@ -61,4 +61,8 @@ public class CouponIssue {
     public void useIssuedCoupon() {
         this.usedAt = LocalDateTime.now();
     }
+
+    public void rollback() {
+        this.usedAt = null;
+    }
 }

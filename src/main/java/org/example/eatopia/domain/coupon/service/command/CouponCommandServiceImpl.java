@@ -144,10 +144,9 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         couponIssue.useIssuedCoupon();
     }
 
-    public void rollbackCoupon(Long couponIssueId) {
+    public void rollbackCouponIssue(CouponIssue couponIssue) {
 
-        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
-                .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
+        Long couponIssueId = couponIssue.getId();
 
         couponIssueValidator.validateRollbackable(couponIssue);
 

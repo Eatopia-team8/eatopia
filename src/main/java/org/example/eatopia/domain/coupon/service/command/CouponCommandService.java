@@ -20,5 +20,5 @@ public interface CouponCommandService {
 
     void useIssuedCoupon(Long couponIssueId);
 
-    void rollbackCoupon(Long couponIssueId);
+    void rollbackCouponIssue(CouponIssue couponIssue);
 }

@@ -52,4 +52,24 @@ public class CouponIssueValidator {
             throw new CouponIssueException(CouponIssueErrorCode.COUPON_INACTIVE);
         }
     }
+
+    public void validateRollbackable(CouponIssue couponIssue) {
+
+        Coupon coupon = couponIssue.getCoupon();
+        LocalDateTime now = LocalDateTime.now();
+
+        if (couponIssue.getUsedAt() == null) {
+            throw new CouponIssueException(CouponIssueErrorCode.COUPON_NOT_USED_YET);
+        }
+
+        // 이미 만료된 쿠폰은 롤백 불가
+        if (coupon.getEndAt().isBefore(now)) {
+            throw new CouponIssueException(CouponIssueErrorCode.COUPON_EXPIRED);
+        }
+
+        // 삭제된 쿠폰은 롤백 불가
+        if (coupon.getDeletedAt() != null) {
+            throw new CouponIssueException(CouponIssueErrorCode.COUPON_INACTIVE);
+        }
+    }
 }
