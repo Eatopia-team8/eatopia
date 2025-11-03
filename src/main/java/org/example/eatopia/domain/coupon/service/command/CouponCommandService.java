@@ -2,6 +2,7 @@ package org.example.eatopia.domain.coupon.service.command;
 
 import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
+import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ public interface CouponCommandService {
     void deleteCoupon(UserPrincipal userAuth, Long couponId);
 
     // 타 도메인에서 사용하는 메서드
-    BigDecimal calculateDiscountValue(Long couponIssueId, BigDecimal totalProductPrice);
+    BigDecimal calculateDiscountValue(CouponIssue couponIssue, BigDecimal totalProductPrice);
 
     void useIssuedCoupon(Long couponIssueId);
 

@@ -22,6 +22,9 @@ import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import static org.example.eatopia.common.core.consts.Const.RANDOM;
 
 /**
@@ -104,15 +107,13 @@ public class CouponCommandServiceImpl implements CouponCommandService {
 
     // 타 도메인용 메서드
     // 할인 금액 계산
-    public BigDecimal calculateDiscountValue(Long couponIssueId, BigDecimal totalProductPrice) {
+    public BigDecimal calculateDiscountValue(CouponIssue couponIssue, BigDecimal totalProductPrice) {
 
         // 구매 금액이 null이거나 0인 경우 할인금액 0원 반환
         if (totalProductPrice == null || totalProductPrice.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
 
-        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
-                .orElseThrow(() -> new CouponIssueException(CouponIssueCode.COUPON_ISSUE_NOT_FOUND));
         Coupon coupon = couponIssue.getCoupon();
 
         couponIssueValidator.validateMinOrderAmount(coupon.getMinOrderAmount(), totalProductPrice);

@@ -3,6 +3,7 @@ package org.example.eatopia.domain.coupon.service.query;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
+import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
 import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponQueryServiceImpl implements CouponQueryService {
 
     private final CouponRepository couponRepository;
+    private final CouponIssueRepository couponIssueRepository;
 
     // 쿠폰 단건 조회
     public CouponResponse getCoupon(Long couponId) {
@@ -100,6 +102,10 @@ public class CouponQueryServiceImpl implements CouponQueryService {
         });
 
         return response;
+    }
+
+    // 타도메인에서 사용하는 메서드
+    public CouponIssue getUsableIssuedCoupon(Long couponIssueId) {
 
         CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
                 .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
