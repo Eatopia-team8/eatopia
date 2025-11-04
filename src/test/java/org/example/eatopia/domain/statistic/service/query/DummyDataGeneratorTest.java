@@ -54,7 +54,6 @@ public class DummyDataGeneratorTest {
     void generateLoadTestData() {
         System.out.println("더미 데이터 생성을 시작합니다...");
 
-        // 1. 필수 기본 데이터 생성
         User buyer = getOrCreateUser("buyer_loadtest@test.com", "구매자(부하)", UserRole.BUYER);
         Address address = getOrCreateAddress(buyer, "부하 테스트용 주소", "12345");
 
@@ -72,15 +71,13 @@ public class DummyDataGeneratorTest {
         System.out.println("기본 데이터 생성 완료. 총 " + allProducts.size() + "개 상품 생성.");
 
 
-        // 2. 주문(Order) 10,000개 생성
+        // 주문 10,000개 생성
         int orderCount = 10000;
         int batchSize = 1000;
         List<Order> ordersToSave = new ArrayList<>();
         List<OrderDetail> detailsToSave = new ArrayList<>();
 
-        // ▼▼▼▼▼ (수정) 현재 시간을 기준으로 설정 ▼▼▼▼▼
         LocalDateTime now = LocalDateTime.now();
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
         for (int i = 0; i < orderCount; i++) {
             Product product = allProducts.get(random.nextInt(allProducts.size()));
@@ -97,19 +94,15 @@ public class DummyDataGeneratorTest {
             );
             order.updateStatus(OrderStatus.SUCCESS);
 
-            // ▼▼▼▼▼ (핵심 수정) 주문 날짜를 지난 1년(365일) 이내로 랜덤하게 분산 ▼▼▼▼▼
             int randomDaysAgo = random.nextInt(365); // 0~364일 전
             LocalDateTime randomDateTime = now.minusDays(randomDaysAgo).withHour(random.nextInt(24));
-            order.forceSetCreatedAt(randomDateTime);
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+            //order.forceSetCreatedAt(randomDateTime);
 
             ordersToSave.add(order);
 
             OrderDetail detail = OrderDetail.create(order, product, quantity, price);
 
-            // ▼▼▼▼▼ (수정) 주문 상세 날짜도 주문 날짜와 맞춤 ▼▼▼▼▼
-            detail.forceSetCreatedAt(order.getCreatedAt());
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+            //detail.forceSetCreatedAt(order.getCreatedAt());
 
             detailsToSave.add(detail);
 
@@ -128,7 +121,7 @@ public class DummyDataGeneratorTest {
         System.out.println("더미 데이터 생성 완료. 총 " + orderCount + "개 주문 생성.");
     }
 
-    // --- Helper Methods (수정 없음) ---
+    // Helper Methods
     private User getOrCreateUser(String email, String name, UserRole role) {
         return userRepository.findByEmail(email).orElseGet(() ->
                 userRepository.save(User.signUp(email, "password", name, role))
