@@ -18,20 +18,24 @@ import org.example.eatopia.domain.product.enums.ProductStatus;
 import org.example.eatopia.domain.product.service.query.ProductQueryService;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class CartCommandServiceImpl implements CartCommandService {
+
+    private static final int MAX_RETRY = 3; // 재시도 횟수
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductQueryService productQueryService;
     private final UserQueryService userQueryService;
+    private final CartItemTransactionalService cartItemTransactionalService;
 
     @Override
     public CartCreateResponse createCartItem(Long userId, CartCreateRequest request) {
@@ -48,19 +52,30 @@ public class CartCommandServiceImpl implements CartCommandService {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseGet(() -> cartRepository.save(Cart.create(user)));
 
-        // CartItem 조회 후 존재하면 수량 증가, 없으면 새로 생성
-        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
-        if (cartItem != null) {
-            cartItem.addQuantity(request.quantity());
-        } else {
-            cartItem = CartItem.create(cart, product, request.quantity());
-            cartItemRepository.save(cartItem);
+        int retryCount = 0;
+        while (true) {  // 재시도 루프
+            try {
+                // CartItem 수량 증가 /생성
+                cartItemTransactionalService.increaseCartItemQuantity(cart, product, request.quantity());
+                break;
+            } catch (CannotAcquireLockException | DataIntegrityViolationException e) {
+                retryCount++;
+                if (retryCount >= MAX_RETRY) {
+                    throw new GlobalException(CartErrorCode.CONCURRENT_MODIFICATION);
+                }
+                try {
+                    Thread.sleep(50);   // 대기 후 재시도
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
 
         return CartCreateResponse.from(product.getName());
     }
 
     @Override
+    @Transactional
     public CartItemResponse updateQuantity(Long productId, CartUpdateQuantityRequest request, Long userId) {
 
         Product product = productQueryService.getProductOrElseThrow(productId);
@@ -74,18 +89,21 @@ public class CartCommandServiceImpl implements CartCommandService {
     }
 
     @Override
+    @Transactional
     public void updateItemSelections(CartItemsSelectionRequest request, Long userId) {
 
         cartItemRepository.updateSelectionItems(userId, request.productIds(), request.isSelected());
     }
 
     @Override
+    @Transactional
     public void deleteItems(CartItemsDeleteRequest request, Long userId) {
 
         cartItemRepository.deleteSelectedItems(userId, request.productIds());
     }
 
     @Override
+    @Transactional
     public void deleteOrderedItems(Long userId, List<Long> orderedProductIds) {
 
         cartItemRepository.deleteSelectedItems(userId, orderedProductIds);
