@@ -28,7 +28,7 @@ import java.time.LocalDate;
 
 @Tag(name = "Statistic API", description = "통계 관련 API")
 @RestController
-@RequestMapping("/v2/statistic")
+@RequestMapping("/v1/statistic")
 @RequiredArgsConstructor
 public class StatisticController {
 
