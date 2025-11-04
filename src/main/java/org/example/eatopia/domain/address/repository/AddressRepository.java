@@ -1,8 +1,10 @@
 package org.example.eatopia.domain.address.repository;
 
+import jakarta.persistence.LockModeType;
 import org.example.eatopia.domain.address.entity.Address;
 import org.example.eatopia.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +15,11 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     List<Address> findAllByUserOrderByCreatedAtDesc(User user);
 
     //특정사용자의 기본배송지 조회
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Address> findByUserAndIsDefaultTrue(User user);
 
     //주소ID와 사용자ID로 주소를 조회
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Address> findByIdAndUser(Long id, User user);
 
     //사용자가 동일한주소를 이미 등록했는지 확인

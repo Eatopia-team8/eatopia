@@ -8,6 +8,7 @@ import org.example.eatopia.domain.user.dto.response.UserDetailResponse;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.exception.UserErrorCode;
 import org.example.eatopia.domain.user.repository.UserRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ public class UserQueryServiceImpl implements UserQueryService {
     private final UserRepository userRepository;
 
     // ID로 활성사용자를 조회하고 탈퇴여부 검사
+    @Override
+    @Cacheable(value = "users", key = "#userId", sync = true)
     public User getActiveUserById(Long userId) {
 
         User user = userRepository.findById(userId)
@@ -33,6 +36,8 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     // Email로 활성사용자를 조회하고 탈퇴여부 검사
+    @Override
+    @Cacheable(value = "users", key = "#email", sync = true)
     public User getActiveUserByEmail(String email) {
 
         User user = userRepository.findByEmail(email)
@@ -78,6 +83,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#userId", sync = true)
     public User getUserEntityById(Long userId) {
 
         return userRepository.findById(userId)

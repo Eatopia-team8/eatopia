@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.user.service.command;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.common.core.exception.GlobalException;
 import org.example.eatopia.common.infra.mail.MailService;
@@ -16,6 +17,8 @@ import org.example.eatopia.domain.user.repository.PasswordResetTokenRepository;
 import org.example.eatopia.domain.user.repository.UserRepository;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.example.eatopia.domain.user.validator.UserValidator;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserCommandServiceImpl implements UserCommandService {
 
     private final UserRepository userRepository;
@@ -35,6 +39,28 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final UserValidator userValidator;
     private final UserQueryService userQueryService;
     private final MailService mailService;
+    private final CacheManager cacheManager; // 캐시 관리자 주입
+
+    /**
+     * 사용자 정보 변경 후 캐시 일관성을 확보합니다.
+     * UserQueryService에서 userId Long와 email String을 각각 키로 사용해
+     * 사용자 객체를 캐싱하기 때문에, 두 키 모두에 대해 캐시를 제거해
+     * Stale Data 조회 문제를 방지합니다.
+     *
+     * @param userId 제거할 사용자 ID
+     * @param email  제거할 사용자 이메일
+     */
+    private void evictUserCache(Long userId, String email) {
+        
+        // 캐시 매니저를 통해 "users" 캐시를 가져옵니다.
+        Cache usersCache = cacheManager.getCache("users");
+        if (usersCache != null) {
+            // ID Long 키로 저장된 사용자 객체 제거
+            usersCache.evictIfPresent(userId);
+            // Email String 키로 저장된 사용자 객체 제거
+            usersCache.evictIfPresent(email);
+        }
+    }
 
     @Override
     public void changePassword(Long userId, UserPasswordChangeRequest request) {
@@ -53,6 +79,9 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 4. 업데이트
         String encodedNewPassword = passwordEncoder.encode(request.newPassword());
         user.updatePassword(encodedNewPassword);
+
+        // 5. 캐시 일관성 확보: ID와 Email 캐시 모두 제거
+        evictUserCache(userId, user.getEmail());
     }
 
     @Override
@@ -71,6 +100,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             if (LocalDateTime.now().isBefore(coolDownTime)) {
                 throw new GlobalException(AuthErrorCode.TOKEN_ALREADY_ISSUED);
             } else {
+                // 기존 토큰 만료 후 삭제
                 passwordResetTokenRepository.delete(existingToken);
                 passwordResetTokenRepository.flush();
             }
@@ -90,14 +120,13 @@ public class UserCommandServiceImpl implements UserCommandService {
         mailService.sendPasswordResetMail(user.getEmail(), token);
     }
 
-    //이메일과 재설정 토큰을 사용하여 비밀번호를 재설정
     @Override
     public void resetPassword(UserPasswordResetRequest request) {
 
         // 1. 활성 사용자 조회 및 탈퇴자 검사
         User user = userQueryService.getActiveUserByEmail(request.email());
 
-        // 2. 재설정 토큰 유효성 검증 (나머지 로직 유지)
+        // 2. 재설정 토큰 유효성 검증
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.resetToken())
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.INVALID_RESET_TOKEN));
 
@@ -116,30 +145,35 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 4. 토큰 무효화
         resetToken.markAsUsed();
         passwordResetTokenRepository.save(resetToken);
+
+        // 5. 캐시 일관성 확보: ID와 Email 캐시 모두 제거
+        evictUserCache(user.getId(), user.getEmail());
     }
 
     @Override
     public void updateProfile(Long id, UserUpdateProfileRequest request) {
 
-        //1. 활성 사용자 조회 및 탈퇴자 검사
+        // 1. 활성 사용자 조회 및 탈퇴자 검사
         User user = userQueryService.getActiveUserById(id);
 
         // 2. BUYER가 company 필드를 보냈는지 검사
         if (user.getUserRole().name().equals("BUYER")) {
-            // company 값이 null이 아닌 경우(즉, JSON에 포함되어 넘어온 경우)
-            if (request.company() != null) { // company가 null이 아니면 예외 발생
+            if (request.company() != null) {
                 throw new GlobalException(UserErrorCode.USER_DONT_INPUT_COMPANY_NAME);
             }
         }
 
-        // 3. SELLER 역할일 때 company 필수 검증 (ADMIN은 자동 통과)
+        // 3. SELLER 역할일 때 company 필수 검증
         if (user.isSeller() || user.isAdmin()) {
-            if (request.company() == null || request.company().trim().isEmpty()) { // 회사명이 null이거나 비어있으면 예외 발생
-                throw new GlobalException(UserErrorCode.INVALID_INPUT, "판매자(SELLER)는 회사명을 반드시 입력해야 합니다.");
+            if (request.company() == null || request.company().trim().isEmpty()) {
+                throw new GlobalException(UserErrorCode.INVALID_INPUT, "판매자 SELLER는 회사명을 반드시 입력해야 합니다.");
             }
         }
 
-        //3. 업데이트 실행
+        // 4. 업데이트 실행
         user.updateProfile(request.address(), request.company());
+
+        // 5. 캐시 일관성 확보: ID와 Email 캐시 모두 제거
+        evictUserCache(id, user.getEmail());
     }
 }
