@@ -24,7 +24,7 @@ public class CouponController {
     private final CouponCommandService couponCommandService;
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
-    @PostMapping("/v1/manager/coupons")
+    @PostMapping("/v1/coupons")
     public Response<CouponResponse> createCoupon(@RequestBody @Valid CouponCreateRequest request,
                                                  @AuthenticationPrincipal UserPrincipal userAuth) {
 
@@ -34,7 +34,7 @@ public class CouponController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_BUYER')")
-    @PostMapping("/v1/buyer/coupons/{couponId}/download")
+    @PostMapping("/v1/coupons/{couponId}/download")
     public Response<Void> downloadCoupon(@AuthenticationPrincipal UserPrincipal authUser,
                                          @PathVariable Long couponId) {
 
@@ -51,7 +51,8 @@ public class CouponController {
         return Response.success(response);
     }
 
-    @GetMapping("/v1/coupons")
+    @PreAuthorize("hasAuthority('ROLE_BUYER')")
+    @GetMapping("/v1/coupons/issued")
     public Response<Page<CouponResponse>> getIssuedCoupons(@AuthenticationPrincipal UserPrincipal authUser,
                                                            @PageableDefault(size = 30, sort = "issuedAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
@@ -61,7 +62,7 @@ public class CouponController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/v1/admin/coupons")
+    @GetMapping("/v1/all-coupons")
     public Response<Page<CouponResponse>> getCreatedCoupons(@PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<CouponResponse> responses = couponQueryService.getCreatedCoupons(pageable);
@@ -70,7 +71,7 @@ public class CouponController {
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
-    @GetMapping("/v1/manager/coupons/created")
+    @GetMapping("/v1/coupons/created")
     public Response<Page<CouponResponse>> getCreatedCouponsByMe(@AuthenticationPrincipal UserPrincipal userAuth,
                                                                 @PageableDefault(size = 30, sort = "startAt", direction = Sort.Direction.ASC) Pageable pageable) {
 
@@ -81,7 +82,7 @@ public class CouponController {
 
     // TODO: 현재 ADMIN의 생성된 모든 쿠폰 조회와 로직이 동일합니다. 추후 특정 유저가 어떤 쿠폰을 선별 조회 가능할지에 대한 정책적인 논의를 적용하여 로직을 수정해야할 것 같습니다.
     @PreAuthorize("hasAuthority('ROLE_BUYER')")
-    @GetMapping("/v1/buyer/coupons/downloadable")
+    @GetMapping("/v1/coupons/downloadable")
     public Response<Page<CouponResponse>> getDownloadableCoupons(@AuthenticationPrincipal UserPrincipal userAuth,
                                                                  @PageableDefault(size = 30, sort = "startAt", direction = Sort.Direction.ASC) Pageable pageable) {
 
@@ -91,7 +92,7 @@ public class CouponController {
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
-    @DeleteMapping("/v1/manager/coupons/{couponId}")
+    @DeleteMapping("/v1/coupons/{couponId}")
     public Response<Void> deleteCoupon(@AuthenticationPrincipal UserPrincipal userAuth,
                                        @PathVariable Long couponId) {
 
