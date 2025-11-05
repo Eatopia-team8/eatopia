@@ -116,22 +116,39 @@ public class CouponCommandServiceImpl implements CouponCommandService {
 
         Coupon coupon = couponIssue.getCoupon();
 
+        // 최소 주문 금액 검증
         couponIssueValidator.validateMinOrderAmount(coupon.getMinOrderAmount(), totalProductPrice);
 
-        BigDecimal calculatedDiscountValue;
         // 퍼센트형 할인 쿠폰일 시 할인 금액 계산
         if (Boolean.TRUE.equals(coupon.getPercent())) {
 
-            BigDecimal discountPercent = coupon.getDiscountValue().divide(BigDecimal.valueOf(100));
+            final BigDecimal HUNDRED = new BigDecimal("100");
 
-            couponIssueValidator.validateDiscountPercentRange(discountPercent);
+            BigDecimal percent = coupon.getDiscountValue();
+            couponIssueValidator.validateDiscountPercentRange(percent);
 
-            calculatedDiscountValue = totalProductPrice.multiply(discountPercent).divide(BigDecimal.valueOf(100), 0, RoundingMode.DOWN);
+            BigDecimal discount = totalProductPrice.multiply(percent).divide(HUNDRED);
 
-            return calculatedDiscountValue;
+            BigDecimal max = coupon.getMaxDiscountAmount();
+            if (max != null && discount.compareTo(max) > 0) {
+                discount = max;
+            }
+
+            return discount.setScale(0, RoundingMode.DOWN);
         }
 
-        return coupon.getDiscountValue();
+        // 고정 금액 할인
+        BigDecimal discount = coupon.getDiscountValue();
+        if (discount == null || discount.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        // 결제금액 초과 방지
+        if (discount.compareTo(totalProductPrice) > 0) {
+            discount = totalProductPrice;
+        }
+
+        return discount.setScale(0, RoundingMode.DOWN);
     }
 
     // 쿠폰 사용
