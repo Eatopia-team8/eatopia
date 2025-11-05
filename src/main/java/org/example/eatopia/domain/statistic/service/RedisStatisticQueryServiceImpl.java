@@ -38,65 +38,59 @@ public class RedisStatisticQueryServiceImpl implements RedisStatisticQueryServic
     public Page<SaleResponse> getSellerSales(SaleSearchRequest request, Pageable pageable) {
         statisticValidator.validateSearchRequestDates(request);
 
-        List<String> periods = getPeriods(request.startDate(), request.endDate(), request.period());
-
-        // Redis에서 해당 기간의 SaleResponse 데이터를 조회하여 하나로 합침
-        Stream<SaleResponse> allSalesStream;
+        List<SaleResponse> allSales;
 
         if ("monthly".equalsIgnoreCase(request.period())) {
-            allSalesStream = periods.stream()
+            List<String> periods = getPeriods(request.startDate(), request.endDate(), request.period());
+            allSales = periods.stream()
                     .map(redisStatisticRepository::getMonthlySellerSales)
                     .filter(Objects::nonNull)
-                    .flatMap(List::stream);
+                    .flatMap(List::stream)
+                    .toList();
         } else {
-            allSalesStream = periods.stream()
-                    .map(dateStr -> redisStatisticRepository.getDailySellerSales(LocalDate.parse(dateStr)))
-                    .filter(Objects::nonNull)
-                    .flatMap(List::stream);
+            // ZRANGEBYSCORE
+            allSales = redisStatisticRepository.getDailySellerSales(request.startDate(), request.endDate());
         }
 
-        // 특정 판매자 ID로 필터링
+        // 조회된 전체 데이터를 메모리에서 필터링
+        Stream<SaleResponse> filteredStream = allSales.stream();
         if (request.sellerId() != null) {
-            allSalesStream = allSalesStream.filter(sale -> sale.sellerId().equals(request.sellerId()));
+            filteredStream = filteredStream.filter(sale -> sale.sellerId().equals(request.sellerId()));
         }
 
-        List<SaleResponse> allSales = allSalesStream.toList();
+        List<SaleResponse> filteredSales = filteredStream.toList();
 
-        // 페이지네이션
+        // 메모리에서 페이지네이션 수행
+        int totalElements = filteredSales.size();
         int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allSales.size());
+        int end = Math.min((start + pageable.getPageSize()), totalElements);
 
         if (start > end) {
-            return new PageImpl<>(List.of(), pageable, allSales.size());
+            return new PageImpl<>(List.of(), pageable, totalElements);
         }
 
-        List<SaleResponse> pageContent = allSales.subList(start, end);
-        return new PageImpl<>(pageContent, pageable, allSales.size());
+        List<SaleResponse> pageContent = filteredSales.subList(start, end);
+        return new PageImpl<>(pageContent, pageable, totalElements);
     }
 
     @Override
     public TotalSaleSummaryResponse getTotalSales(SaleSearchRequest request) {
         statisticValidator.validateSearchRequestDates(request);
 
-        //기간별 매출
-        List<String> periods = getPeriods(request.startDate(), request.endDate(), request.period());
-
         List<PeriodSaleResponse> periodSales;
+
         if ("monthly".equalsIgnoreCase(request.period())) {
+            List<String> periods = getPeriods(request.startDate(), request.endDate(), request.period());
             periodSales = periods.stream()
                     .map(redisStatisticRepository::getMonthlyTotalSales)
                     .filter(Objects::nonNull)
                     .flatMap(List::stream)
                     .toList();
         } else {
-            periodSales = periods.stream()
-                    .map(dateStr -> redisStatisticRepository.getDailyTotalSales(LocalDate.parse(dateStr)))
-                    .filter(Objects::nonNull)
-                    .flatMap(List::stream)
-                    .toList();
+            // ZRANGEBYSCORE
+            periodSales = redisStatisticRepository.getDailyTotalSales(request.startDate(), request.endDate());
         }
 
-        //판매자 랭킹
         List<SaleRankingResponse> topSellers = getTopSellers(TOP_SELLER_LIMIT);
 
         return TotalSaleSummaryResponse.create(periodSales, topSellers);

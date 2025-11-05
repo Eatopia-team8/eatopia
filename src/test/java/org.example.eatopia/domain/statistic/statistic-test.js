@@ -3,6 +3,11 @@ import {check, group, sleep} from 'k6';
 import {Trend} from 'k6/metrics';
 
 // --------------------------------------------------------------------------------
+// 🚨 Max 지연 요청을 포착하기 위한 임계값 (200ms)
+// --------------------------------------------------------------------------------
+const MAX_LATENCY_THRESHOLD = 200; // 밀리초(ms)
+
+// --------------------------------------------------------------------------------
 // 헬퍼 함수
 // --------------------------------------------------------------------------------
 
@@ -17,22 +22,13 @@ function randomItem(array) {
 }
 
 // --------------------------------------------------------------------------------
-// 환경 변수
+// 환경 변수 (사용자 환경변수를 우선 사용)
 // --------------------------------------------------------------------------------
 const BASE_URL = __ENV.BASE_URL || "http://host.docker.internal:8080/api/eatopia";
-const ADMIN_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3IiwiYXV0aCI6IlJPTEVfQURNSU4iLCJlbWFpbCI6InF3ZXJAbmF2ZXIuY29tIiwibmFtZSI6Iuq0gOumrOyekCIsImV4cCI6MTc2MjI1NTM0Mn0.rsdaGviEIGRyg2DBlF82ILzSb9ETNkKTzlOAlGap-f3ssXWziNxSbIz2cu9hY0TAyKqqf5iioidc3hWfuVfFyg";
-const SELLER_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4IiwiYXV0aCI6IlJPTEVfU0VMTEVSIiwiZW1haWwiOiJxd2VydEBuYXZlci5jb20iLCJuYW1lIjoi7YyQ66ek7J6QIiwiZXhwIjoxNzYyMjU1MzU4fQ.YcZ9eZ3pozH97rhMOQLtai0zGJO2FhQtv1RCJWaParTKccc1R79iXjZqyPEW2gysngwFagFTsD3cQo1sbJRAOg";
+const ADMIN_TOKEN = __ENV.ADMIN_TOKEN || "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3IiwiYXV0aCI6IlJPTEVfQURNSU4iLCJlbWFpbCI6InF3ZXJAbmF2ZXIuY29tIiwibmFtZSI6Iuq0gOumrOyekCIsImV4cCI6MTc2MjMwNzkxN30.SxcsOs7oYCWIjv7QdrvNP-KdTY9k3W2hzwfBETVG7A7M0sPfpB2II1C0SpadZ2O3FJGRjOg85LQfMSPngiGO-Q";
+const SELLER_TOKEN = __ENV.SELLER_TOKEN || "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4IiwiYXV0aCI6IlJPTEVfU0VMTEVSIiwiZW1haWwiOiJxd2VydEBuYXZlci5jb20iLCJuYW1lIjoi7YyQ66ek7J6QIiwiZXhwIjoxNzYyMzA3OTI3fQ.1RNgzTIRmcgYSa0EsSe2D7_i2UdH7VvcPM4rc102Vvipqlkl-sou48UXXQzknfJ8ffXFmhrywAJNcrv91Tiq5Q";
 // Java 코드에서 5명의 판매자(sellerCount = 5)를 생성했으므로, 1~5 사이의 ID를 사용합니다.
 const SELLER_IDS = [1, 2, 3, 4, 5];
-
-// --------------------------------------------------------------------------------
-// ⚠️ [디버깅 로그 추가] ⚠️
-// k6가 실제로 읽고 있는 토큰 값을 출력합니다.
-// --------------------------------------------------------------------------------
-console.log(`[DEBUG] k6가 읽은 ADMIN_TOKEN (앞 15자리): ${ADMIN_TOKEN ? ADMIN_TOKEN.substring(0, 15) : 'undefined'}...`);
-console.log(`[DEBUG] k6가 읽은 SELLER_TOKEN (앞 15자리): ${SELLER_TOKEN ? SELLER_TOKEN.substring(0, 15) : 'undefined'}...`);
-// --------------------------------------------------------------------------------
-
 
 // --------------------------------------------------------------------------------
 // 메트릭
@@ -106,19 +102,18 @@ export function sellerScenario() {
     const period = randomItem(['daily', 'monthly']);
 
     group('SELLER: 자신의 매출 조회', () => {
-        const res = http.get(
-            // API 경로: /v2/statistic/seller
-            `${BASE_URL}/v2/statistic/seller?period=${period}&startDate=${startDate}&endDate=${endDate}`,
-            sellerParams
-        );
+        const url = `${BASE_URL}/v2/statistic/seller?period=${period}&startDate=${startDate}&endDate=${endDate}`;
+        const res = http.get(url, sellerParams);
+        const duration = res.timings.duration;
 
         check(res, {'SELLER 랜덤 조회 (status 200)': (r) => r.status === 200});
 
-        if (res.status !== 200) {
-            console.error(`❌ Failed Seller Request: ${res.status} - ${res.body}`);
+        // ❗ [지연 로그] 200ms 초과 시 경고 로그 출력
+        if (duration > MAX_LATENCY_THRESHOLD) {
+            console.warn(`🔥 SLOW REQUEST (SELLER): ${duration.toFixed(2)}ms | URL: ${url}`);
         }
 
-        sellerSalesTrend.add(res.timings.duration);
+        sellerSalesTrend.add(duration);
     });
 
     sleep(Math.random() * 3 + 2); // 2~5초 대기
@@ -135,25 +130,35 @@ export function adminScenario() {
     const randomSellerId = randomItem(SELLER_IDS); // 1~5 중 랜덤 선택
 
     group('ADMIN: 전체 매출 요약 조회', () => {
-        const summaryRes = http.get(
-            // API 경로: /v2/statistic/summary
-            `${BASE_URL}/v2/statistic/summary?period=${period}&startDate=${startDate}&endDate=${endDate}`,
-            adminParams
-        );
+        const summaryUrl = `${BASE_URL}/v2/statistic/summary?period=${period}&startDate=${startDate}&endDate=${endDate}`;
+        const summaryRes = http.get(summaryUrl, adminParams);
+        const duration = summaryRes.timings.duration;
+
         check(summaryRes, {'ADMIN 요약 랜덤 (status 200)': (r) => r.status === 200});
-        summarySalesTrend.add(summaryRes.timings.duration);
+
+        // ❗ [지연 로그] 200ms 초과 시 경고 로그 출력
+        if (duration > MAX_LATENCY_THRESHOLD) {
+            console.warn(`🔥 SLOW REQUEST (ADMIN SUMMARY): ${duration.toFixed(2)}ms | URL: ${summaryUrl}`);
+        }
+
+        summarySalesTrend.add(duration);
     });
 
     sleep(Math.random() * 2 + 1);
 
     group('ADMIN: 특정 판매자 매출 조회', () => {
-        const sellerDailyRes = http.get(
-            // API 경로: /v2/statistic/seller
-            `${BASE_URL}/v2/statistic/seller?sellerId=${randomSellerId}&period=${period}&startDate=${startDate}&endDate=${endDate}`,
-            adminParams
-        );
+        const sellerUrl = `${BASE_URL}/v2/statistic/seller?sellerId=${randomSellerId}&period=${period}&startDate=${endDate}&endDate=${endDate}`;
+        const sellerDailyRes = http.get(sellerUrl, adminParams);
+        const duration = sellerDailyRes.timings.duration;
+
         check(sellerDailyRes, {'ADMIN 판매자 랜덤 조회 (status 200)': (r) => r.status === 200});
-        adminSellerSalesTrend.add(sellerDailyRes.timings.duration);
+
+        // ❗ [지연 로그] 200ms 초과 시 경고 로그 출력
+        if (duration > MAX_LATENCY_THRESHOLD) {
+            console.warn(`🔥 SLOW REQUEST (ADMIN SELLER): ${duration.toFixed(2)}ms | URL: ${sellerUrl}`);
+        }
+
+        adminSellerSalesTrend.add(duration);
     });
 
     sleep(Math.random() * 3 + 2);

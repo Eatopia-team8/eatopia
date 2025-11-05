@@ -11,12 +11,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class StatisticScheduler {
 
+    private static final DateTimeFormatter YYYY_MM_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
     private final StatisticRepository statisticRepository;
     private final RedisStatisticRepository redisStatisticRepository;
 
@@ -26,23 +28,29 @@ public class StatisticScheduler {
      * db 부하로 인하여 사용자가 적게 사용하는 시간에 처리
      */
     @Scheduled(cron = "0 0 5 * * ?")
-    public void aggregateDailyAndMonthlySales() {
-        // 어제 날짜
+    public void aggregateDailySales() {
         LocalDate targetDate = LocalDate.now().minusDays(1);
-        // 일별 통계 집계 및 저장
-        aggregateSales("daily", targetDate);
-
-        // 월별 통계 집계 및 저장
-        aggregateSales("monthly", targetDate);
+        aggregateSales("daily", targetDate, targetDate);
     }
 
-    private void aggregateSales(String period, LocalDate targetDate) {
+    /**
+     * 매월 1일 5시 10분에 지난달 전체의 월별 통계를 계산하여 Redis에 저장
+     */
+    @Scheduled(cron = "0 10 5 1 * ?")
+    public void aggregateMonthlySales() {
+        LocalDate today = LocalDate.now();
+        LocalDate lastDayOfPreviousMonth = today.minusDays(1);
+        LocalDate firstDayOfPreviousMonth = lastDayOfPreviousMonth.withDayOfMonth(1);
+        aggregateSales("monthly", firstDayOfPreviousMonth, lastDayOfPreviousMonth);
+    }
+
+    private void aggregateSales(String period, LocalDate startDate, LocalDate endDate) {
 
         SaleSearchRequest request = new SaleSearchRequest(
                 null,
                 period,
-                targetDate,
-                targetDate
+                startDate,
+                endDate
         );
 
         // DB에서 판매자별 매출 집계
@@ -56,14 +64,12 @@ public class StatisticScheduler {
 
         //저장
         if ("monthly".equalsIgnoreCase(period)) {
-            // "YYYY-MM" 형식
-            String yearMonth = targetDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+            String yearMonth = startDate.format(YYYY_MM_FORMATTER);
             redisStatisticRepository.saveMonthlySellerSales(yearMonth, sellerSales);
             redisStatisticRepository.saveMonthlyTotalSales(yearMonth, totalSales);
         } else {
-            // "YYYY-MM-DD" 형식
-            redisStatisticRepository.saveDailySellerSales(targetDate, sellerSales);
-            redisStatisticRepository.saveDailyTotalSales(targetDate, totalSales);
+            redisStatisticRepository.saveDailySellerSales(startDate, sellerSales);
+            redisStatisticRepository.saveDailyTotalSales(startDate, totalSales);
         }
     }
 }
