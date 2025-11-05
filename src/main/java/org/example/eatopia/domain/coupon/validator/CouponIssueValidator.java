@@ -16,7 +16,7 @@ public class CouponIssueValidator {
 
     // 최소 결제 금액 검증
     public void validateMinOrderAmount(BigDecimal minOrderAmount, BigDecimal currentOrderAmount) {
-        if (currentOrderAmount.compareTo(minOrderAmount) < 0) {
+        if (minOrderAmount != null && currentOrderAmount.compareTo(minOrderAmount) < 0) {
             throw new CouponException(CouponErrorCode.INVALID_MIN_ORDER_AMOUNT);
         }
     }
