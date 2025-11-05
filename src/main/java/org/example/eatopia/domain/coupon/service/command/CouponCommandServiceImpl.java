@@ -165,8 +165,6 @@ public class CouponCommandServiceImpl implements CouponCommandService {
     // 쿠폰 사용 취소
     public void rollbackCouponIssue(CouponIssue couponIssue) {
 
-        Long couponIssueId = couponIssue.getId();
-
         couponIssueValidator.validateRollbackable(couponIssue);
 
         couponIssue.rollback();
