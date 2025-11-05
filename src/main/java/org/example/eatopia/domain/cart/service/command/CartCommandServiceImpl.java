@@ -30,6 +30,7 @@ import java.util.List;
 public class CartCommandServiceImpl implements CartCommandService {
 
     private static final int MAX_RETRY = 3; // 재시도 횟수
+    private static final long RETRY_DELAY_MS = 50L;
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
@@ -64,7 +65,7 @@ public class CartCommandServiceImpl implements CartCommandService {
                     throw new GlobalException(CartErrorCode.CONCURRENT_MODIFICATION);
                 }
                 try {
-                    Thread.sleep(50);   // 대기 후 재시도
+                    Thread.sleep(RETRY_DELAY_MS);   // 대기 후 재시도
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
