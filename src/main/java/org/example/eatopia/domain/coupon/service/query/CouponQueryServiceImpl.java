@@ -47,6 +47,27 @@ public class CouponQueryServiceImpl implements CouponQueryService {
         return CouponResponse.of(coupon, creator);
     }
 
+    // 구매자가 발급받은 쿠폰 조회
+    public Page<CouponResponse> getIssuedCoupons(UserPrincipal authUser, Pageable pageable) {
+
+        Page<CouponIssue> issuedCoupons = couponIssueRepository.findAllByUserId(authUser.getId(), pageable);
+
+        Page<CouponResponse> response = issuedCoupons.map(issuedCoupon -> {
+            Coupon coupon = issuedCoupon.getCoupon();
+
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
+    }
+
     // 생성된 모든 쿠폰 목록 페이징 조회
     public Page<CouponResponse> getCreatedCoupons(Pageable pageable) {
 

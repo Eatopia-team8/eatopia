@@ -10,6 +10,8 @@ public interface CouponQueryService {
 
     CouponResponse getCoupon(Long couponId);
 
+    Page<CouponResponse> getIssuedCoupons(UserPrincipal authUser, Pageable pageable);
+
     Page<CouponResponse> getCreatedCoupons(Pageable pageable);
 
     Page<CouponResponse> getCreatedCouponsByMe(UserPrincipal userAuth, Pageable pageable);

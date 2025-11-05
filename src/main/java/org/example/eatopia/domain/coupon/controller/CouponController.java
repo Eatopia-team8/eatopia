@@ -51,6 +51,15 @@ public class CouponController {
         return Response.success(response);
     }
 
+    @GetMapping("/v1/coupons")
+    public Response<Page<CouponResponse>> getIssuedCoupons(@AuthenticationPrincipal UserPrincipal authUser,
+                                                           @PageableDefault(size = 30, sort = "issuedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<CouponResponse> response = couponQueryService.getIssuedCoupons(authUser, pageable);
+
+        return Response.success(response);
+    }
+
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/v1/admin/coupons")
     public Response<Page<CouponResponse>> getCreatedCoupons(@PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
