@@ -14,6 +14,9 @@ import org.example.eatopia.domain.product.entity.Product;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "cart_item", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"cart_id", "product_id"})
+})
 public class CartItem extends BaseEntity {
 
     @Id
