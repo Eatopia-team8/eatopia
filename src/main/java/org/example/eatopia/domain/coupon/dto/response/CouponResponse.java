@@ -1,7 +1,6 @@
 package org.example.eatopia.domain.coupon.dto.response;
 
 import org.example.eatopia.domain.coupon.entity.Coupon;
-import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

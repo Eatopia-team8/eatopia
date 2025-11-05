@@ -3,6 +3,7 @@ package org.example.eatopia.domain.coupon.service.command;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
+import org.example.eatopia.domain.coupon.dto.response.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.entity.CouponIssue;
@@ -15,7 +16,6 @@ import org.example.eatopia.domain.coupon.repository.CouponRepository;
 import org.example.eatopia.domain.coupon.validator.CouponIssueValidator;
 import org.example.eatopia.domain.coupon.validator.CouponValidator;
 import org.example.eatopia.domain.user.config.UserRole;
-import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
@@ -134,6 +134,7 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         return coupon.getDiscountValue();
     }
 
+    // 쿠폰 사용
     public void useIssuedCoupon(Long couponIssueId) {
 
         CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
@@ -144,6 +145,7 @@ public class CouponCommandServiceImpl implements CouponCommandService {
         couponIssue.useIssuedCoupon();
     }
 
+    // 쿠폰 사용 취소
     public void rollbackCouponIssue(CouponIssue couponIssue) {
 
         Long couponIssueId = couponIssue.getId();

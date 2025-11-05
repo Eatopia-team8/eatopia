@@ -1,6 +1,7 @@
 package org.example.eatopia.domain.coupon.service.query;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.domain.coupon.dto.response.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.entity.CouponIssue;
@@ -10,7 +11,6 @@ import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponIssueException;
 import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
-import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

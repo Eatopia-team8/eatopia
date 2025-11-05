@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.user.dto;
+package org.example.eatopia.domain.coupon.dto.response;
 
 import org.example.eatopia.domain.user.config.UserRole;
 
