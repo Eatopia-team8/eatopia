@@ -56,4 +56,19 @@ public class OrderDetail extends BaseEntity {
                 .price(price)
                 .build();
     }
+
+    /**
+     * [부하 테스트용] BaseEntity의 protected createdAt을 강제로 설정합니다.
+     */
+    /*
+    public void forceSetCreatedAt(java.time.LocalDateTime dateTime) {
+        try {
+            java.lang.reflect.Field field = getClass().getSuperclass().getDeclaredField("createdAt");
+            field.setAccessible(true);
+            field.set(this, dateTime);
+        } catch (Exception e) {
+            throw new RuntimeException("BaseEntity의 createdAt 필드 설정 실패", e);
+        }
+    }
+     */
 }

@@ -125,4 +125,21 @@ public class Order extends BaseEntity {
 
         this.delivery = Delivery.from(this);
     }
+
+    /**
+     * [부하 테스트용] BaseEntity의 protected createdAt을 강제로 설정합니다.
+     */
+    /*
+    public void forceSetCreatedAt(java.time.LocalDateTime dateTime) {
+        // BaseEntity 또는 공통 상위 엔티티의 createdAt 필드를 직접 설정합니다.
+        // 필드명이나 상속 구조에 따라 'super.createdAt = dateTime;' 등으로 수정해야 할 수 있습니다.
+        try {
+            java.lang.reflect.Field field = getClass().getSuperclass().getDeclaredField("createdAt");
+            field.setAccessible(true);
+            field.set(this, dateTime);
+        } catch (Exception e) {
+            throw new RuntimeException("BaseEntity의 createdAt 필드 설정 실패", e);
+        }
+    }
+     */
 }
