@@ -79,7 +79,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         // 쿠폰 선택
-        CouponIssue couponIssue = couponQueryService.getIssuedCoupon(request.couponIssueId());
+        CouponIssue couponIssue = null;
+        if (request.couponIssueId() != null) {
+            couponIssue = couponQueryService.getIssuedCoupon(request.couponIssueId());
+        }
 
         BigDecimal discountProductPrice = BigDecimal.ZERO;
         BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
