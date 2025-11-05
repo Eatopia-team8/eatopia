@@ -91,15 +91,16 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     @Override
     public ReviewReportResponse reportReview(Long reviewId, Long userId, ReviewReportRequest request) {
 
+        // 비관적 락 조회
+        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
+                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
         // 중복 신고 불가
         if (reviewReportRepository.existsByReviewIdAndUserId(reviewId, userId)) {
             throw new GlobalException(ReviewErrorCode.REVIEW_ALREADY_REPORTED);
         }
 
-        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
-                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
         User user = userQueryService.getUserEntityById(userId);
-
         ReviewReport report = ReviewReport.create(review, user, request.reason());
         reviewReportRepository.save(report);
 
