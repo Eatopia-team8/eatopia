@@ -108,7 +108,7 @@ public class CouponController {
                     @ApiResponse(responseCode = "200", description = "조회 성공")
             })
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SELLER')")
-    @GetMapping("/v1/coupons/created")
+    @GetMapping("/v1/coupons/my-created")
     public Response<Page<CouponResponse>> getCreatedCouponsByMe(@AuthenticationPrincipal UserPrincipal userAuth,
                                                                 @PageableDefault(size = 30, sort = "startAt", direction = Sort.Direction.ASC) Pageable pageable) {
 

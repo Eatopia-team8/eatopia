@@ -23,7 +23,7 @@ public class CouponIssueValidator {
 
     // 할인율 0~100 검증
     public void validateDiscountPercentRange(BigDecimal discountPercent) {
-        if (discountPercent == null || discountPercent.compareTo(BigDecimal.ZERO) < 0 || discountPercent.compareTo(BigDecimal.ONE) > 0) {
+        if (discountPercent == null || discountPercent.compareTo(BigDecimal.ZERO) < 0 || discountPercent.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new CouponIssueException(CouponIssueErrorCode.INVALID_DISCOUNT_RATE);
         }
     }
