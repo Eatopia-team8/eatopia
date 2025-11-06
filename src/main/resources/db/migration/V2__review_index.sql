@@ -10,8 +10,5 @@ CREATE INDEX idx_review_product_created_at
 CREATE INDEX idx_review_status_deleted_created
     ON review (status, deleted_at, created_at DESC);
 
-CREATE INDEX idx_review_status_deleted_reported_created
-    ON review (status, deleted_at, reported_at, created_at DESC);
-
 CREATE INDEX idx_review_rating_status_deleted_created
     ON review (rating, status, deleted_at, created_at DESC);
