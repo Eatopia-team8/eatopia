@@ -12,10 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,9 +21,9 @@ import java.util.stream.Collectors;
 public class RedisStatisticRepositoryImpl implements RedisStatisticRepository {
 
     private static final String TOP_SELLER_KEY = "top_seller_rank";
-    private static final String STAT_SELLER_DAILY_KEY = "statistics:sales:seller:daily_zset";
+    private static final String STAT_SELLER_DAILY_KEY_PREFIX = "statistics:sales:seller:daily_zset:";
     private static final String STAT_TOTAL_DAILY_KEY = "statistics:sales:total:daily_zset";
-    private static final String STAT_SELLER_MONTHLY_KEY = "statistics:sales:seller:monthly:";
+    private static final String STAT_SELLER_MONTHLY_KEY_PREFIX = "statistics:sales:seller:monthly:";
     private static final String STAT_TOTAL_MONTHLY_KEY = "statistics:sales:total:monthly:";
     private static final Duration STAT_TTL = Duration.ofDays(31); // 데이터 보관 기간
 
@@ -43,28 +40,36 @@ public class RedisStatisticRepositoryImpl implements RedisStatisticRepository {
 
     @Override
     public void saveDailySellerSales(LocalDate date, List<SaleResponse> sales) {
-        String key = STAT_SELLER_DAILY_KEY;
         if (sales == null || sales.isEmpty()) return;
 
-        double score = date.toEpochDay(); // 날짜를 score로 사용
-        Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
-        for (SaleResponse sale : sales) {
-            try {
-                String value = objectMapper.writeValueAsString(sale); // 객체를 JSON 문자열로 직렬화
-                tuples.add(ZSetOperations.TypedTuple.of(value, score));
-            } catch (JsonProcessingException e) {
-                log.error("Failed to serialize SaleResponse: {}", sale, e);
+        double score = date.toEpochDay();
+
+        Map<Long, List<SaleResponse>> salesBySeller = sales.stream()
+                .collect(Collectors.groupingBy(SaleResponse::sellerId));
+
+        for (Map.Entry<Long, List<SaleResponse>> entry : salesBySeller.entrySet()) {
+            Long sellerId = entry.getKey();
+            String key = STAT_SELLER_DAILY_KEY_PREFIX + sellerId;
+
+            Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
+            for (SaleResponse sale : entry.getValue()) {
+                try {
+                    String value = objectMapper.writeValueAsString(sale); // 객체를 JSON 문자열로 직렬화
+                    tuples.add(ZSetOperations.TypedTuple.of(value, score));
+                } catch (JsonProcessingException e) {
+                    log.error("Failed to serialize SaleResponse: {}", sale, e);
+                }
             }
-        }
-        if (!tuples.isEmpty()) {
-            myStringRedisTemplate.opsForZSet().add(key, tuples);
-            myStringRedisTemplate.expire(key, STAT_TTL);
+            if (!tuples.isEmpty()) {
+                myStringRedisTemplate.opsForZSet().add(key, tuples);
+                myStringRedisTemplate.expire(key, STAT_TTL);
+            }
         }
     }
 
     @Override
-    public List<SaleResponse> getDailySellerSales(LocalDate startDate, LocalDate endDate) {
-        String key = STAT_SELLER_DAILY_KEY;
+    public List<SaleResponse> getDailySellerSalesBySeller(Long sellerId, LocalDate startDate, LocalDate endDate) {
+        String key = STAT_SELLER_DAILY_KEY_PREFIX + sellerId;
         double minScore = startDate.toEpochDay();
         double maxScore = endDate.toEpochDay();
 
@@ -137,14 +142,23 @@ public class RedisStatisticRepositoryImpl implements RedisStatisticRepository {
 
     @Override
     public void saveMonthlySellerSales(String yearMonth, List<SaleResponse> sales) {
-        String key = STAT_SELLER_MONTHLY_KEY + yearMonth;
-        objectRedisTemplate.opsForValue().set(key, sales, STAT_TTL);
+        if (sales == null || sales.isEmpty()) return;
+
+        Map<Long, List<SaleResponse>> salesBySeller = sales.stream()
+                .collect(Collectors.groupingBy(SaleResponse::sellerId));
+
+        for (Map.Entry<Long, List<SaleResponse>> entry : salesBySeller.entrySet()) {
+            Long sellerId = entry.getKey();
+            String key = STAT_SELLER_MONTHLY_KEY_PREFIX + sellerId + ":" + yearMonth;
+
+            objectRedisTemplate.opsForValue().set(key, entry.getValue(), STAT_TTL);
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SaleResponse> getMonthlySellerSales(String yearMonth) {
-        String key = STAT_SELLER_MONTHLY_KEY + yearMonth;
+    public List<SaleResponse> getMonthlySellerSalesBySeller(Long sellerId, String yearMonth) {
+        String key = STAT_SELLER_MONTHLY_KEY_PREFIX + sellerId + ":" + yearMonth;
         return (List<SaleResponse>) objectRedisTemplate.opsForValue().get(key);
     }
 

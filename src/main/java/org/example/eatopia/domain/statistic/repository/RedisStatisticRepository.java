@@ -24,7 +24,7 @@ public interface RedisStatisticRepository {
      */
     void saveDailySellerSales(LocalDate date, List<SaleResponse> sales);
 
-    List<SaleResponse> getDailySellerSales(LocalDate startDate, LocalDate endDate);
+    List<SaleResponse> getDailySellerSalesBySeller(Long sellerId, LocalDate startDate, LocalDate endDate);
 
     void saveDailyTotalSales(LocalDate date, List<PeriodSaleResponse> sales);
 
@@ -32,7 +32,7 @@ public interface RedisStatisticRepository {
 
     void saveMonthlySellerSales(String yearMonth, List<SaleResponse> sales);
 
-    List<SaleResponse> getMonthlySellerSales(String yearMonth);
+    List<SaleResponse> getMonthlySellerSalesBySeller(Long sellerId, String yearMonth);
 
     void saveMonthlyTotalSales(String yearMonth, List<PeriodSaleResponse> sales);
 
