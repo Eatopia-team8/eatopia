@@ -3,8 +3,9 @@ package org.example.eatopia.domain.chat.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.dto.Response;
 import org.example.eatopia.domain.chat.dto.response.ChatRoomResponse;
-import org.example.eatopia.domain.chat.service.ChatRoomCommandService;
-import org.example.eatopia.domain.chat.service.ChatRoomQueryService;
+import org.example.eatopia.domain.chat.service.chatMessage.ChatMessageQueryService;
+import org.example.eatopia.domain.chat.service.chatRoom.ChatRoomCommandService;
+import org.example.eatopia.domain.chat.service.chatRoom.ChatRoomQueryService;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
-public class ChatRoomController {
+public class ChatController {
 
     private final ChatRoomCommandService chatRoomCommandService;
     private final ChatRoomQueryService chatRoomQueryService;

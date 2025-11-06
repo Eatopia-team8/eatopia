@@ -1,4 +1,4 @@
-package org.example.eatopia.domain.chat.service;
+package org.example.eatopia.domain.chat.service.chatRoom;
 
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.chat.dto.response.ChatRoomResponse;
