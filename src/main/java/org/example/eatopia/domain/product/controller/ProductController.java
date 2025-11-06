@@ -99,6 +99,8 @@ public class ProductController {
     public ResponseEntity<Response<ProductListResponse>> searchProductsWithCache(@ModelAttribute ProductSearchCondition condition,
                                                                                  @PageableDefault(size = 10) Pageable pageable) {
 
+        // 인기 검색어 집계
+        searchKeywordQueryService.recordKeyword(condition.keyword());
         ProductListResponse response = productQueryService.searchProductsWithCache(condition, pageable);
 
         return ResponseEntity.ok(Response.success(response));
