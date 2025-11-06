@@ -16,6 +16,7 @@ import org.example.eatopia.domain.review.repository.ReviewReportRepository;
 import org.example.eatopia.domain.review.repository.ReviewRepository;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,24 +35,28 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     @Override
     public ReviewResponse createReview(Long orderDetailId, Long userId, ReviewRequest request) {
 
-        // 중복 리뷰 작성 방지
-        if (reviewRepository.existsByOrderDetailId(orderDetailId)) {
+        try {
+            // 중복 리뷰 작성 방지
+            if (reviewRepository.existsByOrderDetailId(orderDetailId)) {
+                throw new GlobalException(ReviewErrorCode.REVIEW_ALREADY_EXISTS);
+            }
+
+            // 주문 내역 있는지 확인
+            OrderDetail orderDetail = orderQueryService.getOrderDetailByUserId(orderDetailId, userId);
+
+            Review review = Review.create(
+                    orderDetail.getOrder().getUser(),
+                    orderDetail.getProduct(),
+                    orderDetail,
+                    request.content(),
+                    request.rating()
+            );
+            reviewRepository.save(review);
+
+            return ReviewResponse.fromForCreate(review);
+        } catch (DataIntegrityViolationException e) {
             throw new GlobalException(ReviewErrorCode.REVIEW_ALREADY_EXISTS);
         }
-
-        // 주문 내역 있는지 확인
-        OrderDetail orderDetail = orderQueryService.getOrderDetailByUserId(orderDetailId, userId);
-
-        Review review = Review.create(
-                orderDetail.getOrder().getUser(),
-                orderDetail.getProduct(),
-                orderDetail,
-                request.content(),
-                request.rating()
-        );
-        reviewRepository.save(review);
-
-        return ReviewResponse.fromForCreate(review);
     }
 
     @Override
@@ -86,15 +91,16 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     @Override
     public ReviewReportResponse reportReview(Long reviewId, Long userId, ReviewReportRequest request) {
 
+        // 비관적 락 조회
+        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
+                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
         // 중복 신고 불가
         if (reviewReportRepository.existsByReviewIdAndUserId(reviewId, userId)) {
             throw new GlobalException(ReviewErrorCode.REVIEW_ALREADY_REPORTED);
         }
 
-        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
-                .orElseThrow(() -> new GlobalException(ReviewErrorCode.REVIEW_NOT_FOUND));
         User user = userQueryService.getUserEntityById(userId);
-
         ReviewReport report = ReviewReport.create(review, user, request.reason());
         reviewReportRepository.save(report);
 

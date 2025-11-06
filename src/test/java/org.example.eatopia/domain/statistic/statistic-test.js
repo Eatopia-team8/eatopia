@@ -25,8 +25,8 @@ function randomItem(array) {
 // 환경 변수 (사용자 환경변수를 우선 사용)
 // --------------------------------------------------------------------------------
 const BASE_URL = __ENV.BASE_URL || "http://host.docker.internal:8080/api/eatopia";
-const ADMIN_TOKEN = __ENV.ADMIN_TOKEN || "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3IiwiYXV0aCI6IlJPTEVfQURNSU4iLCJlbWFpbCI6InF3ZXJAbmF2ZXIuY29tIiwibmFtZSI6Iuq0gOumrOyekCIsImV4cCI6MTc2MjMwNzkxN30.SxcsOs7oYCWIjv7QdrvNP-KdTY9k3W2hzwfBETVG7A7M0sPfpB2II1C0SpadZ2O3FJGRjOg85LQfMSPngiGO-Q";
-const SELLER_TOKEN = __ENV.SELLER_TOKEN || "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4IiwiYXV0aCI6IlJPTEVfU0VMTEVSIiwiZW1haWwiOiJxd2VydEBuYXZlci5jb20iLCJuYW1lIjoi7YyQ66ek7J6QIiwiZXhwIjoxNzYyMzA3OTI3fQ.1RNgzTIRmcgYSa0EsSe2D7_i2UdH7VvcPM4rc102Vvipqlkl-sou48UXXQzknfJ8ffXFmhrywAJNcrv91Tiq5Q";
+const ADMIN_TOKEN = __ENV.ADMIN_TOKEN || "토큰";
+const SELLER_TOKEN = __ENV.SELLER_TOKEN || "토큰";
 // Java 코드에서 5명의 판매자(sellerCount = 5)를 생성했으므로, 1~5 사이의 ID를 사용합니다.
 const SELLER_IDS = [1, 2, 3, 4, 5];
 
@@ -38,7 +38,7 @@ const summarySalesTrend = new Trend('summary_sales_duration');
 const adminSellerSalesTrend = new Trend('admin_seller_sales_duration');
 
 // --------------------------------------------------------------------------------
-// 부하 테스트 옵션 (200 VUs)
+// 부하 테스트 옵션 (1000 VUs)
 // --------------------------------------------------------------------------------
 export const options = {
     scenarios: {
@@ -46,8 +46,8 @@ export const options = {
             executor: 'ramping-vus',
             startVUs: 0,
             stages: [
-                {duration: '30s', target: 160}, // 160 VUs (80%)
-                {duration: '1m', target: 160},
+                {duration: '30s', target: 800}, // 800 VUs (80%)
+                {duration: '1m', target: 800},
                 {duration: '10s', target: 0},
             ],
             exec: 'sellerScenario',
@@ -57,8 +57,8 @@ export const options = {
             executor: 'ramping-vus',
             startVUs: 0,
             stages: [
-                {duration: '30s', target: 40}, // 40 VUs (20%)
-                {duration: '1m', target: 40},
+                {duration: '30s', target: 200}, // 200 VUs (20%)
+                {duration: '1m', target: 200},
                 {duration: '10s', target: 0},
             ],
             exec: 'adminScenario',
