@@ -186,6 +186,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     // 상태 필터
     private BooleanExpression statusFilter(ReviewStatus status) {
+        
         if (status != null) {
             return review.status.eq(status);
         } else {
@@ -196,6 +197,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     // 삭제 포함 필터
     private BooleanExpression includeDeletedFilter(Boolean includeDeleted) {
+
         if (Boolean.TRUE.equals(includeDeleted)) {
             return null;
         } else {
