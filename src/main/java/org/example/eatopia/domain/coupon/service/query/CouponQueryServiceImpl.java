@@ -1,12 +1,16 @@
 package org.example.eatopia.domain.coupon.service.query;
 
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.domain.coupon.dto.response.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
+import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
+import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
+import org.example.eatopia.domain.coupon.exception.CouponIssueException;
+import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
-import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponQueryServiceImpl implements CouponQueryService {
 
     private final CouponRepository couponRepository;
+    private final CouponIssueRepository couponIssueRepository;
 
     // 쿠폰 단건 조회
     public CouponResponse getCoupon(Long couponId) {
@@ -40,6 +45,27 @@ public class CouponQueryServiceImpl implements CouponQueryService {
         );
 
         return CouponResponse.of(coupon, creator);
+    }
+
+    // 구매자가 발급받은 쿠폰 조회
+    public Page<CouponResponse> getIssuedCoupons(UserPrincipal authUser, Pageable pageable) {
+
+        Page<CouponIssue> issuedCoupons = couponIssueRepository.findAllByUserId(authUser.getId(), pageable);
+
+        Page<CouponResponse> response = issuedCoupons.map(issuedCoupon -> {
+            Coupon coupon = issuedCoupon.getCoupon();
+
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
     }
 
     // 생성된 모든 쿠폰 목록 페이징 조회
@@ -97,6 +123,14 @@ public class CouponQueryServiceImpl implements CouponQueryService {
         });
 
         return response;
+    }
 
+    // 타도메인에서 사용하는 메서드
+    public CouponIssue getIssuedCoupon(Long couponIssueId) {
+
+        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
+                .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
+
+        return couponIssue;
     }
 }

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record OrderCreateRequest(
         @NotNull(message = "배송지 ID는 필수입니다.")
-        Long addressId
+        Long addressId,
+        Long couponIssueId
 ) {
 }

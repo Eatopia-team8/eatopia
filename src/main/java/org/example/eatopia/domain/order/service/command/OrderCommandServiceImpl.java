@@ -6,6 +6,7 @@ import org.example.eatopia.domain.address.service.query.AddressQueryService;
 import org.example.eatopia.domain.cart.entity.CartItem;
 import org.example.eatopia.domain.cart.service.command.CartCommandService;
 import org.example.eatopia.domain.cart.service.query.CartQueryService;
+import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.service.command.CouponCommandService;
 import org.example.eatopia.domain.coupon.service.query.CouponQueryService;
 import org.example.eatopia.domain.order.dto.event.OrderCancelledEvent;
@@ -78,20 +79,17 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         // 쿠폰 선택
-        /*
-        CouponIssue couponIssue = couponQueryService.getUsableIssuedCoupons(userId);
-         */
-        Long couponIssueId = null;
+        CouponIssue couponIssue = null;
+        if (request.couponIssueId() != null) {
+            couponIssue = couponQueryService.getIssuedCoupon(request.couponIssueId());
+        }
+
         BigDecimal discountProductPrice = BigDecimal.ZERO;
         BigDecimal discountDeliveryPrice = BigDecimal.ZERO;
 
-        /*
         if (couponIssue != null) {
-            discountProductPrice = couponCommandService.calculateDiscountValue(totalProductPrice, couponIssue);
-            //쿠폰 등록 , 환불 로직에 필요
-            couponIssueId = couponIssue.getId();
+            discountProductPrice = couponCommandService.calculateDiscountValue(couponIssue, totalProductPrice);
         }
-         */
 
         //쿠폰 가격 추가해야함
         if (totalProductPrice.compareTo(DELIVERY_FREE_THRESHOLD) >= 0) {
@@ -115,7 +113,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 totalDeliveryPrice,
                 discountDeliveryPrice,
                 finalPrice,
-                couponIssueId,
+                request.couponIssueId(),
                 address.address()
         );
         Order savedOrder = orderRepository.save(order);
@@ -161,12 +159,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
 
         //주문 성공하면 쿠폰 사용
-        /*
         Long issueId = order.getCouponIssueId();
         if (issueId != null) {
-            couponCommandService.useCoupon(issueId);
+            couponCommandService.useIssuedCoupon(issueId);
         }
-        */
+
         order.updateStatus(OrderStatus.SUCCESS);
         order.startDelivery();
 
@@ -193,13 +190,13 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             }
 
             //주문 취소시 쿠폰 롤백
-            /*
-            Long issueId = order.getCouponIssueId();
-            if (issueId != null) {
-                couponCommandService.rollbackCoupon(issueId);
+            Long couponIssueId = order.getCouponIssueId();
+            if (couponIssueId != null) {
+                CouponIssue couponIssue = couponQueryService.getIssuedCoupon(couponIssueId);
+                couponCommandService.rollbackCouponIssue(couponIssue);
             }
-            */
         }
+
         // PENDING 상태일 땐 CANCELED로 변경
         order.updateStatus(OrderStatus.CANCELED);
 

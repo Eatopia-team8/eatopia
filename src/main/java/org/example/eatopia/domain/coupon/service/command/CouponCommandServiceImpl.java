@@ -3,21 +3,27 @@ package org.example.eatopia.domain.coupon.service.command;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.domain.coupon.dto.request.CouponCreateRequest;
+import org.example.eatopia.domain.coupon.dto.response.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
 import org.example.eatopia.domain.coupon.entity.Coupon;
 import org.example.eatopia.domain.coupon.entity.CouponIssue;
 import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
 import org.example.eatopia.domain.coupon.exception.CouponException;
+import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
+import org.example.eatopia.domain.coupon.exception.CouponIssueException;
 import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
 import org.example.eatopia.domain.coupon.repository.CouponRepository;
+import org.example.eatopia.domain.coupon.validator.CouponIssueValidator;
 import org.example.eatopia.domain.coupon.validator.CouponValidator;
 import org.example.eatopia.domain.user.config.UserRole;
-import org.example.eatopia.domain.user.dto.CouponCreatorInfoResponse;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import static org.example.eatopia.common.core.consts.Const.RANDOM;
 
@@ -37,6 +43,7 @@ public class CouponCommandServiceImpl implements CouponCommandService {
     private final CouponRepository couponRepository;
     private final CouponIssueRepository couponIssueRepository;
     private final CouponValidator couponValidator;
+    private final CouponIssueValidator couponIssueValidator;
 
     // 쿠폰 생성 처리
     public CouponResponse createCoupon(CouponCreateRequest request, UserPrincipal userAuth) {
@@ -97,6 +104,72 @@ public class CouponCommandServiceImpl implements CouponCommandService {
 
         coupon.softDelete();
     }
+
+    // 타 도메인용 메서드
+    // 할인 금액 계산
+    public BigDecimal calculateDiscountValue(CouponIssue couponIssue, BigDecimal totalProductPrice) {
+
+        // 구매 금액이 null이거나 0인 경우 할인금액 0원 반환
+        if (totalProductPrice == null || totalProductPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        Coupon coupon = couponIssue.getCoupon();
+
+        // 최소 주문 금액 검증
+        couponIssueValidator.validateMinOrderAmount(coupon.getMinOrderAmount(), totalProductPrice);
+
+        // 퍼센트형 할인 쿠폰일 시 할인 금액 계산
+        if (Boolean.TRUE.equals(coupon.getPercent())) {
+
+            final BigDecimal HUNDRED = new BigDecimal("100");
+
+            BigDecimal percent = coupon.getDiscountValue();
+            couponIssueValidator.validateDiscountPercentRange(percent);
+
+            BigDecimal discount = totalProductPrice.multiply(percent).divide(HUNDRED);
+
+            BigDecimal max = coupon.getMaxDiscountAmount();
+            if (max != null && discount.compareTo(max) > 0) {
+                discount = max;
+            }
+
+            return discount.setScale(0, RoundingMode.DOWN);
+        }
+
+        // 고정 금액 할인
+        BigDecimal discount = coupon.getDiscountValue();
+        if (discount == null || discount.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        // 결제금액 초과 방지
+        if (discount.compareTo(totalProductPrice) > 0) {
+            discount = totalProductPrice;
+        }
+
+        return discount.setScale(0, RoundingMode.DOWN);
+    }
+
+    // 쿠폰 사용
+    public void useIssuedCoupon(Long couponIssueId) {
+
+        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
+                .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
+
+        couponIssueValidator.validateUsable(couponIssue);
+
+        couponIssue.useIssuedCoupon();
+    }
+
+    // 쿠폰 사용 취소
+    public void rollbackCouponIssue(CouponIssue couponIssue) {
+
+        couponIssueValidator.validateRollbackable(couponIssue);
+
+        couponIssue.rollback();
+    }
+
 
     // 헬퍼메서드
     // 고유한 쿠폰 코드 생성(중복 체크하며 재시도)
