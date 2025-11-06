@@ -9,6 +9,7 @@ import org.example.eatopia.domain.chat.exception.ChatRoomException;
 import org.example.eatopia.domain.chat.repository.ChatMessageRepository;
 import org.example.eatopia.domain.chat.repository.ChatRoomRepository;
 import org.example.eatopia.domain.chat.validator.ChatMessageValidator;
+import org.example.eatopia.domain.chat.validator.ChatRoomValidator;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
@@ -31,6 +32,7 @@ public class ChatMessageQueryServiceImpl implements ChatMessageQueryService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final UserQueryService userQueryService;
+    private final ChatRoomValidator chatRoomValidator;
     private final ChatMessageValidator chatMessageValidator;
 
     @Override
@@ -40,7 +42,7 @@ public class ChatMessageQueryServiceImpl implements ChatMessageQueryService {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new ChatRoomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
 
-        chatMessageValidator.validateParticipant(chatRoom, user);
+        chatRoomValidator.validateParticipant(chatRoom, user);
 
         int pageSize = size > 0 ? size : 20;
 
