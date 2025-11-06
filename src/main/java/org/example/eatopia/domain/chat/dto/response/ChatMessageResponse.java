@@ -16,4 +16,14 @@ public record ChatMessageResponse(Long messageId,
                                          LocalDateTime sentAt) {
         return new ChatMessageResponse(messageId, senderId, senderName, message, sentAt);
     }
+
+    public static ChatMessageResponse from(ChatMessage chatMessage) {
+        return new ChatMessageResponse(
+                chatMessage.getId(),
+                chatMessage.getSender().getId(),
+                chatMessage.getSender().getName(),
+                chatMessage.getMessage(),
+                chatMessage.getSentAt()
+        );
+    }
 }
