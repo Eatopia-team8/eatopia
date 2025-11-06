@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -38,29 +37,30 @@ public class RedisStatisticQueryServiceImpl implements RedisStatisticQueryServic
     public Page<SaleResponse> getSellerSales(SaleSearchRequest request, Pageable pageable) {
         statisticValidator.validateSearchRequestDates(request);
 
-        List<SaleResponse> allSales;
+        List<SaleResponse> filteredSales;
+        Long sellerId = request.sellerId();
 
-        if ("monthly".equalsIgnoreCase(request.period())) {
-            List<String> periods = getPeriods(request.startDate(), request.endDate(), request.period());
-            allSales = periods.stream()
-                    .map(redisStatisticRepository::getMonthlySellerSales)
-                    .filter(Objects::nonNull)
-                    .flatMap(List::stream)
-                    .toList();
+        if (sellerId == null) {
+            filteredSales = List.of();
+
         } else {
-            // ZRANGEBYSCORE
-            allSales = redisStatisticRepository.getDailySellerSales(request.startDate(), request.endDate());
+            if ("monthly".equalsIgnoreCase(request.period())) {
+                List<String> periods = getPeriods(request.startDate(), request.endDate(), request.period());
+
+                filteredSales = periods.stream()
+                        .map(yearMonth -> redisStatisticRepository.getMonthlySellerSalesBySeller(sellerId, yearMonth))
+                        .filter(Objects::nonNull)
+                        .flatMap(List::stream)
+                        .toList();
+            } else {
+                filteredSales = redisStatisticRepository.getDailySellerSalesBySeller(
+                        sellerId,
+                        request.startDate(),
+                        request.endDate()
+                );
+            }
         }
 
-        // 조회된 전체 데이터를 메모리에서 필터링
-        Stream<SaleResponse> filteredStream = allSales.stream();
-        if (request.sellerId() != null) {
-            filteredStream = filteredStream.filter(sale -> sale.sellerId().equals(request.sellerId()));
-        }
-
-        List<SaleResponse> filteredSales = filteredStream.toList();
-
-        // 메모리에서 페이지네이션 수행
         int totalElements = filteredSales.size();
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), totalElements);
