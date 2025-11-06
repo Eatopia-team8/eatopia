@@ -78,6 +78,9 @@ dependencies {
 
     // AWS S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+
+    // Flyway
+    implementation 'org.flywaydb:flyway-core'
 }
 
 // QueryDSL 설정
