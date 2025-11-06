@@ -186,12 +186,21 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     // 상태 필터
     private BooleanExpression statusFilter(ReviewStatus status) {
-        return status != null ? review.status.eq(status) : null;
+        if (status != null) {
+            return review.status.eq(status);
+        } else {
+            // 디폴트: ACTIVE, REPORTED만 조회
+            return review.status.in(ReviewStatus.ACTIVE, ReviewStatus.REPORTED);
+        }
     }
 
     // 삭제 포함 필터
     private BooleanExpression includeDeletedFilter(Boolean includeDeleted) {
-        return Boolean.FALSE.equals(includeDeleted) ? review.deletedAt.isNull() : null;
+        if (Boolean.TRUE.equals(includeDeleted)) {
+            return null;
+        } else {
+            return review.deletedAt.isNull();
+        }
     }
 
     // 신고 리뷰만 필터
