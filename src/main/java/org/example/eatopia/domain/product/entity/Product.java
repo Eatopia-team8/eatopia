@@ -17,6 +17,26 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "product", indexes = {
+        // 카테고리별 최신순 조회 (V3 캐시의 핵심 쿼리)
+        @Index(name = "idx_product_category_created", columnList = "category_id, created_at DESC"),
+
+        // 가격 정렬 조회
+        @Index(name = "idx_product_category_price", columnList = "category_id, price"),
+
+        // 상태 필터링
+        @Index(name = "idx_product_status", columnList = "status"),
+
+        // 판매자별 상품 조회
+        @Index(name = "idx_product_seller", columnList = "seller_id"),
+
+        // 키워드 검색용 (name)
+        @Index(name = "idx_product_name", columnList = "name"),
+
+        // 복합 인덱스: 상태 제외 + 카테고리 + 생성일
+        @Index(name = "idx_product_status_category_created",
+                columnList = "status, category_id, created_at DESC")
+})
 public class Product extends BaseEntity {
 
     @Id

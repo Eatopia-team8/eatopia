@@ -10,6 +10,19 @@ import org.example.eatopia.domain.product.entity.Product;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "product_image", indexes = {
+        // product_id로 조회 + displayOrder 정렬
+        @Index(name = "idx_product_image_product_display",
+                columnList = "product_id, display_order ASC"),
+
+        // 썸네일 이미지 빠른 조회
+        @Index(name = "idx_product_image_product_thumbnail",
+                columnList = "product_id, is_thumbnail"),
+
+        // 이미지 개수 카운트 최적화
+        @Index(name = "idx_product_image_product_id",
+                columnList = "product_id")
+})
 public class ProductImage extends BaseEntity {
 
     @Id
