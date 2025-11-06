@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.domain.statistic.dto.response.PeriodSaleResponse;
 import org.example.eatopia.domain.statistic.dto.response.SaleResponse;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
@@ -42,29 +43,34 @@ public class RedisStatisticRepositoryImpl implements RedisStatisticRepository {
     public void saveDailySellerSales(LocalDate date, List<SaleResponse> sales) {
         if (sales == null || sales.isEmpty()) return;
 
-        double score = date.toEpochDay();
+        double score = date.toEpochDay(); // 날짜를 score로 사용
 
         Map<Long, List<SaleResponse>> salesBySeller = sales.stream()
                 .collect(Collectors.groupingBy(SaleResponse::sellerId));
 
-        for (Map.Entry<Long, List<SaleResponse>> entry : salesBySeller.entrySet()) {
-            Long sellerId = entry.getKey();
-            String key = STAT_SELLER_DAILY_KEY_PREFIX + sellerId;
+        // 문자열 직렬화 파이프라인 실행
+        myStringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
 
-            Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
-            for (SaleResponse sale : entry.getValue()) {
-                try {
-                    String value = objectMapper.writeValueAsString(sale); // 객체를 JSON 문자열로 직렬화
-                    tuples.add(ZSetOperations.TypedTuple.of(value, score));
-                } catch (JsonProcessingException e) {
-                    log.error("Failed to serialize SaleResponse: {}", sale, e);
+            for (Map.Entry<Long, List<SaleResponse>> entry : salesBySeller.entrySet()) {
+                String key = STAT_SELLER_DAILY_KEY_PREFIX + entry.getKey();
+
+                Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
+                for (SaleResponse sale : entry.getValue()) {
+                    try {
+                        String value = objectMapper.writeValueAsString(sale);
+                        tuples.add(ZSetOperations.TypedTuple.of(value, score));
+                    } catch (JsonProcessingException e) {
+                        log.error("Failed to serialize SaleResponse: {}", sale, e);
+                    }
+                }
+
+                if (!tuples.isEmpty()) {
+                    myStringRedisTemplate.opsForZSet().add(key, tuples);
+                    myStringRedisTemplate.expire(key, STAT_TTL);
                 }
             }
-            if (!tuples.isEmpty()) {
-                myStringRedisTemplate.opsForZSet().add(key, tuples);
-                myStringRedisTemplate.expire(key, STAT_TTL);
-            }
-        }
+            return null;
+        });
     }
 
     @Override
@@ -73,14 +79,12 @@ public class RedisStatisticRepositoryImpl implements RedisStatisticRepository {
         double minScore = startDate.toEpochDay();
         double maxScore = endDate.toEpochDay();
 
-        // ZRANGEBYSCORE로 범위 조회
         Set<String> jsonValues = myStringRedisTemplate.opsForZSet().rangeByScore(key, minScore, maxScore);
 
         if (jsonValues == null || jsonValues.isEmpty()) {
             return List.of();
         }
 
-        // JSON 문자열을 SaleResponse 객체로 역직렬화
         return jsonValues.stream()
                 .map(json -> {
                     try {
@@ -147,12 +151,17 @@ public class RedisStatisticRepositoryImpl implements RedisStatisticRepository {
         Map<Long, List<SaleResponse>> salesBySeller = sales.stream()
                 .collect(Collectors.groupingBy(SaleResponse::sellerId));
 
-        for (Map.Entry<Long, List<SaleResponse>> entry : salesBySeller.entrySet()) {
-            Long sellerId = entry.getKey();
-            String key = STAT_SELLER_MONTHLY_KEY_PREFIX + sellerId + ":" + yearMonth;
+        // 객체 직렬화 파이프라인 실행
+        objectRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            for (Map.Entry<Long, List<SaleResponse>> entry : salesBySeller.entrySet()) {
+                Long sellerId = entry.getKey();
+                String key = STAT_SELLER_MONTHLY_KEY_PREFIX + sellerId + ":" + yearMonth;
+                List<SaleResponse> value = entry.getValue();
 
-            objectRedisTemplate.opsForValue().set(key, entry.getValue(), STAT_TTL);
-        }
+                objectRedisTemplate.opsForValue().set(key, value, STAT_TTL);
+            }
+            return null;
+        });
     }
 
     @Override
