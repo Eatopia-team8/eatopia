@@ -9,6 +9,7 @@ import org.example.eatopia.domain.chat.exception.ChatRoomErrorCode;
 import org.example.eatopia.domain.chat.exception.ChatRoomException;
 import org.example.eatopia.domain.chat.repository.ChatMessageRepository;
 import org.example.eatopia.domain.chat.repository.ChatRoomRepository;
+import org.example.eatopia.domain.chat.validator.ChatMessageValidator;
 import org.example.eatopia.domain.chat.validator.ChatRoomValidator;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
@@ -24,10 +25,11 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 
     private final SimpMessagingTemplate messagingTemplate;
 
+    private final UserQueryService userQueryService;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomValidator chatRoomValidator;
-    private final UserQueryService userQueryService;
+    private final ChatMessageValidator chatMessageValidator;
 
     public void saveAndSendChatMessage(UserPrincipal authUser,
                                        Long chatRoonId,
@@ -38,6 +40,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
                 .orElseThrow(() -> new ChatRoomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
 
         chatRoomValidator.validateParticipant(chatRoom, sender);
+        chatMessageValidator.validateMessage(request.message());
 
         ChatMessage chatMessage = new ChatMessage(
                 chatRoom,
