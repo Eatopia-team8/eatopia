@@ -5,14 +5,17 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.domain.order.entity.OrderDetail;
 import org.example.eatopia.domain.payment.entity.Payment;
 import org.example.eatopia.domain.refund.enums.RefundReason;
 import org.example.eatopia.domain.refund.enums.RefundStatus;
+import org.example.eatopia.domain.settlement.entity.Settlement;
 import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 @Getter
@@ -54,6 +57,13 @@ public class Refund extends BaseEntity {
     @Column(nullable = false)
     private RefundStatus status;
 
+    @Column(nullable = false)
+    private BigDecimal commissionAmount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "settlementId")
+    private Settlement settlement;
+
     @Builder(access = AccessLevel.PRIVATE)
     private Refund(User user, Payment payment, OrderDetail orderDetail, BigDecimal price, Integer quantity, RefundReason reason) {
         this.user = user;
@@ -64,6 +74,10 @@ public class Refund extends BaseEntity {
         this.amount = price.multiply(BigDecimal.valueOf(quantity));
         this.reason = reason;
         this.status = RefundStatus.PENDING;
+
+        this.amount = price.multiply(BigDecimal.valueOf(quantity));
+        this.commissionAmount = this.amount.multiply(Const.COMMISSION_RATE)
+                .setScale(0, RoundingMode.FLOOR);
     }
 
     public static Refund of(User user, Payment payment, OrderDetail orderDetail, BigDecimal price, Integer quantity, RefundReason reason) {
@@ -79,5 +93,9 @@ public class Refund extends BaseEntity {
 
     public void updateStatus(RefundStatus status) {
         this.status = status;
+    }
+
+    void setSettlement(Settlement settlement) {
+        this.settlement = settlement;
     }
 }
