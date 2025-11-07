@@ -20,4 +20,7 @@ public abstract class Const {
     // 배송비 정책
     public static final BigDecimal DEFAULT_DELIVERY_PRICE = new BigDecimal("3000"); // 기본 배송비
     public static final BigDecimal DELIVERY_FREE_THRESHOLD = new BigDecimal("30000"); // 무료배송 기준 금액
+
+    //수수료
+    public static final BigDecimal COMMISSION_RATE = new BigDecimal("0.05");
 }
