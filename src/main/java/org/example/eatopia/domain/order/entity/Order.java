@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.domain.delivery.entity.Delivery;
 import org.example.eatopia.domain.order.enums.OrderStatus;
+import org.example.eatopia.domain.settlement.entity.Settlement;
 import org.example.eatopia.domain.user.entity.User;
 
 import java.math.BigDecimal;
@@ -124,6 +125,15 @@ public class Order extends BaseEntity {
         }
 
         this.delivery = Delivery.from(this);
+    }
+
+    public void assignDetailToSettlement(Long orderDetailId, Settlement settlement) {
+
+        OrderDetail detailToSettle = this.orderDetails.stream()
+                .filter(od -> od.getId().equals(orderDetailId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Order " + this.id + "에 OrderDetail " + orderDetailId + "가 존재하지 않습니다."));
+        detailToSettle.setSettlement(settlement);
     }
 
     /**
