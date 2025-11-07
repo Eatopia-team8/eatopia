@@ -67,7 +67,7 @@ public class OrderDetail extends BaseEntity {
                 .build();
     }
 
-    public void setSettlement(Settlement settlement) {
+    void setSettlement(Settlement settlement) {
         this.settlement = settlement;
     }
 
