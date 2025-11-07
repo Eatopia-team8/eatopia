@@ -35,6 +35,6 @@ public enum BankCode {
         return Stream.of(BankCode.values())
                 .filter(b -> b.name().equalsIgnoreCase(codeOrName) || b.getCode().equals(codeOrName))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 은행 코드입니다: " + codeOrName));
     }
 }

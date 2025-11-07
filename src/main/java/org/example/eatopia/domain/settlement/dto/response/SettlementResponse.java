@@ -8,11 +8,17 @@ import java.time.LocalDateTime;
 
 public record SettlementResponse(
         Long settlementId,
+
         Long sellerId,
+
         String sellerName,
+
         SettlementStatus status,
+
         BigDecimal finalSettlementAmount, // 최종 정산액
+
         LocalDateTime createdAt, // 정산 요청일
+
         LocalDateTime completedAt // 정산 완료일
 ) {
     public static SettlementResponse from(Settlement s) {

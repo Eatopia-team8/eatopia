@@ -77,7 +77,11 @@ public class Settlement extends BaseEntity {
         this.finalSettlementAmount = finalSettlementAmount;
     }
 
-    public static Settlement create(User seller, BigDecimal totalSaleAmount, BigDecimal totalCommissionAmount, BigDecimal totalRefundAmount, BigDecimal totalCommissionRefundAmount) {
+    public static Settlement create(User seller,
+                                    BigDecimal totalSaleAmount,
+                                    BigDecimal totalCommissionAmount,
+                                    BigDecimal totalRefundAmount,
+                                    BigDecimal totalCommissionRefundAmount) {
 
         BigDecimal netSales = totalSaleAmount.subtract(totalRefundAmount);
         BigDecimal netCommission = totalCommissionAmount.subtract(totalCommissionRefundAmount);
@@ -96,7 +100,10 @@ public class Settlement extends BaseEntity {
     /**
      * 정산 완료 시 계좌 정보 저장
      */
-    public void complete(String portonePayoutUid, BankCode bankCode, String bankAccount, String bankHolderName) {
+    public void complete(String portonePayoutUid,
+                         BankCode bankCode,
+                         String bankAccount,
+                         String bankHolderName) {
         this.status = SettlementStatus.COMPLETED;
         this.portonePayoutUid = portonePayoutUid;
         this.completedAt = LocalDateTime.now();
