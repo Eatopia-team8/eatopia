@@ -46,9 +46,13 @@ public class CartQueryServiceImpl implements CartQueryService {
 
         // 총액,배송비,최종 금액 계산
         BigDecimal totalAmount = itemResponses.stream()
+                .filter(CartItemResponse::isSelected)
                 .map(CartItemResponse::totalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal deliveryFee = calculateDeliveryFee(totalAmount);
+        BigDecimal deliveryFee = BigDecimal.ZERO;
+        if (totalAmount.compareTo(BigDecimal.ZERO) > 0) {
+            deliveryFee = calculateDeliveryFee(totalAmount);
+        }
         BigDecimal finalAmount = totalAmount.add(deliveryFee);
 
         return CartResponse.of(cart, itemResponses, totalAmount, deliveryFee, finalAmount);
