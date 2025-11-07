@@ -72,12 +72,10 @@ public class Refund extends BaseEntity {
         this.price = price;
         this.quantity = quantity;
         this.amount = price.multiply(BigDecimal.valueOf(quantity));
-        this.reason = reason;
-        this.status = RefundStatus.PENDING;
-
-        this.amount = price.multiply(BigDecimal.valueOf(quantity));
         this.commissionAmount = this.amount.multiply(Const.COMMISSION_RATE)
                 .setScale(0, RoundingMode.FLOOR);
+        this.reason = reason;
+        this.status = RefundStatus.PENDING;
     }
 
     public static Refund of(User user, Payment payment, OrderDetail orderDetail, BigDecimal price, Integer quantity, RefundReason reason) {
