@@ -1,32 +1,6 @@
 package org.example.eatopia.domain.statistic.service.query;
 
-import org.example.eatopia.domain.address.entity.Address;
-import org.example.eatopia.domain.address.repository.AddressRepository;
-import org.example.eatopia.domain.category.entity.Category;
-import org.example.eatopia.domain.category.repository.CategoryRepository;
-import org.example.eatopia.domain.order.entity.Order;
-import org.example.eatopia.domain.order.entity.OrderDetail;
-import org.example.eatopia.domain.order.enums.OrderStatus;
-import org.example.eatopia.domain.order.repository.OrderDetailRepository;
-import org.example.eatopia.domain.order.repository.OrderRepository;
-import org.example.eatopia.domain.product.entity.Product;
-import org.example.eatopia.domain.product.enums.ProductStatus;
-import org.example.eatopia.domain.product.repository.ProductRepository;
-import org.example.eatopia.domain.user.config.UserRole;
-import org.example.eatopia.domain.user.entity.User;
-import org.example.eatopia.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+/*
 
 @SpringBootTest
 public class DummyDataGeneratorTest {
@@ -45,9 +19,11 @@ public class DummyDataGeneratorTest {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
 
-    /**
-     * 통계 부하 테스트를 위한 더미 데이터 10,000개 생성 (날짜 분산 적용)
-     */
+    */
+/**
+ * 통계 부하 테스트를 위한 더미 데이터 10,000개 생성 (날짜 분산 적용)
+ *//*
+
     @Test
     @Transactional
     @Rollback(false)
@@ -148,4 +124,4 @@ public class DummyDataGeneratorTest {
         }
         return addressRepository.save(Address.create(user, addr, zip));
     }
-}
+}*/
