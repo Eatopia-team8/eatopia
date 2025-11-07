@@ -3,6 +3,8 @@ package org.example.eatopia.domain.chat.service.chatRoom;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.domain.chat.dto.response.ChatRoomResponse;
 import org.example.eatopia.domain.chat.entity.ChatRoom;
+import org.example.eatopia.domain.chat.exception.ChatRoomErrorCode;
+import org.example.eatopia.domain.chat.exception.ChatRoomException;
 import org.example.eatopia.domain.chat.repository.ChatRoomRepository;
 import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
@@ -27,5 +29,13 @@ public class ChatRoomQueryServiceImpl implements ChatRoomQueryService {
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByUser(user);
 
         return chatRooms.stream().map(ChatRoomResponse::from).toList();
+    }
+
+    public ChatRoom getChatRoomById(Long roomId) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new ChatRoomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        return chatRoom;
     }
 }

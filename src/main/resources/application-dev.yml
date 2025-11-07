@@ -65,6 +65,9 @@ server:
     context-path: /api/eatopia
   port: 8080
 
+  websocket:
+    allowed-origins: https://app.eatopia.com
+
 # --- JWT 키 (Parameter Store에서 가져옴) ---
 jwt:
   secret-key: ${jwt.secret-key}
