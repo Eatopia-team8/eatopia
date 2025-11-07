@@ -11,7 +11,7 @@ import org.example.eatopia.domain.user.entity.User;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "adresses")
+@Table(name = "addresses")
 public class Address extends BaseEntity {
 
     @Id
