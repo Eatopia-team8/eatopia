@@ -23,6 +23,7 @@ import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
 import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.product.service.command.ProductCommandService;
+import org.example.eatopia.domain.settlement.entity.Settlement;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -210,5 +211,28 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         order.updateStatus(OrderStatus.CANCELED);
 
         return OrderDetailResponse.from(order);
+    }
+
+    @Override
+    public void settlementToOrderDetails(List<Long> orderDetailIds, Settlement settlement) {
+        List<OrderDetail> details = orderDetailRepository.findAllById(orderDetailIds);
+
+        // [수정] Order 엔티티를 거치지 않고 OrderDetail의 settlement를 직접 설정
+        for (OrderDetail detail : details) {
+            detail.setSettlement(settlement);
+        }
+    }
+
+    /**
+     * [수정된 메서드]
+     */
+    @Override
+    public void rollbackSettlementForOrderDetails(List<OrderDetail> orderDetails) {
+        if (orderDetails == null || orderDetails.isEmpty()) return;
+
+        // [수정] Order 엔티티를 거치지 않고 OrderDetail의 settlement를 null로 설정
+        for (OrderDetail detail : orderDetails) {
+            detail.setSettlement(null);
+        }
     }
 }
