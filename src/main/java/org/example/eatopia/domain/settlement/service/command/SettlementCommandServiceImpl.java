@@ -133,11 +133,8 @@ public class SettlementCommandServiceImpl implements SettlementCommandService {
         Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> new SettlementException(SettlementErrorCode.SETTLEMENT_NOT_FOUND));
 
-        // 1. Settlement 상태 FAILED로 변경
         settlement.fail(failReason);
 
-        // 2. 연결된 OrderDetail/Refund에서 settlementId를 null로 롤백
-        // (다음 정산 시도 시 다시 포함되도록)
         orderCommandService.rollbackSettlementForOrderDetails(settlement.getOrderDetails());
         refundCommandService.rollbackSettlementForRefunds(settlement.getRefunds());
     }

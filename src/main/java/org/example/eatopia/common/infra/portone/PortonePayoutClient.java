@@ -22,7 +22,6 @@ public class PortonePayoutClient {
     public String requestPayout(String merchantPayoutUid, BigDecimal amount, String bankCode, String bankAccount, String bankHolder) {
         String token = getAccessToken();
 
-        // [수정] 운영 URL -> 테스트 URL
         String url = API_BASE_URL + "/payouts";
 
         Map<String, Object> body = new HashMap<>();

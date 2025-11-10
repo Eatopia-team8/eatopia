@@ -217,20 +217,15 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     public void settlementToOrderDetails(List<Long> orderDetailIds, Settlement settlement) {
         List<OrderDetail> details = orderDetailRepository.findAllById(orderDetailIds);
 
-        // [수정] Order 엔티티를 거치지 않고 OrderDetail의 settlement를 직접 설정
         for (OrderDetail detail : details) {
             detail.setSettlement(settlement);
         }
     }
 
-    /**
-     * [수정된 메서드]
-     */
     @Override
     public void rollbackSettlementForOrderDetails(List<OrderDetail> orderDetails) {
         if (orderDetails == null || orderDetails.isEmpty()) return;
 
-        // [수정] Order 엔티티를 거치지 않고 OrderDetail의 settlement를 null로 설정
         for (OrderDetail detail : orderDetails) {
             detail.setSettlement(null);
         }
