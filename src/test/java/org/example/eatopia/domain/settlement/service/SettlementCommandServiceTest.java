@@ -174,7 +174,7 @@ class SettlementCommandServiceTest {
 
         // Then
         // Portone 호출 확인
-        then(portonePayoutClient).should(times(1)).requestPayout(anyString(), eq(pendingSettlement.getFinalSettlementAmount()), eq("090"), eq(request.bankAccount()), eq(request.bankHolderName()));
+        then(portonePayoutClient).should(times(1)).requestPayout(anyString(), eq(pendingSettlement.getFinalSettlementAmount()), eq(request.bankCode().getCode()), eq(request.bankAccount()), eq(request.bankHolderName()));
 
         // 완료 트랜잭션 호출 확인
         then(settlementTransactionalService).should(times(1)).completeSettlementInNewTransaction(
