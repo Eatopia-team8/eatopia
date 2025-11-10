@@ -21,15 +21,15 @@ public record SettlementResponse(
 
         LocalDateTime completedAt // 정산 완료일
 ) {
-    public static SettlementResponse from(Settlement s) {
+    public static SettlementResponse from(Settlement settlement) {
         return new SettlementResponse(
-                s.getId(),
-                s.getSeller().getId(),
-                s.getSeller().getName(),
-                s.getStatus(),
-                s.getFinalSettlementAmount(),
-                s.getCreatedAt(),
-                s.getCompletedAt()
+                settlement.getId(),
+                settlement.getSeller().getId(),
+                settlement.getSeller().getName(),
+                settlement.getStatus(),
+                settlement.getFinalSettlementAmount(),
+                settlement.getCreatedAt(),
+                settlement.getCompletedAt()
         );
     }
 }

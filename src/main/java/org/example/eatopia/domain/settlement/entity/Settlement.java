@@ -113,4 +113,10 @@ public class Settlement extends BaseEntity {
         this.bankAccount = bankAccount;
         this.bankHolderName = bankHolderName;
     }
+
+    public void fail(String reason) {
+        this.status = SettlementStatus.FAILED;
+        this.failReason = reason;
+        this.completedAt = LocalDateTime.now(); // 실패한 시간 기록
+    }
 }

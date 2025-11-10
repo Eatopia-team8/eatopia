@@ -7,6 +7,8 @@ import org.example.eatopia.domain.order.entity.OrderDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface OrderQueryService {
     OrderDetailResponse getOrder(Long userId, Long orderId);
 
@@ -19,4 +21,6 @@ public interface OrderQueryService {
     Order findOrderByCode(String code);
 
     OrderDetail getOrderDetailByUserId(Long orderDetailId, Long userId);
+
+    List<OrderDetail> getUnsettleOrderDetails(Long sellerId);
 }

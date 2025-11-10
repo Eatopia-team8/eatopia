@@ -93,7 +93,7 @@ public class Refund extends BaseEntity {
         this.status = status;
     }
 
-    void setSettlement(Settlement settlement) {
+    public void assignToSettlement(Settlement settlement) {
         this.settlement = settlement;
     }
 }

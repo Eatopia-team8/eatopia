@@ -16,6 +16,7 @@ import org.example.eatopia.domain.refund.exception.RefundErrorCode;
 import org.example.eatopia.domain.refund.exception.RefundException;
 import org.example.eatopia.domain.refund.repository.RefundRepository;
 import org.example.eatopia.domain.refund.validator.RefundValidator;
+import org.example.eatopia.domain.settlement.entity.Settlement;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -106,6 +108,24 @@ public class RefundCommandServiceImpl implements RefundCommandService {
 
             refund.updateStatus(RefundStatus.FAILED);
             log.info("롤백 완료 [Refund ID: {}]", refundId);
+        }
+    }
+
+    @Override
+    public void settlementToRefunds(List<Long> refundIds, Settlement settlement) {
+        List<Refund> refunds = refundRepository.findAllById(refundIds);
+
+        for (Refund refund : refunds) {
+            refund.assignToSettlement(settlement);
+        }
+    }
+
+    @Override
+    public void rollbackSettlementForRefunds(List<Refund> refunds) {
+        if (refunds == null || refunds.isEmpty()) return;
+
+        for (Refund refund : refunds) {
+            refund.assignToSettlement(null);
         }
     }
 }
