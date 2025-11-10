@@ -29,8 +29,8 @@ public class SettlementController {
     private final SettlementCommandService settlementCommandService;
     private final SettlementQueryService settlementQueryService;
 
-    @Operation(summary = "판매자 정산 요청 및 실행", // [설명 변경]
-            description = "ADMIN이 특정 판매자의 미정산 내역을 집계하여 정산을 *요청*하고, 즉시 *실행*(송금)합니다.",
+    @Operation(summary = "판매자 정산 요청 (비동기)",
+            description = "ADMIN이 특정 판매자의 정산을 요청합니다. ",
             security = {@SecurityRequirement(name = "bearerAuth")})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/seller/{sellerId}")
@@ -38,11 +38,10 @@ public class SettlementController {
             @PathVariable Long sellerId,
             @Valid @RequestBody SettlementCreateRequest request
     ) {
-        Long settlementId = settlementCommandService.requestSettlement(sellerId, request);
+        SettlementResponse pendingResponse = settlementCommandService.requestSettlement(sellerId, request);
+        settlementCommandService.processPayout(pendingResponse.settlementId(), request);
 
-        SettlementResponse response = settlementCommandService.processPayout(settlementId, request);
-
-        return ResponseEntity.ok(Response.success(response));
+        return ResponseEntity.accepted().body(Response.success(pendingResponse));
     }
 
     @Operation(summary = "정산 내역 목록 조회",

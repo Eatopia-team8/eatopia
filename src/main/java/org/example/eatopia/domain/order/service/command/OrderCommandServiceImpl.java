@@ -1,5 +1,6 @@
 package org.example.eatopia.domain.order.service.command;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.domain.address.dto.AddressResponse;
@@ -215,10 +216,16 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
     @Override
     public void settlementToOrderDetails(List<Long> orderDetailIds, Settlement settlement) {
-        List<OrderDetail> details = orderDetailRepository.findAllById(orderDetailIds);
+        List<Order> orders = orderRepository.findOrdersByOrderDetailIdsWithDetails(orderDetailIds);
 
-        for (OrderDetail detail : details) {
-            detail.setSettlement(settlement);
+        for (Order order : orders) {
+            orderDetailIds.forEach(detailId -> {
+                try {
+                    order.assignDetailToSettlement(detailId, settlement);
+                } catch (EntityNotFoundException e) {
+                    //
+                }
+            });
         }
     }
 
@@ -226,8 +233,18 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     public void rollbackSettlementForOrderDetails(List<OrderDetail> orderDetails) {
         if (orderDetails == null || orderDetails.isEmpty()) return;
 
-        for (OrderDetail detail : orderDetails) {
-            detail.setSettlement(null);
+        List<Long> orderDetailIds = orderDetails.stream().map(OrderDetail::getId).toList();
+
+        List<Order> orders = orderRepository.findOrdersByOrderDetailIdsWithDetails(orderDetailIds);
+
+        for (Order order : orders) {
+            orderDetailIds.forEach(detailId -> {
+                try {
+                    order.assignDetailToSettlement(detailId, null);
+                } catch (EntityNotFoundException e) {
+                    //
+                }
+            });
         }
     }
 }

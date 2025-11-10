@@ -1,19 +1,23 @@
 package org.example.eatopia.common.infra.portone;
 
+import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.infra.portone.dto.request.PortonePayoutRequest;
+import org.example.eatopia.common.infra.portone.dto.request.PortoneTokenRequest;
+import org.example.eatopia.common.infra.portone.dto.response.PortonePayoutResponse;
+import org.example.eatopia.common.infra.portone.dto.response.PortoneTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class PortonePayoutClient {
 
     private static final String API_BASE_URL = "https://api.sandbox.iamport.kr";
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     @Value("${portone.api-key}")
     private String apiKey;
     @Value("${portone.api-secret}")
@@ -24,24 +28,31 @@ public class PortonePayoutClient {
 
         String url = API_BASE_URL + "/payouts";
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("merchant_uid", merchantPayoutUid);
-        body.put("amount", amount);
-        body.put("bank_code", bankCode);
-        body.put("bank_account", bankAccount);
-        body.put("bank_holder", bankHolder);
+        PortonePayoutRequest body = new PortonePayoutRequest(
+                merchantPayoutUid,
+                amount,
+                bankCode,
+                bankAccount,
+                bankHolder
+        );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<PortonePayoutRequest> entity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+        ResponseEntity<PortonePayoutResponse> response = restTemplate.postForEntity(
+                url, entity, PortonePayoutResponse.class
+        );
 
-        if (response.getStatusCode() == HttpStatus.OK) {
-            Map<String, Object> res = (Map<String, Object>) response.getBody().get("response");
-            return (String) res.get("imp_uid");
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            PortonePayoutResponse payoutResponse = response.getBody();
+            if (payoutResponse.code() == 0 && payoutResponse.response() != null) {
+                return payoutResponse.response().impUid();
+            } else {
+                throw new RuntimeException("Payout API 응답 오류: " + payoutResponse.message());
+            }
         } else {
             throw new RuntimeException("Payout 요청 실패: " + response.getStatusCode());
         }
@@ -50,19 +61,24 @@ public class PortonePayoutClient {
     private String getAccessToken() {
         String url = API_BASE_URL + "/users/getToken";
 
-        Map<String, String> body = new HashMap<>();
-        body.put("imp_key", apiKey);
-        body.put("imp_secret", apiSecret);
+        PortoneTokenRequest body = new PortoneTokenRequest(apiKey, apiSecret);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<PortoneTokenRequest> entity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-        if (response.getStatusCode() == HttpStatus.OK) {
-            Map<String, Object> data = (Map<String, Object>) response.getBody().get("response");
-            return (String) data.get("access_token");
+        ResponseEntity<PortoneTokenResponse> response = restTemplate.postForEntity(
+                url, entity, PortoneTokenResponse.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            PortoneTokenResponse tokenResponse = response.getBody();
+            if (tokenResponse.code() == 0 && tokenResponse.response() != null) {
+                return tokenResponse.response().accessToken();
+            } else {
+                throw new RuntimeException("Access Token API 응답 오류: " + tokenResponse.message());
+            }
         } else {
             throw new RuntimeException("Access Token 발급 실패");
         }

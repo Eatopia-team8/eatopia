@@ -19,8 +19,8 @@ import org.example.eatopia.domain.settlement.repository.SettlementRepository;
 import org.example.eatopia.domain.user.config.UserRole;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -29,7 +29,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-
 public class SettlementCommandServiceImpl implements SettlementCommandService {
 
     private final SettlementRepository settlementRepository;
@@ -39,19 +38,18 @@ public class SettlementCommandServiceImpl implements SettlementCommandService {
     private final RefundQueryService refundQueryService;
     private final OrderCommandService orderCommandService;
     private final RefundCommandService refundCommandService;
+    private final SettlementTransactionalService settlementTransactionalService;
 
     @Override
     @Transactional
-    public Long requestSettlement(Long sellerId, SettlementCreateRequest request) {
-
+    public SettlementResponse requestSettlement(Long sellerId, SettlementCreateRequest request) {
         User seller = userQueryService.getUserEntityById(sellerId);
+
         if (seller.getUserRole() != UserRole.SELLER) {
             throw new SettlementException(SettlementErrorCode.SETTLEMENT_NOT_FOUND);
         }
-
         List<OrderDetail> detailsToSettle = orderQueryService.getUnsettleOrderDetails(sellerId);
         List<Refund> refundsToSettle = refundQueryService.getUnsettleRefunds(sellerId);
-
         if (detailsToSettle.isEmpty() && refundsToSettle.isEmpty()) {
             throw new SettlementException(SettlementErrorCode.NOTHING_TO_SETTLE);
         }
@@ -59,15 +57,12 @@ public class SettlementCommandServiceImpl implements SettlementCommandService {
         BigDecimal totalSaleAmount = detailsToSettle.stream()
                 .map(od -> od.getPrice().multiply(BigDecimal.valueOf(od.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         BigDecimal totalCommissionAmount = detailsToSettle.stream()
                 .map(OrderDetail::getCommission)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         BigDecimal totalRefundAmount = refundsToSettle.stream()
                 .map(Refund::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         BigDecimal totalCommissionRefundAmount = refundsToSettle.stream()
                 .map(Refund::getCommissionAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -80,63 +75,34 @@ public class SettlementCommandServiceImpl implements SettlementCommandService {
                 totalCommissionRefundAmount
         );
 
-
         Settlement savedSettlement = settlementRepository.save(settlement);
 
         linkDetailsToSettlement(detailsToSettle, savedSettlement);
         linkRefundsToSettlement(refundsToSettle, savedSettlement);
 
-        return savedSettlement.getId();
+        return SettlementResponse.from(savedSettlement);
     }
 
+    @Async
     @Override
-    public SettlementResponse processPayout(Long settlementId, SettlementCreateRequest request) {
+    public void processPayout(Long settlementId, SettlementCreateRequest request) {
         Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> new SettlementException(SettlementErrorCode.SETTLEMENT_NOT_FOUND));
 
         if (settlement.getStatus() != SettlementStatus.PENDING) {
-            throw new SettlementException(SettlementErrorCode.INVALID_SETTLEMENT_STATUS);
+            log.warn("이미 처리 중이거나 완료된 정산입니다. [Settlement ID: {}]", settlementId);
+            return;
         }
 
         String payoutUid = null;
         try {
             payoutUid = triggerPayout(settlement, request);
 
-            completeSettlementInNewTransaction(settlement.getId(), payoutUid, request);
-
-            settlement.complete(payoutUid, request.bankCode(), request.bankAccount(), request.bankHolderName());
-            return SettlementResponse.from(settlement);
-
-        } catch (Exception e) {
+            settlementTransactionalService.completeSettlementInNewTransaction(settlement.getId(), payoutUid, request);
+        } catch (SettlementException e) {
             log.error("정산 API 호출 또는 완료 처리 중 실패. [Settlement ID: {}]", settlement.getId(), e);
-            failSettlementInNewTransaction(settlement.getId(), e.getMessage());
-
-            throw new SettlementException(SettlementErrorCode.PAYOUT_API_ERROR);
+            settlementTransactionalService.failSettlementInNewTransaction(settlement.getId(), e.getMessage());
         }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void completeSettlementInNewTransaction(Long settlementId, String payoutUid, SettlementCreateRequest request) {
-        Settlement settlement = settlementRepository.findById(settlementId)
-                .orElseThrow(() -> new SettlementException(SettlementErrorCode.SETTLEMENT_NOT_FOUND));
-
-        settlement.complete(
-                payoutUid,
-                request.bankCode(),
-                request.bankAccount(),
-                request.bankHolderName()
-        );
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW) // ✨ 새 트랜잭션 보장
-    public void failSettlementInNewTransaction(Long settlementId, String failReason) {
-        Settlement settlement = settlementRepository.findById(settlementId)
-                .orElseThrow(() -> new SettlementException(SettlementErrorCode.SETTLEMENT_NOT_FOUND));
-
-        settlement.fail(failReason);
-
-        orderCommandService.rollbackSettlementForOrderDetails(settlement.getOrderDetails());
-        refundCommandService.rollbackSettlementForRefunds(settlement.getRefunds());
     }
 
     private void linkDetailsToSettlement(List<OrderDetail> details, Settlement settlement) {
