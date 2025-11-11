@@ -18,7 +18,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 jwt:
-  secret-key: ${jwt.secret-key}
+  secret-key: ${jwt_secret_key}
   access-token-expiration-milliseconds: 3600000
 
 springdoc:
