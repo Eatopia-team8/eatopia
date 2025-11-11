@@ -17,6 +17,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+jwt:
+  secret-key: ${jwt_secret_key}
+  access-token-expiration-milliseconds: 3600000
+
 springdoc:
   api-docs.enabled: false
   swagger-ui:
