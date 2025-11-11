@@ -55,6 +55,10 @@
         {
           "name": "DB_PASSWORD",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/mysql/credentials:db.password::"
+        },
+        {
+          "name": "jwt.secret-key",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/jwt/credentials:secret-key::"
         }
       ]
     }
