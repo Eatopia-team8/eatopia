@@ -58,7 +58,7 @@
         },
         {
           "name": "JWT_SECRET_KEY",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/jwt/credentials:secret-key::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/jwt/credentials:secret-key::"
         }
       ]
     }
