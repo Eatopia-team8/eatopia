@@ -74,13 +74,13 @@ server:
 
 # --- JWT 키 (플레이스홀더 밑줄로 변경) ---
 jwt:
-  secret-key: ${jwt_secret-key}
-  access-token-expiration-milliseconds: ${jwt_access-token-expiration-milliseconds}
+  secret-key: ${jwt_secret_key}
+  access-token-expiration-milliseconds: ${jwt_access_token_expiration_milliseconds}
 
 # --- Portone 키 (플레이스홀더 밑줄로 변경) ---
 portone:
-  api-key: ${portone_api-key}
-  api-secret: ${portone_api-secret}
+  api-key: ${portone_api_key}
+  api-secret: ${portone_api_secret}
 
 # 8. 로깅 설정
 logging:
