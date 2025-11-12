@@ -54,6 +54,6 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
         // 4. (핵심) /queue/chat/chatRoom/{roomId} 목적지를 구독(Subscribe) 중인
         //    클라이언트에게 메시지 DTO를 전송합니다.
         //    (상대방과 나 자신 모두에게 전송됩니다. 프론트엔드에서 처리)
-        messagingTemplate.convertAndSend("/queue/chat/chatRoom/" + chatRoom.getId(), response);
+        messagingTemplate.convertAndSend("/queue/chatRoom/" + chatRoom.getId(), response);
     }
 }

@@ -72,8 +72,8 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             }
 
             // 4. (핵심 보안 로직) 구독하려는 목적지가 채팅방인지 확인
-            //    예: "/queue/chat/room/123"
-            if (destination.startsWith("/queue/chat/room/")) {
+            //    예: "/queue/chatRoom/123"
+            if (destination.startsWith("/queue/chatRoom/")) {
                 try {
                     // 5. 목적지에서 roomId 파싱
                     Long roomId = parseRoomIdFrom(destination);
