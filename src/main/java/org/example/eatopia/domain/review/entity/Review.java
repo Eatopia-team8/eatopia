@@ -37,7 +37,7 @@ public class Review extends SoftDeleteEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false, columnDefinition = "TINYINT CHECK (rating BETWEEN 1 AND 5)")
+    @Column(nullable = false, columnDefinition = "TINYINT")
     private Integer rating;
 
     @Column(nullable = false)

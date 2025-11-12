@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -23,4 +24,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByUserId(Long userId);
 
     Optional<Order> findByCode(String code);
+
+    @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.orderDetails od WHERE od.id IN :orderDetailIds")
+    List<Order> findOrdersByOrderDetailIdsWithDetails(List<Long> orderDetailIds);
 }

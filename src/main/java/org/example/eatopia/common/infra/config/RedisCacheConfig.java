@@ -3,6 +3,7 @@ package org.example.eatopia.common.infra.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.example.eatopia.domain.product.dto.response.ProductListResponse;
 import org.example.eatopia.domain.product.dto.response.ProductResponse;
@@ -38,6 +39,7 @@ public class RedisCacheConfig {
         // Redis 전용 ObjectMapper 생성 및 설정
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new Hibernate6Module());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 다형성 지원을 위한 기본 타이핑 활성화 (보안을 위해 LaissezFaireSubTypeValidator 대신 사용)

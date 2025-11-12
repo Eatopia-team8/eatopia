@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.eatopia.common.core.entity.BaseEntity;
 import org.example.eatopia.domain.product.entity.Product;
+import org.example.eatopia.domain.settlement.entity.Settlement;
 
 import java.math.BigDecimal;
 
@@ -39,22 +40,35 @@ public class OrderDetail extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @Column(nullable = false)
+    private BigDecimal commission;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "settlementId")
+    private Settlement settlement;
+
     @Builder(access = AccessLevel.PRIVATE)
-    private OrderDetail(Order order, Product product, Integer quantity, BigDecimal price) {
+    private OrderDetail(Order order, Product product, Integer quantity, BigDecimal price, BigDecimal commission) {
         this.order = order;
         this.product = product;
         this.sellerId = product.getSeller().getId();
         this.quantity = quantity;
         this.price = price;
+        this.commission = commission;
     }
 
-    public static OrderDetail create(Order order, Product product, Integer quantity, BigDecimal price) {
+    public static OrderDetail create(Order order, Product product, Integer quantity, BigDecimal price, BigDecimal commission) {
         return OrderDetail.builder()
                 .order(order)
                 .product(product)
                 .quantity(quantity)
                 .price(price)
+                .commission(commission)
                 .build();
+    }
+
+    void setSettlement(Settlement settlement) {
+        this.settlement = settlement;
     }
 
     /**

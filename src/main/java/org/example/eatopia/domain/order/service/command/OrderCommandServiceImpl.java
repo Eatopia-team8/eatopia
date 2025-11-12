@@ -1,6 +1,8 @@
 package org.example.eatopia.domain.order.service.command;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.example.eatopia.common.core.consts.Const;
 import org.example.eatopia.domain.address.dto.AddressResponse;
 import org.example.eatopia.domain.address.service.query.AddressQueryService;
 import org.example.eatopia.domain.cart.entity.CartItem;
@@ -22,6 +24,7 @@ import org.example.eatopia.domain.order.repository.OrderRepository;
 import org.example.eatopia.domain.order.validator.OrderValidator;
 import org.example.eatopia.domain.product.entity.Product;
 import org.example.eatopia.domain.product.service.command.ProductCommandService;
+import org.example.eatopia.domain.settlement.entity.Settlement;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,8 +44,6 @@ import static org.example.eatopia.common.core.consts.Const.DELIVERY_FREE_THRESHO
 @RequiredArgsConstructor
 @Transactional
 public class OrderCommandServiceImpl implements OrderCommandService {
-
-    private static final BigDecimal DEFAULT_DISCOUNT_PRICE = BigDecimal.ZERO;
 
     private final UserQueryService userQueryService;
     private final CartQueryService cartQueryService;
@@ -66,16 +68,15 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
         orderValidator.validateCartItems(cartItems);
 
-        //금액 계산
         BigDecimal totalProductPrice = BigDecimal.ZERO;
+
         for (CartItem cartItem : cartItems) {
             Product product = cartItem.getProduct();
             Integer quantity = cartItem.getQuantity();
             orderValidator.validateStock(product, quantity);
 
-            totalProductPrice = totalProductPrice.add(
-                    product.getPrice().multiply(BigDecimal.valueOf(quantity))
-            );
+            BigDecimal itemTotalPrice = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+            totalProductPrice = totalProductPrice.add(itemTotalPrice);
         }
 
         // 쿠폰 선택
@@ -91,10 +92,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
             discountProductPrice = couponCommandService.calculateDiscountValue(couponIssue, totalProductPrice);
         }
 
-        //쿠폰 가격 추가해야함
         if (totalProductPrice.compareTo(DELIVERY_FREE_THRESHOLD) >= 0) {
             discountDeliveryPrice = DEFAULT_DELIVERY_PRICE;
         }
+
         //최종 금액 계산
         BigDecimal totalDeliveryPrice = DEFAULT_DELIVERY_PRICE;
         BigDecimal finalPrice = totalProductPrice
@@ -118,22 +119,32 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         );
         Order savedOrder = orderRepository.save(order);
 
-        // 가격 저장
-        List<OrderDetail> orderDetail = cartItems.stream()
+        List<OrderDetail> orderDetails = cartItems.stream()
                 .map(cartItem -> {
                     Product product = cartItem.getProduct();
+                    Integer quantity = cartItem.getQuantity();
+                    BigDecimal price = product.getPrice(); // 주문 당시 상품 가격
+
+                    // 개별 상품 총액 계산
+                    BigDecimal itemTotalPrice = price.multiply(BigDecimal.valueOf(quantity));
+
+                    // 수수료 계산
+                    BigDecimal commission = itemTotalPrice.multiply(Const.COMMISSION_RATE)
+                            .setScale(0, RoundingMode.FLOOR);
+
                     OrderDetail detail = OrderDetail.create(
                             savedOrder,
                             product,
-                            cartItem.getQuantity(),
-                            product.getPrice()
+                            quantity,
+                            price,
+                            commission
                     );
                     savedOrder.addOrderDetail(detail);
                     return detail;
                 })
                 .collect(Collectors.toList());
 
-        orderDetailRepository.saveAll(orderDetail);
+        orderDetailRepository.saveAll(orderDetails);
 
         List<Long> productDelete = cartItems.stream()
                 .map(cartItem -> cartItem.getProduct().getId())
@@ -201,5 +212,39 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         order.updateStatus(OrderStatus.CANCELED);
 
         return OrderDetailResponse.from(order);
+    }
+
+    @Override
+    public void settlementToOrderDetails(List<Long> orderDetailIds, Settlement settlement) {
+        List<Order> orders = orderRepository.findOrdersByOrderDetailIdsWithDetails(orderDetailIds);
+
+        for (Order order : orders) {
+            orderDetailIds.forEach(detailId -> {
+                try {
+                    order.assignDetailToSettlement(detailId, settlement);
+                } catch (EntityNotFoundException e) {
+                    //
+                }
+            });
+        }
+    }
+
+    @Override
+    public void rollbackSettlementForOrderDetails(List<OrderDetail> orderDetails) {
+        if (orderDetails == null || orderDetails.isEmpty()) return;
+
+        List<Long> orderDetailIds = orderDetails.stream().map(OrderDetail::getId).toList();
+
+        List<Order> orders = orderRepository.findOrdersByOrderDetailIdsWithDetails(orderDetailIds);
+
+        for (Order order : orders) {
+            orderDetailIds.forEach(detailId -> {
+                try {
+                    order.assignDetailToSettlement(detailId, null);
+                } catch (EntityNotFoundException e) {
+                    //
+                }
+            });
+        }
     }
 }

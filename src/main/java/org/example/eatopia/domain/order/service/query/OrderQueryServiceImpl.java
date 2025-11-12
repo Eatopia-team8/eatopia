@@ -6,6 +6,7 @@ import org.example.eatopia.domain.order.dto.response.OrderDetailResponse;
 import org.example.eatopia.domain.order.dto.response.OrderResponse;
 import org.example.eatopia.domain.order.entity.Order;
 import org.example.eatopia.domain.order.entity.OrderDetail;
+import org.example.eatopia.domain.order.enums.OrderStatus;
 import org.example.eatopia.domain.order.exception.OrderErrorCode;
 import org.example.eatopia.domain.order.repository.OrderDetailRepository;
 import org.example.eatopia.domain.order.repository.OrderRepository;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,12 +49,6 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
     }
 
-    /**
-     * 사용자의 첫 주문 여부를 확인합니다.
-     *
-     * @param userId 확인할 사용자의 ID
-     * @return 첫 주문일 경우 true, 아닐 경우 false
-     */
     @Override
     public boolean isFirstOrder(Long userId) {
         return !orderRepository.existsByUserId(userId);
@@ -67,5 +64,10 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     public OrderDetail getOrderDetailByUserId(Long orderDetailId, Long userId) {
         return orderDetailRepository.findByIdAndOrderUserId(orderDetailId, userId)
                 .orElseThrow(() -> new GlobalException(OrderErrorCode.ORDER_NOT_FOUND));
+    }
+
+    @Override
+    public List<OrderDetail> getUnsettleOrderDetails(Long sellerId) {
+        return orderDetailRepository.findUnsettledOrderDetailsBySellerId(sellerId, OrderStatus.SUCCESS);
     }
 }
