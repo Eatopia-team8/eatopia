@@ -1,27 +1,91 @@
+# application-prod.yml
 spring:
+  # 1. AWS Secrets Manager 설정
   cloud:
     aws:
       region:
         static: ap-northeast-2
-      parameter-store:
-        enabled: false
+      stack:
+        auto: false
+      secretsmanager:
+        enabled: true
+        secrets:
+          - name: prod/app/config
+            profile: prod
+
+      credentials:
+        access-key: ''
+        secret-key: ''
+      s3:
+        bucket: ${cloud_aws_s3_bucket} # 밑줄로 변경
+
+  # 2. DB 설정 (플레이스홀더 밑줄로 변경)
   datasource:
-    url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${db_host}:3306/${db_name}?serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    username: ${db_username}
+    password: ${db_password}
+
+  # 3. JPA 설정 (나머지 설정 유지)
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        default_batch_fetch_size: 100
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 
-jwt:
-  secret-key: ${jwt_secret_key}
-  access-token-expiration-milliseconds: 3600000
+  # 4. Redis 설정
+  data:
+    redis:
+      host: ${REDIS_HOST_PROD}
+      port: 6379
 
+  # 5. Mail 설정
+  mail:
+    host: smtp.naver.com
+    port: 587
+    username: ${NAVER_MAIL_USER}
+    password: ${NAVER_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+# 6. Swagger 설정
 springdoc:
-  api-docs.enabled: false
+  api-docs:
+    enabled: true
   swagger-ui:
-    enabled: false
+    enabled: true
+    display-request-duration: true
+    tryItOutEnabled: true
+
+# 7. 서버 설정
+server:
+  servlet:
+    context-path: /api/eatopia
+  port: 8080
+
+# --- JWT 키 (플레이스홀더 밑줄로 변경) ---
+jwt:
+  secret-key: ${jwt_secret-key}
+  access-token-expiration-milliseconds: ${jwt_access-token-expiration-milliseconds}
+
+# --- Portone 키 (플레이스홀더 밑줄로 변경) ---
+portone:
+  api-key: ${portone_api-key}
+  api-secret: ${portone_api-secret}
+
+# 8. 로깅 설정
+logging:
+  level:
+    org.springframework.security: INFO
+    io.awspring.cloud: INFO
+    org.springframework.core.env: DEBUG
+    com.amazonaws.util.EC2MetadataUtils: ERROR
