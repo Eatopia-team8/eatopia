@@ -16,17 +16,21 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class PortonePayoutClient {
 
-    private static final String API_BASE_URL = "https://api.sandbox.iamport.kr";
     private final RestTemplate restTemplate;
-    @Value("${portone.api-key}")
+    // 하드코딩된 URL 대신 @Value로 주입받아 Prod/Dev 환경에 따라 변경되도록 수정
+    @Value("${portone_api_base_url}")
+    private String apiBaseUrl;
+    @Value("${portone_api_key}")
     private String apiKey;
-    @Value("${portone.api-secret}")
+
+    @Value("${portone_api_secret}")
     private String apiSecret;
 
     public String requestPayout(String merchantPayoutUid, BigDecimal amount, String bankCode, String bankAccount, String bankHolder) {
         String token = getAccessToken();
 
-        String url = API_BASE_URL + "/payouts";
+        // 하드코딩된 상수 대신 주입받은 필드 사용
+        String url = apiBaseUrl + "/payouts";
 
         PortonePayoutRequest body = new PortonePayoutRequest(
                 merchantPayoutUid,
@@ -59,7 +63,8 @@ public class PortonePayoutClient {
     }
 
     private String getAccessToken() {
-        String url = API_BASE_URL + "/users/getToken";
+        // 하드코딩된 상수 대신 주입받은 필드 사용
+        String url = apiBaseUrl + "/users/getToken";
 
         PortoneTokenRequest body = new PortoneTokenRequest(apiKey, apiSecret);
 

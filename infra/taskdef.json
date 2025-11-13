@@ -19,7 +19,7 @@
       "environment": [
         {
           "name": "SPRING_PROFILES_ACTIVE",
-          "value": "<PROFILE>"
+          "value": "prod"
         }
       ],
       "essential": true,
@@ -41,20 +41,60 @@
       },
       "secrets": [
         {
+          "name": "cloud_aws_s3_bucket",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:cloud_aws_s3_bucket::"
+        },
+        {
+          "name": "NAVER_MAIL_USER",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:NAVER_MAIL_USER::"
+        },
+        {
+          "name": "NAVER_MAIL_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:NAVER_MAIL_PASSWORD::"
+        },
+        {
+          "name": "REDIS_HOST_PROD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:REDIS_HOST_PROD::"
+        },
+        {
+          "name": "portone_api_key",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:portone_api_key::"
+        },
+        {
+          "name": "portone_api_secret",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:portone_api_secret::"
+        },
+        {
           "name": "DB_HOST",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/mysql/credentials:db.host::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db_host::"
         },
         {
           "name": "DB_NAME",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/mysql/credentials:db.name::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db_name::"
         },
         {
           "name": "DB_USERNAME",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/mysql/credentials:db.username::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db_username::"
         },
         {
           "name": "DB_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/mysql/credentials:db.password::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db_password::"
+        },
+        {
+          "name": "jwt_secret_key",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:jwt_secret_key::"
+        },
+        {
+          "name": "jwt_access_token_expiration_milliseconds",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:jwt_access_token_expiration_milliseconds::"
+        },
+        {
+          "name": "portone_api_base_url",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:portone_api_base_url::"
+        },
+        {
+          "name": "spring_cloud_aws_region_static",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:spring_cloud_aws_region_static::"
         }
       ]
     }
