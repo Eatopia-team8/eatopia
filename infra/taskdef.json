@@ -81,8 +81,8 @@
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db_password::"
         },
         {
-          "name": "secret-key",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:secret-key::"
+          "name": "jwt_secret_key",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:jwt_secret_key::"
         },
         {
           "name": "jwt_access_token_expiration_milliseconds",
