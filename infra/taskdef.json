@@ -91,6 +91,10 @@
         {
           "name": "portone_api_base_url",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:portone_api_base_url::"
+        },
+        {
+          "name": "spring_cloud_aws_region_static",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:spring_cloud_aws_region_static::"
         }
       ]
     }
