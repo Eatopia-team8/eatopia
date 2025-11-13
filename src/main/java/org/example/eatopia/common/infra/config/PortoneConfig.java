@@ -11,10 +11,10 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class PortoneConfig {
 
-    @Value("${portone.api-key}")
+    @Value("${portone_api_key}")
     private String apiKey;
 
-    @Value("${portone.api-secret}")
+    @Value("${portone_api_secret}")
     private String apiSecret;
 
     @Bean
