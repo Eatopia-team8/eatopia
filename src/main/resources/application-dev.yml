@@ -10,16 +10,16 @@ spring:
       stack:
         auto: false
       credentials:
-        access-key: ${spring.cloud.aws.credentials.access-key}
-        secret-key: ${spring.cloud.aws.credentials.secret-key}
+        access-key: ${spring_cloud_aws_credentials_access_key}
+        secret-key: ${spring_cloud_aws_credentials_secret_key}
       s3:
-        bucket: ${cloud.aws.s3.bucket}
+        bucket: ${cloud_aws_s3_bucket}
 
   # 3. DB 설정 (Parameter Store에서 가져옴)
   datasource:
-    url: jdbc:mysql://${db.host}:${db.port:3306}/${db.name}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    username: ${db.username}
-    password: ${db.password}
+    url: jdbc:mysql://${db_host}:${db_port:3306}/${db_name}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: ${db_username}
+    password: ${db_password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # 4. JPA 설정
@@ -67,13 +67,13 @@ server:
 
 # --- JWT 키 (Parameter Store에서 가져옴) ---
 jwt:
-  secret-key: ${jwt.secret-key}
-  access-token-expiration-milliseconds: ${jwt.access-token-expiration-milliseconds}
+  secret-key: ${jwt_secret_key}
+  access-token-expiration-milliseconds: ${jwt_access_token_expiration_milliseconds}
 
 # --- Portone 키 (Parameter Store에서 가져옴) ---
 portone:
-  api-key: ${portone.api-key}
-  api-secret: ${portone.api-secret}
+  api-key: ${portone_api_key}
+  api-secret: ${portone_api_secret}
 
 # 9. 로깅 설정
 logging:
@@ -82,4 +82,3 @@ logging:
     io.awspring.cloud: DEBUG       # AWS Parameter Store 로깅
     org.springframework.core.env: DEBUG # 설정 로딩 로그
     com.amazonaws.util.EC2MetadataUtils: ERROR # 불필요한 AWS 메타데이터 로그 억제
-
