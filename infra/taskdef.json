@@ -41,24 +41,52 @@
       },
       "secrets": [
         {
+          "name": "cloud_aws_s3_bucket",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:cloud_aws_s3_bucket::"
+        },
+        {
+          "name": "NAVER_MAIL_USER",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:NAVER_MAIL_USER::"
+        },
+        {
+          "name": "NAVER_MAIL_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:NAVER_MAIL_PASSWORD::"
+        },
+        {
+          "name": "REDIS_HOST_PROD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:REDIS_HOST_PROD::"
+        },
+        {
+          "name": "portone_api_key",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:portone_api_key::"
+        },
+        {
+          "name": "portone_api_secret",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:portone_api_secret::"
+        },
+        {
           "name": "DB_HOST",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/mysql/credentials:db.host::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db.host::"
         },
         {
           "name": "DB_NAME",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/mysql/credentials:db.name::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db.name::"
         },
         {
           "name": "DB_USERNAME",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/mysql/credentials:db.username::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db.username::"
         },
         {
           "name": "DB_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/mysql/credentials:db.password::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:db.password::"
         },
         {
-          "name": "JWT_SECRET_KEY",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/jwt/credentials:secret-key::"
+          "name": "secret-key",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:secret-key::"
+        },
+        {
+          "name": "jwt_access_token_expiration_milliseconds",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:prod/app/config:jwt_access_token_expiration_milliseconds::"
         }
       ]
     }
