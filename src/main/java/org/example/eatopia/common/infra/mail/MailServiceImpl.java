@@ -21,7 +21,7 @@ public class MailServiceImpl implements MailService {
     private final JavaMailSender javaMailSender;
 
     //보내는사람 이메일주소를 설정파일에서 읽어옴
-    @Value("${spring.mail.username}")
+    @Value("${NAVER_MAIL_USER}")
     private String fromEmail;
 
     @Override

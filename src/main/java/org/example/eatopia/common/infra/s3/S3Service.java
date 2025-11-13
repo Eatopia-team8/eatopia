@@ -8,8 +8,6 @@ import org.example.eatopia.common.infra.s3.dto.request.S3PresignedUrlRequest;
 import org.example.eatopia.common.infra.s3.dto.response.S3PresignedUrlResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -32,28 +30,21 @@ public class S3Service {
 
     private final S3Presigner s3Presigner;
 
-    @Value("${spring.cloud.aws.s3.bucket}")
+    // 플레이스홀더 이름 수정
+    @Value("${cloud_aws_s3_bucket}")
     private String bucketName;
 
-    @Value("${spring.cloud.aws.region.static}")
+    // 플레이스홀더 이름 수정
+    @Value("${spring_cloud_aws_region_static}")
     private String region;
-
-    @Value("${spring.cloud.aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${spring.cloud.aws.credentials.secret-key}")
-    private String secretKey;
 
     private S3Client s3Client;
 
     @PostConstruct
     public void init() {
-        // S3Client 초기화 (삭제 작업용)
+        // S3Client가 IAM Task Role을 사용하도록 수정
         this.s3Client = S3Client.builder()
                 .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)
-                ))
                 .build();
         log.info("S3Client 초기화 완료 - region: {}, bucket: {}", region, bucketName);
     }
@@ -148,7 +139,6 @@ public class S3Service {
             log.info("S3 파일 삭제 완료 - key: {}", key);
         } catch (software.amazon.awssdk.core.exception.SdkException e) {
             log.error("S3 파일 삭제 실패 - imageUrl: {}, error: {}", imageUrl, e.getMessage(), e);
-            // S3 삭제 실패해도 DB 삭제는 가능하도록 예외 X
         }
     }
 
@@ -173,7 +163,6 @@ public class S3Service {
             }
 
             // S3 Path-style URL은 경로에 버킷 이름이 포함되므로 제거
-            // /bucketName/products/image.jpg -> products/image.jpg
             String bucketPrefix = bucketName + "/";
             if (path.startsWith(bucketPrefix)) {
                 return path.substring(bucketPrefix.length());
