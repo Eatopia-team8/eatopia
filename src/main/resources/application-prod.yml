@@ -29,7 +29,7 @@ spring:
   # 3. JPA 설정 (나머지 설정 유지)
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -71,6 +71,8 @@ server:
   servlet:
     context-path: /api/eatopia
   port: 8080
+
+  forward-headers-strategy: NATIVE
 
 # --- JWT 키 (플레이스홀더 밑줄로 변경) ---
 jwt:
