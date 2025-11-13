@@ -28,14 +28,14 @@ public class JwtProvider {
 
     private final long tokenValidityInMilliseconds;
 
-    @Value("${jwt.secret-key}")
+    @Value("${jwt_secret_key}")
     private String secretKey;
 
     @Value("${jwt.access-token-expiration-milliseconds}")
     private long accessTokenExpirationMs;
     private Key key;
 
-    public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
+    public JwtProvider(@Value("${jwt_secret_key}") String secretKey,
                        @Value("${jwt.access-token-expiration-milliseconds}") long tokenValidity) {
         // 생성자에서는 필드 초기화만 담당
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
