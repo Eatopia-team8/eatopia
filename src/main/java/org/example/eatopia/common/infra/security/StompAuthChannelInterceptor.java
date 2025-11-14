@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.eatopia.domain.chat.entity.ChatRoom;
 import org.example.eatopia.domain.chat.service.chatRoom.ChatRoomQueryService;
 import org.example.eatopia.domain.chat.validator.ChatRoomValidator;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
 import org.example.eatopia.domain.user.entity.User;
 import org.example.eatopia.domain.user.service.query.UserQueryService;
 import org.springframework.http.HttpHeaders;
@@ -77,13 +78,10 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
                 try {
                     // 5. 목적지에서 roomId 파싱
                     Long roomId = parseRoomIdFrom(destination);
-                    // 6. UserPrincipal (ID) 파싱
-                    //    (authentication.getPrincipal()이 UserPrincipal 객체라고 가정)
-                    //    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-                    //    Long userId = userPrincipal.getId();
 
-                    //    (또는 authentication.getName()이 userId 문자열이라고 가정)
-                    Long userId = Long.parseLong(authentication.getName());
+                    // 6. UserPrincipal (ID) 파싱
+                    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+                    Long userId = userPrincipal.getId();
 
                     // 7. [검증] 이 유저(userId)가 이 방(roomId)의 참여자가 맞는지 검사
                     User user = userQueryService.getUserEntityById(userId);
