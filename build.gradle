@@ -86,7 +86,7 @@ dependencies {
 
     //AWS Cloud
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
-    implementation 'io.awspring.cloud:spring-cloud-aws-starter-secretsmanager'
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-secretsmanager:3.4.0'
 
     // AWS S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
