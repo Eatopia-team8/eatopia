@@ -30,12 +30,10 @@ public class S3Service {
 
     private final S3Presigner s3Presigner;
 
-    // 플레이스홀더 이름 수정
-    @Value("${cloud_aws_s3_bucket}")
+    @Value("${spring.cloud.aws.s3.bucket}")
     private String bucketName;
 
-    // 플레이스홀더 이름 수정
-    @Value("${spring_cloud_aws_region_static}")
+    @Value("${spring.cloud.aws.region.static}")
     private String region;
 
     private S3Client s3Client;

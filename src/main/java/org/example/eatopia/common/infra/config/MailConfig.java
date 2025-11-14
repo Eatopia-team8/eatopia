@@ -11,21 +11,27 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    @Value("${NAVER_MAIL_USER}")
+    @Value("${spring.mail.username}")
     private String username;
 
-    @Value("${NAVER_MAIL_PASSWORD}")
+    @Value("${spring.mail.password}")
     private String password;
+
+    @Value("${spring.mail.host}")
+    private String host;
+
+    @Value("${spring.mail.port}")
+    private int port;
 
     @Bean
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
-        javaMailSender.setHost("smtp.naver.com"); // 호스트는 공개 정보이므로 유지
+        javaMailSender.setHost(host);
         javaMailSender.setUsername(username);
         javaMailSender.setPassword(password);
 
-        javaMailSender.setPort(465);
+        javaMailSender.setPort(port);
 
         javaMailSender.setJavaMailProperties(getMailProperties());
 
@@ -38,7 +44,12 @@ public class MailConfig {
         properties.setProperty("mail.smtp.auth", "true");
         properties.setProperty("mail.smtp.ssl.enable", "true");
         properties.setProperty("mail.debug", "true");
-        properties.setProperty("mail.smtp.ssl.trust", "smtp.naver.com");
+
+        if (host.contains("naver")) {
+            properties.setProperty("mail.smtp.ssl.trust", "smtp.naver.com");
+        } else if (host.contains("gmail")) {
+            properties.setProperty("mail.smtp.ssl.trust", "smtp.gmail.com");
+        }
         return properties;
     }
 }
