@@ -9,9 +9,6 @@ spring:
         static: ap-northeast-2
       stack:
         auto: false
-      credentials:
-        access-key: ${spring_cloud_aws_credentials_access_key}
-        secret-key: ${spring_cloud_aws_credentials_secret_key}
       s3:
         bucket: ${cloud_aws_s3_bucket}
 
