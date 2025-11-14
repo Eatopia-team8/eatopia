@@ -66,14 +66,12 @@ server:
   port: 8080
 
 # --- JWT 키 (Parameter Store에서 가져옴) ---
-jwt:
-  secret-key: ${jwt_secret_key}
-  access-token-expiration-milliseconds: ${jwt_access_token_expiration_milliseconds}
+jwt_secret-key: ${jwt_secret_key}
+access-token-expiration-milliseconds: ${jwt_access_token_expiration_milliseconds}
 
 # --- Portone 키 (Parameter Store에서 가져옴) ---
-portone:
-  api-key: ${portone_api_key}
-  api-secret: ${portone_api_secret}
+portone_api_key: ${portone_api_key}
+api-secret: ${portone_api_secret}
 
 # 9. 로깅 설정
 logging:
