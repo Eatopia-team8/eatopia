@@ -45,7 +45,7 @@ spring:
   # 6. Redis 설정 (Parameter Store에서 가져옴)
   data:
     redis:
-      host: ${REDIS_HOST_DEV}
+      #      host: ${REDIS_HOST_DEV}
       port: 6379
 
 # 7. Swagger 설정
