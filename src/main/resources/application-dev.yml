@@ -45,7 +45,6 @@ spring:
   # 6. Redis 설정 (Parameter Store에서 가져옴)
   data:
     redis:
-      #      host: ${REDIS_HOST_DEV}
       port: 6379
 
 # 7. Swagger 설정
@@ -62,8 +61,6 @@ server:
   servlet:
     context-path: /api/eatopia
   port: 8080
-
-# (jwt: 와 portone: 블록을 모두 삭제해야 순서 꼬임 오류가 안 생깁니다)
 
 # 9. 로깅 설정
 logging:

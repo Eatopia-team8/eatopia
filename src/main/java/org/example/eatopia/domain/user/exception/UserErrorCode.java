@@ -4,9 +4,6 @@ import lombok.Getter;
 import org.example.eatopia.common.core.exception.errorcode.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-/**
- * User 도메인 관련 에러 코드를 정의하는 Enum
- */
 @Getter
 public enum UserErrorCode implements ErrorCode {
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USR-001", "이미 가입된 이메일입니다."),
@@ -18,7 +15,8 @@ public enum UserErrorCode implements ErrorCode {
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "USR-007", "주소 정보를 찾을 수 없습니다."),
     DUPLICATE_ADDRESS(HttpStatus.CONFLICT, "USR-008", "이미 등록된 주소입니다."),
     NO_CHANGES_DETECTED(HttpStatus.BAD_REQUEST, "USR-009", "변경된 내용이 없습니다."),
-    PASSWORD_IS_SAME(HttpStatus.BAD_REQUEST, "USR-010", "새 비밀번호는 현재 비밀번호와 동일할 수 없습니다.");
+    PASSWORD_IS_SAME(HttpStatus.BAD_REQUEST, "USR-010", "새 비밀번호는 현재 비밀번호와 동일할 수 없습니다."),
+    USER_IS_DELETED(HttpStatus.GONE, "USR-011", "탈퇴한 사용자입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
