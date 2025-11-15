@@ -8,8 +8,6 @@ import org.example.eatopia.common.infra.s3.dto.request.S3PresignedUrlRequest;
 import org.example.eatopia.common.infra.s3.dto.response.S3PresignedUrlResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -38,12 +36,6 @@ public class S3Service {
     @Value("${spring.cloud.aws.region.static}")
     private String region;
 
-    @Value("${spring.cloud.aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${spring.cloud.aws.credentials.secret-key}")
-    private String secretKey;
-
     private S3Client s3Client;
 
     @PostConstruct
@@ -51,11 +43,8 @@ public class S3Service {
         // S3Client 초기화 (삭제 작업용)
         this.s3Client = S3Client.builder()
                 .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)
-                ))
                 .build();
-        log.info("S3Client 초기화 완료 - region: {}, bucket: {}", region, bucketName);
+        log.info("SS3Client 초기화 완료 - region: {}, bucket: {}", region, bucketName);
     }
 
     @PreDestroy
