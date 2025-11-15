@@ -15,7 +15,7 @@ spring:
       s3:
         bucket: ${cloud.aws.s3.bucket}
 
-  # 3. DB 설정 (Parameter Store에서 가져옴)
+  # 3. DB 설정
   datasource:
     url: jdbc:mysql://${db.host}:${db.port:3306}/${db.name}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: ${db.username}
@@ -31,7 +31,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 100
 
-  # 5. Mail 설정 (Parameter Store에서 가져옴)
+  # 5. Mail 설정
   mail:
     host: smtp.naver.com
     port: 465
@@ -44,7 +44,7 @@ spring:
           ssl:
             enable: true
 
-  # 6. Redis 설정 (Parameter Store에서 가져옴)
+  # 6. Redis 설정
   data:
     redis:
       host: ${REDIS_HOST_DEV}
@@ -65,12 +65,10 @@ server:
     context-path: /api/eatopia
   port: 8080
 
-# --- JWT 키 (Parameter Store에서 가져옴) ---
 jwt:
   secret-key: ${jwt.secret-key}
   access-token-expiration-milliseconds: ${jwt.access-token-expiration-milliseconds}
 
-# --- Portone 키 (Parameter Store에서 가져옴) ---
 portone:
   api-key: ${portone.api-key}
   api-secret: ${portone.api-secret}
