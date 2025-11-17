@@ -1,0 +1,20 @@
+package org.example.eatopia.domain.auth.service;
+
+import org.example.eatopia.domain.auth.dto.request.AuthLoginRequest;
+import org.example.eatopia.domain.auth.dto.request.AuthSignUpRequest;
+import org.example.eatopia.domain.auth.dto.response.AuthLoginResponse;
+import org.example.eatopia.domain.auth.dto.response.AuthSignUpResponse;
+
+public interface AuthCommandService {
+    // 로그인 메소드
+    AuthLoginResponse login(AuthLoginRequest request);
+
+    // 회원가입을 처리하고 JWT 토큰을 포함한 응답을 반환
+    AuthSignUpResponse signUp(AuthSignUpRequest request);
+
+    //회원탈퇴 하고 토큰 무효화처리
+    void withdrawUser(Long userId);
+
+    //로그아웃 처리 및 토큰 무효화 처리
+    void logout(Long userId);
+}

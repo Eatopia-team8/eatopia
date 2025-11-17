@@ -1,0 +1,136 @@
+package org.example.eatopia.domain.coupon.service.query;
+
+import lombok.RequiredArgsConstructor;
+import org.example.eatopia.domain.coupon.dto.response.CouponCreatorInfoResponse;
+import org.example.eatopia.domain.coupon.dto.response.CouponResponse;
+import org.example.eatopia.domain.coupon.entity.Coupon;
+import org.example.eatopia.domain.coupon.entity.CouponIssue;
+import org.example.eatopia.domain.coupon.exception.CouponErrorCode;
+import org.example.eatopia.domain.coupon.exception.CouponException;
+import org.example.eatopia.domain.coupon.exception.CouponIssueErrorCode;
+import org.example.eatopia.domain.coupon.exception.CouponIssueException;
+import org.example.eatopia.domain.coupon.repository.CouponIssueRepository;
+import org.example.eatopia.domain.coupon.repository.CouponRepository;
+import org.example.eatopia.domain.user.dto.UserPrincipal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * 쿠폰 조회(단건/목록) 기능을 제공하는 쿼리 서비스 구현.
+ * <p>
+ * - 읽기 전용 트랜잭션에서 쿠폰과 생성자 정보를 조합해 {@link CouponResponse} 로 반환합니다.<br>
+ * - 유효하지 않은 쿠폰 ID 요청 시 {@link CouponException} 을 발생시켜 표준 에러 흐름을 유지합니다.
+ */
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class CouponQueryServiceImpl implements CouponQueryService {
+
+    private final CouponRepository couponRepository;
+    private final CouponIssueRepository couponIssueRepository;
+
+    // 쿠폰 단건 조회
+    public CouponResponse getCoupon(Long couponId) {
+
+        Coupon coupon = couponRepository.findCouponById(couponId)
+                .orElseThrow(() -> new CouponException(CouponErrorCode.INVALID_COUPON));
+
+        CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                coupon.getUser().getId(),
+                coupon.getUser().getName(),
+                coupon.getUser().getCompany(),
+                coupon.getUser().getUserRole()
+        );
+
+        return CouponResponse.of(coupon, creator);
+    }
+
+    // 구매자가 발급받은 쿠폰 조회
+    public Page<CouponResponse> getIssuedCoupons(UserPrincipal authUser, Pageable pageable) {
+
+        Page<CouponIssue> issuedCoupons = couponIssueRepository.findAllByUserId(authUser.getId(), pageable);
+
+        Page<CouponResponse> response = issuedCoupons.map(issuedCoupon -> {
+            Coupon coupon = issuedCoupon.getCoupon();
+
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
+    }
+
+    // 생성된 모든 쿠폰 목록 페이징 조회
+    public Page<CouponResponse> getCreatedCoupons(Pageable pageable) {
+
+        Page<Coupon> coupons = couponRepository.findAll(pageable);
+
+        Page<CouponResponse> response = coupons.map(coupon -> {
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
+    }
+
+    // 자신이 생성한 모든 쿠폰 목록 페이징 조회
+    public Page<CouponResponse> getCreatedCouponsByMe(UserPrincipal userAuth,
+                                                      Pageable pageable) {
+
+        Page<Coupon> coupons = couponRepository.findAllByUserId(userAuth.getId(), pageable);
+
+        Page<CouponResponse> response = coupons.map(coupon -> {
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
+    }
+
+    public Page<CouponResponse> getDownloadableCoupons(UserPrincipal userAuth, Pageable pageable) {
+
+        Page<Coupon> coupons = couponRepository.findAll(pageable);
+
+        Page<CouponResponse> response = coupons.map(coupon -> {
+            CouponCreatorInfoResponse creator = CouponCreatorInfoResponse.of(
+                    coupon.getUser().getId(),
+                    coupon.getUser().getName(),
+                    coupon.getUser().getCompany(),
+                    coupon.getUser().getUserRole()
+            );
+
+            return CouponResponse.of(coupon, creator);
+        });
+
+        return response;
+    }
+
+    // 타도메인에서 사용하는 메서드
+    public CouponIssue getIssuedCoupon(Long couponIssueId) {
+
+        CouponIssue couponIssue = couponIssueRepository.findById(couponIssueId)
+                .orElseThrow(() -> new CouponIssueException(CouponIssueErrorCode.COUPON_ISSUE_NOT_FOUND));
+
+        return couponIssue;
+    }
+}

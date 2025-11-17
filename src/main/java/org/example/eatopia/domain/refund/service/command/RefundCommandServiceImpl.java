@@ -1,0 +1,131 @@
+package org.example.eatopia.domain.refund.service.command;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.eatopia.domain.order.entity.OrderDetail;
+import org.example.eatopia.domain.order.service.query.OrderDetailQueryService;
+import org.example.eatopia.domain.payment.entity.Payment;
+import org.example.eatopia.domain.payment.service.query.PaymentQueryService;
+import org.example.eatopia.domain.product.service.command.ProductCommandService;
+import org.example.eatopia.domain.refund.dto.event.RefundSuccessEvent;
+import org.example.eatopia.domain.refund.dto.request.RefundCreateRequest;
+import org.example.eatopia.domain.refund.dto.response.RefundResponse;
+import org.example.eatopia.domain.refund.entity.Refund;
+import org.example.eatopia.domain.refund.enums.RefundStatus;
+import org.example.eatopia.domain.refund.exception.RefundErrorCode;
+import org.example.eatopia.domain.refund.exception.RefundException;
+import org.example.eatopia.domain.refund.repository.RefundRepository;
+import org.example.eatopia.domain.refund.validator.RefundValidator;
+import org.example.eatopia.domain.settlement.entity.Settlement;
+import org.example.eatopia.domain.user.entity.User;
+import org.example.eatopia.domain.user.service.query.UserQueryService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class RefundCommandServiceImpl implements RefundCommandService {
+
+    private final RefundRepository refundRepository;
+
+    private final UserQueryService userQueryService;
+    private final ProductCommandService productCommandService;
+    private final OrderDetailQueryService orderDetailQueryService;
+    private final PaymentQueryService paymentQueryService;
+
+    private final RefundValidator refundValidator;
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Override
+    public RefundResponse requestRefund(Long userId, RefundCreateRequest request) {
+
+        User user = userQueryService.getUserEntityById(userId);
+        OrderDetail orderDetail = orderDetailQueryService.getOrderDetailEntityById(request.orderDetailId());
+        Payment payment = paymentQueryService.getPaymentEntityByOrder(orderDetail.getOrder());
+
+        Integer quantity = request.quantity();
+        BigDecimal price = orderDetail.getPrice();
+        refundValidator.validateRefundRequest(user, orderDetail, payment, quantity);
+
+        Refund refund = Refund.of(user, payment, orderDetail, price, quantity, request.reason());
+        Refund savedRefund = refundRepository.save(refund);
+
+        return RefundResponse.from(savedRefund);
+    }
+
+    @Override
+    public RefundResponse successRefund(Long refundId) {
+        Refund refund = refundRepository.findById(refundId)
+                .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_NOT_FOUND));
+
+        refundValidator.validateRefundStatusPending(refund);
+        OrderDetail orderDetail = refund.getOrderDetail();
+
+        productCommandService.increaseStock(
+                orderDetail.getProduct().getId(),
+                refund.getQuantity()
+        );
+
+        refund.updateStatus(RefundStatus.SUCCESS);
+        eventPublisher.publishEvent(new RefundSuccessEvent(refund));
+
+        return RefundResponse.from(refund);
+    }
+
+    @Override
+    public RefundResponse canceledRefund(Long refundId) {
+        Refund refund = refundRepository.findById(refundId)
+                .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_NOT_FOUND));
+
+        refundValidator.validateRefundStatusPending(refund);
+        refund.updateStatus(RefundStatus.CANCELED);
+
+        return RefundResponse.from(refund);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW) // 별도 트랜잭션을 보장해야 됨
+    public void failRefund(Long refundId, String failReason) {
+
+        log.warn("PortOne 환불 API 실패 [Refund ID: {}]. 사유: {}", refundId, failReason);
+        Refund refund = refundRepository.findById(refundId)
+                .orElseThrow(() -> new RefundException(RefundErrorCode.REFUND_API_ERROR));
+
+        if (refund.getStatus() == RefundStatus.SUCCESS) {
+            OrderDetail orderDetail = refund.getOrderDetail();
+
+            productCommandService.decreaseStock(
+                    orderDetail.getProduct().getId(),
+                    refund.getQuantity()
+            );
+
+            refund.updateStatus(RefundStatus.FAILED);
+            log.info("롤백 완료 [Refund ID: {}]", refundId);
+        }
+    }
+
+    @Override
+    public void settlementToRefunds(List<Long> refundIds, Settlement settlement) {
+        List<Refund> refunds = refundRepository.findAllById(refundIds);
+
+        for (Refund refund : refunds) {
+            refund.assignToSettlement(settlement);
+        }
+    }
+
+    @Override
+    public void rollbackSettlementForRefunds(List<Refund> refunds) {
+        if (refunds == null || refunds.isEmpty()) return;
+
+        for (Refund refund : refunds) {
+            refund.assignToSettlement(null);
+        }
+    }
+}

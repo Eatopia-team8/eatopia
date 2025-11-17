@@ -1,0 +1,71 @@
+spring:
+  config:
+    import:
+      - "optional:aws-parameterstore:/config/dev/"
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      # (credentials 블록을 삭제해야 IAM 역할을 사용합니다)
+      s3:
+        bucket: ${cloud.aws.s3.bucket}
+
+  # 3. DB 설정 (Parameter Store에서 가져옴)
+  datasource:
+    url: jdbc:mysql://${db.host}:${db.port:3306}/${db.name}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: ${db.username}
+    password: ${db.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # 4. JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 100
+
+  # 5. Mail 설정 (Parameter Store에서 가져옴)
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ${NAVER_MAIL_USER}
+    password: ${NAVER_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
+  # 6. Redis 설정 (Parameter Store에서 가져옴)
+  data:
+    redis:
+      port: 6379
+
+# 7. Swagger 설정
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    display-request-duration: true
+    tryItOutEnabled: true
+
+# 8. 서버 설정
+server:
+  servlet:
+    context-path: /api/eatopia
+  port: 8080
+
+# 9. 로깅 설정
+logging:
+  level:
+    org.springframework.security: INFO
+    io.awspring.cloud: DEBUG       # AWS Parameter Store 로깅
+    org.springframework.core.env: DEBUG # 설정 로딩 로그
+    com.amazonaws.util.EC2MetadataUtils: ERROR # 불필요한 AWS 메타데이터 로그 억제
