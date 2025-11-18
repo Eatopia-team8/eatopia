@@ -193,7 +193,6 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 
 <details>
 <summary>부하 테스트 K6 사용</summary>
-<div markdown="1">
 
 ### 부하 테스트 도입 배경
 
@@ -267,12 +266,10 @@ k6는 이러한 핵심 지표를 **운영 환경에서 사용하는 형식과 �
 - 시나리오 브랜치 분리 가능
 - 팀 내 공유·확장 용이
 
-</div>
 </details>
 
 <details>
 <summary>CI/CD</summary>
-<div markdown="1">
 
 ### 도입 배경
 
@@ -289,12 +286,10 @@ k6는 이러한 핵심 지표를 **운영 환경에서 사용하는 형식과 �
 2. Docker Build 파일을 활용하여 Docker Hub로 이미지 푸시 가능, 이를 통해 AWS EC2 및 ECR에 손쉽게 배포 가능.
 3. AWS 클라우드 환경에서 실제 서비스 배포 및 실행 경험을 쌓을 수 있음.
 
-</div>
 </details>
 
 <details>
 <summary>Redis</summary>
-<div markdown="1">
 
 ### 도입 배경
 
@@ -309,7 +304,6 @@ k6는 이러한 핵심 지표를 **운영 환경에서 사용하는 형식과 �
 2. 다양한 자료구조 제공과 Lock 처리 기능으로 복잡한 동시성 제어에 적합하다.
 3. DB 부하를 줄이고 빠른 응답 속도를 제공할 수 있는 캐싱 솔루션으로 최적이다.
 
-</div>
 </details>
 
 ___
@@ -320,7 +314,6 @@ ___
 
 <details>
 <summary>로그인 시 JPA '쓰기 지연'으로 인한 Duplicate Key Exception 해결기</summary>
-<div markdown="1">
 
 ### 1. 문제 상황 정의
 
@@ -336,7 +329,8 @@ ___
 
 ```java
 // Refresh Token 생성 및 저장 로직
-authRepository.findByUserId(user.getId()).
+authRepository.findByUserId(user.getId())
+        .
 
 ifPresent(token ->{
         authRepository.
@@ -364,16 +358,17 @@ JPA의 트랜잭션 내 동작 순서는 다음과 같았습니다.
 
 ```java
 // Refresh Token 생성 및 저장 로직
-authRepository.findByUserId(user.getId()).
+authRepository.findByUserId(user.getId())
+        .
 
 ifPresent(token ->{
         authRepository.
 
 delete(token);
-    authRepository.
+            authRepository.
 
 flush(); // <-- 1. DELETE 쿼리를 즉시 강제 실행
-});
+        });
 
 String refreshTokenValue = UUID.randomUUID().toString();
 RefreshToken refreshToken = RefreshToken.create(user.getId(), refreshTokenValue);
@@ -398,11 +393,9 @@ save(refreshToken); // <-- 2. 이후 save 실행
 다음 고도화 단계에서는 **`@Lock(PESSIMISTIC_WRITE)`** (비관적 락)을 관련 리포지토리 메서드에 적용하는 것을 고려하고 있습니다. 조회 시점부터 해당 레코드에 락을 걸어, 하나의 트랜잭션이 완료될 때까지 다른 접근을 대기시켜 데이터 정합성을 100% 확보하는 방식으로 개선할 계획입니다.
 
 
-</div>
 </details>
 <details>
 <summary>쿠폰 발급 시 발생하는 동시성 문제</summary>
-<div markdown="1">
 
 문제 상황
 
@@ -417,11 +410,9 @@ save(refreshToken); // <-- 2. 이후 save 실행
 - 동일 쿠폰 행을 `SELECT … FOR UPDATE`로 트랜잭션 동안 잠금하여, 다른 트랜잭션이 해당 쿠폰을 읽고(쓰기 전제) 변경하려고 하면 대기시키거나 타임아웃으로 실패시켜 재고에 대한 제어를 하나의 원자적 작업으로 보장
 - 발급 완료 기록에 유니크 제약 조건(사용자ID+쿠폰ID)을 부여해 애플리케이션 오류가 있더라도 DB가 중복 삽입을 차단하도록 함
 
-</div>
 </details>
 <details>
 <summary>Redis ZSET 기반 통계 API 최적화</summary>
-<div markdown="1">
 
 `상황`
 
@@ -444,11 +435,9 @@ DB 부하가 없는 매일 새벽 5시에 일별/월별 통계를 집계 하여 
 - k6 부하 테스트 결과, p(95) 응답 속도가 3.26초에서 13.81ms로 99% 단축되었습니다.
 - 실시간 DB 부하를 제거하여 시스템 전반의 안정성을 확보했습니다.
 
-</div>
 </details>
 <details>
 <summary>장바구니 PESSIMISTIC_WRITE를 사용해 동시성 제어</summary>
-<div markdown="1">
 
 **문제 관측**
 
@@ -534,11 +523,9 @@ Caused by: org.hibernate.NonUniqueResultException: Query did not return a unique
 - MySQL `ON DUPLICATE KEY UPDATE`를 활용해 **단일 Upsert 쿼리로 수량 증가** 처리
 - 장바구니 변경을 메시지 큐에 넣고, 처리 과정은 순차화하여 DB 락 부하 완화
 
-</div>
 </details>
 <details>
 <summary>상품 조회 Redis Cache와 Index 적용한 성능 개선 보고서</summary>
-<div markdown="1">
 
 Eatopia는 신선식품 중심의 식품 전문 쇼핑 플랫폼으로
 
@@ -736,11 +723,9 @@ Eatopia는 신선식품 중심의 식품 전문 쇼핑 플랫폼으로
 
 데이터 증가에도 성능 저하 없는 **대규모 트래픽 대응 아키텍처**로 확장할 계획입니다.
 
-</div>
 </details>
 <details>
 <summary>리뷰 등록/신고 동시성 제어</summary>
-<div markdown="1">
 
 ### 1. 리뷰 등록 중복 삽입 문제
 
@@ -796,11 +781,9 @@ Optional<Review> findByIdAndDeletedAtIsNull(Long reviewId);
 - 10명 동시 신고 테스트 시 `reportCount`가 **정확히 1로 반영**
 - 중복 신고 방지 및 데이터 무결성 확보
 
-</div>
 </details>
 <details>
 <summary>리뷰 필터링 조회 Index 적용을 통한 성능 개선</summary>
-<div markdown="1">
 
 **문제 상황**
 
@@ -868,7 +851,6 @@ CREATE INDEX
 - 관리자 리뷰 조회 기준 평균 응답 **3.5~20배 개선**, P95/P99 **5배 이상 단축**
 - 동시 200명 부하에서도 **안정적 처리 유지**
 
-</div>
 </details>
 
 ---
