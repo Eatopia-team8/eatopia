@@ -7,9 +7,9 @@
 - [📌 프로젝트 개요](#프로젝트-개요)
 - [⭐ 핵심 기능](#핵심-기능)
 - [🛠 기술스택](#기술-스택)
-- [⚙️ 시스템 설계](#시스템-설계)
+- [⚙️ 시스템 설계](#system-design)
 - [💡 기술적 의사결정](#기술적-의사결정)
-- [⚒️ 트러블 슈팅 및 성능 개선](#트러블-슈팅-및-성능-개선)
+- [⚒️ 트러블 슈팅 및 성능 개선](#troubleshooting)
 - [👥 팀원 소개](#팀원-소개)
 
 ---
@@ -91,6 +91,8 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white)  ![AOP](https://img.shields.io/badge/AOP-6DB33F?style=flat)  ![Interceptor](https://img.shields.io/badge/Interceptor-6DB33F?style=flat)  ![WebClient](https://img.shields.io/badge/WebClient-6DB33F?style=flat)  ![RestTemplate](https://img.shields.io/badge/RestTemplate-6DB33F?style=flat)  ![Lombok](https://img.shields.io/badge/Lombok-8CC84B?style=flat&logo=lombok&logoColor=white)  ![Spring Batch](https://img.shields.io/badge/Spring_Batch-6DB33F?style=flat)  ![QueryDSL](https://img.shields.io/badge/QueryDSL-0769AD?style=flat)  ![Scheduler](https://img.shields.io/badge/Scheduler-6B7280?style=flat)
 
 ---
+
+<a id="system-design"></a>
 
 ## ⚙️시스템 설계
 
@@ -311,6 +313,8 @@ k6는 이러한 핵심 지표를 **운영 환경에서 사용하는 형식과 �
 </details>
 
 ___
+
+<a id="troubleshooting"></a>
 
 ## ⚒️트러블 슈팅 및 성능 개선
 
