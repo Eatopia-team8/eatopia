@@ -5,12 +5,12 @@
 ## 📚 목차
 
 - [📌 프로젝트 개요](#프로젝트-개요)
-- [⭐ 핵심 기능](#-핵심-기능)
-- [🛠 기술스택](#-기술-스택)
-- [⚙️ 시스템 설계](#-시스템-설계)
-- [💡 기술적 의사결정](#-기술적-의사결정)
-- [⚒️ 트러블 슈팅 및 성능 개선](#-트러블-슈팅-및-성능-개선)
-- [👥 팀원 소개](#-팀원-소개)
+- [⭐ 핵심 기능](#핵심-기능)
+- [🛠 기술스택](#기술-스택)
+- [⚙️ 시스템 설계](#시스템-설계)
+- [💡 기술적 의사결정](#기술적-의사결정)
+- [⚒️ 트러블 슈팅 및 성능 개선](#트러블-슈팅-및-성능-개선)
+- [👥 팀원 소개](#팀원-소개)
 
 ---
 
@@ -29,7 +29,7 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 
 ---
 
-## ⭐ 핵심 기능
+## ⭐핵심 기능
 
 | 기능    | 설명                                                      |
 |-------|---------------------------------------------------------|
@@ -43,7 +43,7 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 
 ---
 
-## 🛠 기술 스택
+## 🛠기술 스택
 
 ### Language
 
@@ -92,7 +92,7 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 
 ---
 
-## ⚙️ 시스템 설계
+## ⚙️시스템 설계
 
 ### ERD
 
@@ -100,81 +100,86 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 
 ### API 문서
 
-| 구분            | 설명               | 메서드    | 엔드포인트                                                                        |
-|---------------|------------------|--------|------------------------------------------------------------------------------|
-| USER          | 회원가입             | POST   | /api/eatopia/v1/auth/signup                                                  |
-|               | 로그인              | POST   | /api/eatopia/v1/auth/login                                                   |
-|               | 유저 목록 조회(관리자용)   | GET    | /api/eatopia/v1/users/admin-use-userList                                     |
-|               | 유저 조회            | GET    | /api/eatopia/v1/users/user-detail                                            |
-|               | 비밀번호 변경          | POST   | /api/eatopia/v1/users/change-password                                        |
-|               | 비밀번호 변경 이메일 발송   | POST   | /api/eatopia/v1/users/newpassword-foremail                                   |
-|               | 회원 탈퇴            | DELETE | /api/eatopia/v1/auth/withdraw                                                |
-|               | 로그아웃             | POST   | /api/eatopia/v1/logout                                                       |
-| CATEGORY      | 카테고리 등록(관리자)     | POST   | /api/eatopia/v1/categories                                                   |
-|               | 카테고리 삭제(관리자)     | DELETE | /api/eatopia/v1/categories/{categoryId}                                      |
-|               | 카테고리 수정(관리자)     | PATCH  | /api/eatopia/v1/categories/{categoryId}                                      |
-|               | 카테고리 조회(공통)      | GET    | /api/eatopia/v1/categories                                                   |
-|               | 카테고리 조회(관리자 페이징) | GET    | /api/eatopia/v1/admin/categories                                             |
-| PRODUCT       | 상품 등록(판매자)       | POST   | /api/eatopia/v1/products                                                     |
-|               | 상품 수정(판매자)       | PATCH  | /api/eatopia/v1/products/{productId}                                         |
-|               | 상품 삭제(판매자/관리자)   | DELETE | /api/eatopia/v1/products/{productId}                                         |
-|               | 상품 단건 조회         | GET    | /api/eatopia/v1/products/{productId}                                         |
-|               | 상품 페이징 조회        | GET    | /api/eatopia/v1/products?page=&size=&keyword=&categoryId=&minPrice=&maxPrice |
-|               | 상품 조회 + 캐시       | GET    | /api/eatopia/v2/products?page=&size=&keyword=&categoryId=&minPrice=&maxPrice |
-| CART          | 장바구니 상품 추가       | POST   | /api/eatopia/v1/carts/items                                                  |
-|               | 장바구니 조회          | GET    | /api/eatopia/v1/carts                                                        |
-|               | 장바구니 수량 변경       | PATCH  | /api/eatopia/v1/carts/items/{productId}                                      |
-|               | 장바구니 상품 선택 상태 변경 | PATCH  | /api/eatopia/v1/carts/items}/select                                          |
-|               | 장바구니 상품 삭제       | DELETE | /api/eatopia/v1/carts/items                                                  |
-| ORDER         | 주문 생성            | POST   | /api/eatopia/v1/orders                                                       |
-|               | 주문 단건 조회         | GET    | /api/eatopia/v1/orders/{orderId}                                             |
-|               | 주문 전체 조회         | GET    | /api/eatopia/v1/orders?page=                                                 |
-|               | 주문 취소            | PATCH  | /api/eatopia/v1/orders/{orderId}/cancel                                      |
-| PAYMENT       | 결제 정보 생성         | POST   | /api/eatopia/v1/payments                                                     |
-|               | 결제 수단 변경         | PATCH  | /api/eatopia/v1/payments/{paymentId}/method                                  |
-|               | 결제 검증            | POST   | /api/eatopia/v1/payments/verify                                              |
-| COUPON        | 쿠폰 생성            | POST   | /api/eatopia/v1/coupons                                                      |
-|               | 쿠폰 다운로드          | POST   | /api/eatopia/v1/coupons/{couponId}/download                                  |
-|               | 쿠폰 삭제            | DELETE | /api/eatopia/v1/coupons/{couponId}                                           |
-|               | 보유 쿠폰 조회         | GET    | /api/eatopia/v1/coupons/issued                                               |
-|               | 생성된 모든 쿠폰 조회     | GET    | /api/eatopia/v1/all-coupons                                                  |
-|               | 본인이 생성한 쿠폰 조회    | GET    | /api/eatopia/v1/coupons/created                                              |
-|               | 다운로드 가능 쿠폰 조회    | GET    | /api/eatopia/v1/coupons/downloadable                                         |
-|               | 쿠폰 상세 조회         | GET    | /api/eatopia/v1/coupons/{couponId}                                           |
-| REVIEW        | 리뷰 생성            | POST   | /api/eatopia/v1/orders/{orderDetailId}/review                                |
-|               | 상품 리뷰 조회         | GET    | /api/eatopia/v1/products/{productId}/reviews                                 |
-|               | 내 상품 리뷰 조회(판매자)  | GET    | /api/eatopia/v1/seller/reviews                                               |
-|               | 리뷰 조회(관리자)       | GET    | /api/eatopia/v1/admin/reviews                                                |
-|               | 리뷰 수정            | PATCH  | /api/eatopia/v1/reviews/{reviewId}                                           |
-|               | 리뷰 삭제            | DELETE | /api/eatopia/v1/reviews/{reviewId}                                           |
-|               | 리뷰 신고            | POST   | /api/eatopia/v1/reviews/{reviewId}/report                                    |
-|               | 리뷰 신고 내역 조회(관리자) | GET    | /api/eatopia/v1/admin/reviews/{reviewId}/reports                             |
-|               | 리뷰 숨김 처리(관리자)    | PATCH  | /api/eatopia/v1/reviews/{reviewId}/hide                                      |
-| ADDRESS       | 배송지 조회           | GET    | /api/eatopia/v1/address/check-address/{addressId}                            |
-|               | 배송지 상세 조회        | GET    | /api/eatopia/v1/address/check-detailAddress/{addressId}                      |
-|               | 배송지 생성           | POST   | /api/eatopia/v1/address/create-address                                       |
-|               | 배송지 수정           | POST   | /api/eatopia/v1/address/update-address/{addressId}                           |
-|               | 배송지 삭제           | DELETE | /api/eatopia/v1/address/delete-address/{addressId}                           |
-|               | 기본 배송지 설정        | DELETE | /api/eatopia/v1/address/set-address/{addressId}/default                      |
-| REFUND        | 환불 생성            | POST   | /api/eatopia/v2/refunds                                                      |
-|               | 환불 조회            | GET    | /api/eatopia/v2/refunds                                                      |
-|               | 환불 승인(판매자)       | POST   | /api/eatopia/v2/refunds/{refundId}/success                                   |
-|               | 환불 거절(판매자)       | POST   | /api/eatopia/v2/refunds/{refundId}/canceled                                  |
-| STATISTIC     | 매출 목록 조회(판매자)    | GET    | /api/eatopia/v1/statistic/seller                                             |
-|               | 매출 요약 조회(관리자)    | GET    | /api/eatopia/v1/statistic/summary                                            |
-|               | 매출 목록 조회(redis)  | GET    | /api/eatopia/v2/statistic/seller                                             |
-|               | 매출 요약 조회(redis)  | GET    | /api/eatopia/v2/statistic/summary                                            |
-| S3            | 단건 presigned URL | GET    | /api/eatopia/v1/s3/presigned-url                                             |
-|               | 다중 presigned URL | POST   | /api/eatopia/v1/s3/presigned-urls                                            |
-| PRODUCT-IMAGE | 이미지 순서 변경        | PATCH  | /api/eatopia/v1/products/{productId}/images/{imageId}/order                  |
-|               | 대표 이미지 변경        | PATCH  | /api/eatopia/v1/products/{productId}/images/{imageId}/thumbnail              |
-|               | 이미지 개별 삭제        | DELETE | /api/eatopia/v1/products/{productId}/images/{imageId}                        |
-|               | 이미지 개별 추가        | POST   | /api/eatopia/v1/products/{productId}/images                                  |
-| DELIVERY      | 배달 상태 변경         | PATCH  | /api/eatopia/v1/deliveries/{orderId}/status                                  |
-| SETTLEMENT    | 정산 실행            | POST   | /api/eatopia/v1/settlements/seller/{sellerId}                                |
-|               | 정산 내역 조회         | GET    | /api/eatopia/v1/settlements                                                  |
-|               | 정산 내역 상세 조회      | GET    | /api/eatopia/v1/settlements/{sellerId}                                       |
-| SEARCH        | 인기 검색어 조회        | GET    | /api/eatopia/v1/search/keywords/popular                                      |
+| 구분            | 설명                 | 메서드    | 엔드포인트                                                           |
+|---------------|--------------------|--------|-----------------------------------------------------------------|
+| AUTH          | 회원가입               | POST   | /api/eatopia/v1/auth/signup                                     |
+|               | 로그인                | POST   | /api/eatopia/v1/auth/login                                      |
+|               | 로그아웃               | POST   | /api/eatopia/v1/logout                                          |
+|               | 회원 탈퇴              | DELETE | /api/eatopia/v1/auth/withdraw                                   |
+| USER          | 비밀번호 재설정           | POST   | /api/eatopia/v1/users/password-reset                            |
+|               | 비밀번호 변경 이메일 발송     | POST   | /api/eatopia/v1/users/newpassword-foremail                      |
+|               | 프로필 정보 수정          | PATCH  | /api/eatopia/v1/users/update-profile                            |
+|               | 비밀번호 변경            | PATCH  | /api/eatopia/v1/users/change-password                           |
+|               | 현재 로그인된 사용자 정보     | GET    | /api/eatopia/v1/users/userinfo                                  |
+|               | 상세정보 조회            | GET    | /api/eatopia/v1/users/user-detail/{userId}                      |
+|               | 유저 검색 기능           | GET    | /api/eatopia/v1/users/search                                    |
+|               | 유저 목록 조회(관리자용)     | GET    | /api/eatopia/v1/users/admin-use-userList                        |
+| CATEGORY      | 카테고리 등록(관리자)       | POST   | /api/eatopia/v1/categories                                      |
+|               | 카테고리 삭제(관리자)       | DELETE | /api/eatopia/v1/categories/{categoryId}                         |
+|               | 카테고리 수정(관리자)       | PATCH  | /api/eatopia/v1/categories/{categoryId}                         |
+|               | 카테고리 조회(공통)        | GET    | /api/eatopia/v1/categories                                      |
+|               | 카테고리 조회(관리자 페이징)   | GET    | /api/eatopia/v1/admin/categories                                |
+| PRODUCT       | 상품 등록(판매자)         | POST   | /api/eatopia/v1/products                                        |
+|               | 상품 수정(판매자)         | PATCH  | /api/eatopia/v1/products/{productId}                            |
+|               | 상품 삭제(판매자/관리자)     | DELETE | /api/eatopia/v1/products/{productId}                            |
+|               | 상품 단건 조회           | GET    | /api/eatopia/v1/products/{productId}                            |
+|               | 상품 페이징 조회          | GET    | /api/eatopia/v1/products                                        |
+|               | 상품 조회 + 전체캐시       | GET    | /api/eatopia/v2/products                                        |
+|               | 상품 조회 + 부분캐시       | GET    | /api/eatopia/v3/products                                        |
+| CART          | 장바구니 상품 추가         | POST   | /api/eatopia/v1/carts/items                                     |
+|               | 장바구니 조회            | GET    | /api/eatopia/v1/carts                                           |
+|               | 장바구니 수량 변경         | PATCH  | /api/eatopia/v1/carts/items/{productId}                         |
+|               | 장바구니 상품 선택 상태 변경   | PATCH  | /api/eatopia/v1/carts/items/select                              |
+|               | 장바구니 상품 삭제         | DELETE | /api/eatopia/v1/carts/items                                     |
+| ORDER         | 주문 생성              | POST   | /api/eatopia/v1/orders                                          |
+|               | 주문 상세 조회           | GET    | /api/eatopia/v1/orders/{orderId}                                |
+|               | 주문 목록 조회           | GET    | /api/eatopia/v1/orders                                          |
+|               | 주문 취소              | PATCH  | /api/eatopia/v1/orders/{orderId}/cancel                         |
+| PAYMENT       | 결제 정보 생성           | POST   | /api/eatopia/v1/payments                                        |
+|               | 결제 수단 변경           | PATCH  | /api/eatopia/v1/payments/{paymentId}/method                     |
+|               | 결제 검증              | POST   | /api/eatopia/v1/payments/verify                                 |
+| COUPON        | 쿠폰 생성              | POST   | /api/eatopia/v1/coupons                                         |
+|               | 쿠폰 다운로드            | POST   | /api/eatopia/v1/coupons/{couponId}/download                     |
+|               | 쿠폰 상세 조회           | GET    | /api/eatopia/v1/coupons/{couponId}                              |
+|               | 쿠폰 삭제              | DELETE | /api/eatopia/v1/coupons/{couponId}                              |
+|               | 내가 생성한 쿠폰 목록 조회    | GET    | /api/eatopia/v1/coupons/created                                 |
+|               | 발급받은 쿠폰 목록 조회      | GET    | /api/eatopia/v1/coupons/issued                                  |
+|               | 다운로드 가능 쿠폰 조회      | GET    | /api/eatopia/v1/coupons/downloadable                            |
+|               | 전체 쿠폰 목록 조회        | GET    | /api/eatopia/v1/all-coupons                                     |
+| REVIEW        | 리뷰 생성              | POST   | /api/eatopia/v1/orders/{orderDetailId}/review                   |
+|               | 상품 리뷰 조회           | GET    | /api/eatopia/v1/products/{productId}/reviews                    |
+|               | 내 상품 리뷰 조회(판매자)    | GET    | /api/eatopia/v1/seller/reviews                                  |
+|               | 리뷰 조회(관리자)         | GET    | /api/eatopia/v1/admin/reviews                                   |
+|               | 리뷰 수정              | PATCH  | /api/eatopia/v1/reviews/{reviewId}                              |
+|               | 리뷰 삭제              | DELETE | /api/eatopia/v1/reviews/{reviewId}                              |
+|               | 리뷰 신고              | POST   | /api/eatopia/v1/reviews/{reviewId}/report                       |
+|               | 리뷰 신고 내역 조회(관리자)   | GET    | /api/eatopia/v1/admin/reviews/{reviewId}/reports                |
+|               | 리뷰 숨김 처리(관리자)      | PATCH  | /api/eatopia/v1/reviews/{reviewId}/hide                         |
+| ADDRESS       | 배송지 생성             | POST   | /api/eatopia/v1/addresses/create-address                        |
+|               | 배송지 수정             | PATCH  | /api/eatopia/v1/addresses/update-address/{addressId}            |
+|               | 기본 배송지 설정          | PATCH  | /api/eatopia/v1/addresses/set-address/{addressId}/default       |
+|               | 배송지 조회             | GET    | /api/eatopia/v1/address/check-address                           |
+|               | 배송지 상세 조회          | GET    | /api/eatopia/v1/addresses/check-detailAddress/{addressId}       |
+|               | 배송지 삭제             | DELETE | /api/eatopia/v1/addresses/delete-address/{addressId}            |
+| REFUND        | 환불 요청 생성           | POST   | /api/eatopia/v2/refunds                                         |
+|               | 환불 조회              | GET    | /api/eatopia/v2/refunds                                         |
+|               | 환불 요청 승인           | POST   | /api/eatopia/v2/refunds/{refundId}/success                      |
+|               | 환불 요청 거절           | POST   | /api/eatopia/v2/refunds/{refundId}/canceled                     |
+| STATISTIC     | 판매자별 매출 조회         | GET    | /api/eatopia/v1/statistic/seller                                |
+|               | 전체 매출 요약 조회        | GET    | /api/eatopia/v1/statistic/summary                               |
+|               | 판매자별 매출 조회(redis)  | GET    | /api/eatopia/v2/statistic/seller                                |
+|               | 전체 매출 요약 조회(redis) | GET    | /api/eatopia/v2/statistic/summary                               |
+| S3            | 단건 presigned URL   | GET    | /api/eatopia/v1/s3/presigned-url                                |
+|               | 다중 presigned URL   | POST   | /api/eatopia/v1/s3/presigned-urls                               |
+| PRODUCT-IMAGE | 이미지 순서 변경          | PATCH  | /api/eatopia/v1/products/{productId}/images/{imageId}/order     |
+|               | 대표 이미지 변경          | PATCH  | /api/eatopia/v1/products/{productId}/images/{imageId}/thumbnail |
+|               | 이미지 개별 삭제          | DELETE | /api/eatopia/v1/products/{productId}/images/{imageId}           |
+|               | 이미지 개별 추가          | POST   | /api/eatopia/v1/products/{productId}/images                     |
+| DELIVERY      | 배달 상태 변경           | PATCH  | /api/eatopia/v1/deliveries/{orderId}/status                     |
+| SETTLEMENT    | 판매자 정산 요청(비동기)     | POST   | /api/eatopia/v1/settlements/seller/{sellerId}                   |
+|               | 정산 내역 목록 조회        | GET    | /api/eatopia/v1/settlements                                     |
+|               | 정산 내역 상세 조회        | GET    | /api/eatopia/v1/settlements/{sellerId}                          |
+| SEARCH        | 인기 검색어 조회          | GET    | /api/eatopia/v1/search/keywords/popular                         |
 
 ### 와이어프레임
 
@@ -182,7 +187,7 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 
 ---
 
-## 💡 기술적 의사결정
+## 💡기술적 의사결정
 
 <details>
 <summary>부하 테스트 K6 사용</summary>
@@ -267,7 +272,7 @@ k6는 이러한 핵심 지표를 **운영 환경에서 사용하는 형식과 �
 <summary>CI/CD</summary>
 <div markdown="1">
 
-### **도입 배경**
+### 도입 배경
 
 프로젝트 코드의 배포 및 수정 작업은 지속적으로 발생할 수 있으며, 수동으로 명령어를 반복 실행하는 방식은 오류 발생 가능성이 높고 효율적이지 못하다.  
 따라서 이러한 반복 작업을 자동화하고 안정성을 확보하기 위해 **CI/CD**를 도입하였다.
@@ -289,14 +294,14 @@ k6는 이러한 핵심 지표를 **운영 환경에서 사용하는 형식과 �
 <summary>Redis</summary>
 <div markdown="1">
 
-### **도입 배경**
+### 도입 배경
 
 마켓형 플랫폼 특성상 데이터가 급격히 증가할 수 있으며, 조회 성능 저하가 발생할 수 있다.  
 반복 조회되는 데이터를 효율적으로 캐싱하고 응답 속도를 개선하기 위해 **Redis**를 도입하였다.  
 또한 팀원들이 모두 Redis 경험이 있어, 학습 부담 없이 안정적 운영과 빠른 개발이 가능하다는 장점도 있다.
 ---
 
-### **선택 이유**
+### 선택 이유
 
 1. 외부 서버 기반으로 동작하여 데이터 공유와 수평 확장에 유리하다.
 2. 다양한 자료구조 제공과 Lock 처리 기능으로 복잡한 동시성 제어에 적합하다.
@@ -307,7 +312,7 @@ k6는 이러한 핵심 지표를 **운영 환경에서 사용하는 형식과 �
 
 ___
 
-## ⚒️ 트러블 슈팅 및 성능 개선
+## ⚒️트러블 슈팅 및 성능 개선
 
 <details>
 <summary>로그인 시 JPA '쓰기 지연'으로 인한 Duplicate Key Exception 해결기</summary>
@@ -327,14 +332,13 @@ ___
 
 ```java
 // Refresh Token 생성 및 저장 로직
-authRepository.findByUserId(user.getId())
-        .
+authRepository.findByUserId(user.getId()).
 
 ifPresent(token ->{
         authRepository.
 
 delete(token); // 1. 삭제 호출
-        });
+});
 
 String refreshTokenValue = UUID.randomUUID().toString();
 RefreshToken refreshToken = RefreshToken.create(user.getId(), refreshTokenValue);
@@ -356,17 +360,16 @@ JPA의 트랜잭션 내 동작 순서는 다음과 같았습니다.
 
 ```java
 // Refresh Token 생성 및 저장 로직
-authRepository.findByUserId(user.getId())
-        .
+authRepository.findByUserId(user.getId()).
 
 ifPresent(token ->{
         authRepository.
 
 delete(token);
-            authRepository.
+    authRepository.
 
 flush(); // <-- 1. DELETE 쿼리를 즉시 강제 실행
-        });
+});
 
 String refreshTokenValue = UUID.randomUUID().toString();
 RefreshToken refreshToken = RefreshToken.create(user.getId(), refreshTokenValue);
@@ -424,7 +427,7 @@ v1 통계 API는 요청 시마다 집계 쿼리(GROUP BY, SUM)를 실행했습�
 
 `해결`
 
-DB 쿼리 방식에서 캐시 조회 방식으로 변경였습니다.
+DB 쿼리 방식에서 캐시 조회 방식으로 변경했습니다.
 
 DB 부하가 없는 매일 새벽 5시에 일별/월별 통계를 집계 하여 Redis ZSET에 저장했습니다.
 
@@ -521,7 +524,7 @@ Caused by: org.hibernate.NonUniqueResultException: Query did not return a unique
 
 **개선 방향**
 
-: 장바구니 트래픽이 높아진 환경일 때 적용해볼 수 있는 방안
+장바구니 트래픽이 높아진 환경일 때 적용해볼 수 있는 방안:
 
 - Redis 기반 사전 제어(중복 요청 방지)로 DB 트랜잭션 경합 자체 감소
 - MySQL `ON DUPLICATE KEY UPDATE`를 활용해 **단일 Upsert 쿼리로 수량 증가** 처리
@@ -555,7 +558,7 @@ Eatopia는 신선식품 중심의 식품 전문 쇼핑 플랫폼으로
 
 - 시나리오
 
-    ```java
+    ```javascript
     const testScenarios = [
         {name: 'basic_list', params: {page: 0, size: 10}},
         {name: 'keyword_search', params: {keyword: '삼성', page: 0, size: 10}},
@@ -758,7 +761,7 @@ Eatopia는 신선식품 중심의 식품 전문 쇼핑 플랫폼으로
 
       애플리케이션 수준 락(`@Lock`, `synchronized`)보다 간단하고 빠르게 정합성 확보 가능
 
-    - 대신 DB 제약 위반을 감지하면 ****예외를 반환해 사용자에게 중복 등록을 명확히 인지시켜 불필요한 대기 없이 즉시 피드백을 제공함
+    - 대신 DB 제약 위반을 감지하면 **예외를 반환해 사용자에게 중복 등록을 명확히 인지시켜 불필요한 대기 없이 즉시 피드백을 제공함**
 
 ### 2. 리뷰 신고 동시성 문제
 
@@ -812,18 +815,16 @@ Optional<Review> findByIdAndDeletedAtIsNull(Long reviewId);
 
 **개선 조치**
 
-- 복합 인덱스 추가 (Flyway Migration 적용
+- 복합 인덱스 추가 (Flyway Migration 적용)
 
-```java
+```sql
 CREATE INDEX
-idx_review_product_created_at
-
-ON review(product_id, status, deleted_at, created_at DESC);
+    idx_review_product_created_at
+    ON review (product_id, status, deleted_at, created_at DESC);
 
 CREATE INDEX
-idx_review_product_rating
-
-ON review(product_id, status, deleted_at, rating DESC);
+    idx_review_product_rating
+    ON review (product_id, status, deleted_at, rating DESC);
 ```
 
 - 주요 필터 조건(`status`, `deleted_at`)과 정렬 기준(`created_at`, `rating`)을 묶어 정렬 비용 및 풀 스캔 최소화
@@ -842,7 +843,7 @@ ON review(product_id, status, deleted_at, rating DESC);
 
 **성능 개선 효과**
 
-> **아래 공용 리뷰 조회** **측정 결과는 `product_id` 인덱스 추가 이전 기준**
+> **아래 공용 리뷰 조회 측정 결과는 `product_id` 인덱스 추가 이전 기준**
 > 이후 옵티마이저 선택 변경으로 일부 쿼리 경로는 달라졌으나, 전체 조회 성능 개선 효과는 동일하게 유지됨.
 >
 
@@ -868,7 +869,7 @@ ON review(product_id, status, deleted_at, rating DESC);
 
 ---
 
-## 👥 팀원 소개
+## 👥팀원 소개
 
 | 이름  | 역할  | 담당 기능                                                   | GitHub                                |
 |-----|-----|---------------------------------------------------------|---------------------------------------|
