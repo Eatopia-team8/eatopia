@@ -47,11 +47,11 @@ Eatopia는 **신선식품 중심의 식품 전문 쇼핑 플랫폼**으로,
 
 ### Language
 
-![Java](https://img.shields.io/badge/Java_17-007396?style=flat&logo=java&logoColor=white)  ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)
+![Java](https://img.shields.io/badge/Java_17-007396?style=flat&logo=java&logoColor=white) 
 
 ### Database
 
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)
 
 ### Collaboration
 
